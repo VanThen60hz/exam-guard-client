@@ -1,0 +1,131 @@
+/* HERO */
+
+.heroSection {
+    position: relative;
+
+    background: url(/images/hero-bg.png) no-repeat;
+    background-size: 100%;
+    background-position: bottom;
+    background-position-y: 200%;
+    min-height: 100%;
+    overflow: hidden;
+
+    margin-top: 7rem;
+    padding-top: 6rem;
+
+    .heroText {
+        margin-left: 10%;
+        max-width: 60%;
+    }
+
+    h1 {
+        font-size: 3rem;
+        font-style: normal;
+        font-weight: 700;
+    }
+
+    p {
+        margin-top: 10rem;
+        font-size: 1.5rem;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 1.7;
+        width: 90%;
+    }
+
+    .buttonGroup {
+        margin-top: 3rem;
+        padding: 1rem 0;
+        justify-content: center; // Center the buttons
+    }
+
+    button + button {
+        margin-left: 10rem;
+    }
+
+    button {
+        border-radius: 10px;
+        background: #007e7d;
+    }
+
+    .illustration {
+        position: absolute;
+        bottom: 0;
+        right: -100px;
+
+        img {
+            max-width: 100%;
+        }
+    }
+}
+
+.featureSection {
+    position: relative;
+    padding: 12% 0 10%;
+
+    h1 {
+        font-size: 3rem;
+        padding-bottom: 3rem;
+    }
+
+    h3 {
+        margin-bottom: 1rem;
+    }
+
+    svg {
+        width: 60px;
+        height: 60px;
+        color: #8190ff;
+
+        stroke-width: 2;
+    }
+}
+
+.decor {
+    position: absolute;
+    z-index: -1;
+}
+
+.decor01 {
+    top: 0;
+    left: 10%;
+}
+
+.decor02 {
+    top: 0;
+    right: 20%;
+}
+
+.decor03 {
+    bottom: 0;
+    right: 0;
+}
+
+.decor04 {
+    bottom: 10%;
+    left: 40%;
+}
+
+.contactSection {
+    background: url(/images/features.svg) no-repeat;
+    padding: 5% 0 10%;
+
+    h1 {
+        font-size: 3rem;
+        padding-bottom: 3rem;
+    }
+
+    .form {
+        h1 {
+            text-align: center;
+        }
+
+        .formFields > div {
+            padding-bottom: 1rem;
+        }
+    }
+
+    .button {
+        text-align: center;
+    }
+}

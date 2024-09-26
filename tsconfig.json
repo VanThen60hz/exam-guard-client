@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true,
+        "incremental": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "jsx": "preserve",
+        "typeRoots": ["./types", "jest", "node"],
+        "types": ["jest", "node", "@types/jest"]
+    },
+    "include": [
+        "next-env.d.ts",
+        "types/**/*.ts",
+        "types/next-auth.d.ts",
+        "auth.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        "__tests__/**/*",
+        "**/*.spec.ts",
+        "**/*.test.ts"
+    ],
+    "exclude": ["node_modules"]
+}
