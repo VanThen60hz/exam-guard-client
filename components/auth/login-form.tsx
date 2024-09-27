@@ -16,19 +16,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
     const router = useRouter();
 
     const [formData, setData] = useState({
-        id: "1800760308",
-        password: "12345678",
-    });
-
-    const [errors, setErrors] = useState({
-        idError: "",
-        passwordError: "",
+        usernameOrEmail: "nguyenvanadmin@example.com",
+        password: "securepassword123",
     });
 
     const [loading, setLoading] = useState(false);
 
-    const { id, password } = formData;
-    const { idError, passwordError } = errors;
+    const { usernameOrEmail, password } = formData;
 
     const handleInputChange = (e: any) => {
         const newData = {
@@ -37,56 +31,44 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
         };
 
         setData(newData);
-        validateInputs(newData.id, newData.password);
     };
 
-    const validateInputs = (id: string, password: string) => {
-        const idRegex = /^\d{10}$/;
-        const passwordRegex = /^.{8,}$/;
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
-        const isIdValid = idRegex.test(id);
-        const isPasswordValid = passwordRegex.test(password);
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
 
-        setErrors({
-            idError: isIdValid ? "" : "ID must be a 10 digit number",
-            passwordError: isPasswordValid ? "" : "Password must be atleast 8 character long",
+        const raw = JSON.stringify({
+            usernameOrEmail: usernameOrEmail,
+            password: password,
         });
-    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (loading || idError !== "" || passwordError != "") {
-            return;
-        }
-
-        setLoading(true);
-        loadingBarRef?.current?.continuousStart(50);
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow" as RequestRedirect,
+        };
 
         try {
-            const result = await signIn("credentials", {
-                redirect: false,
-                id: id,
-                password: password,
-            });
+            const response = await fetch("http://localhost:8000/auth/login", requestOptions);
+            const result = await response.json();
 
-            if (result.error) {
-                throw new Error(result.error);
+            if (response.ok) {
+                // Store user ID and access token in localStorage
+                localStorage.setItem("x-client-id", result.metadata.user._id); // Store user ID
+                localStorage.setItem("Authorization", result.metadata.tokens.accessToken); // Store access token
+
+                // Redirect to Home page
+                router.push("/"); // Change this to the path of your Home page
+
+                console.log(result);
+            } else {
+                console.error(result);
             }
-
-            if (result.ok) {
-                router.replace("/dashboard");
-            }
-        } catch (e) {
-            // TODO: Fix login toast error message
-
-            console.log(e);
-            toast(e.message || "Login failed, please try again!");
-            setLoading(false);
-            loadingBarRef?.current?.complete();
-        } finally {
-            // setLoading(false);
-            loadingBarRef?.current?.complete();
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -123,18 +105,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
 
                         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                             <TextField
-                                name="id"
-                                id="id"
-                                value={id}
-                                label="ID"
+                                name="usernameOrEmail"
+                                id="usernameOrEmail"
+                                value={usernameOrEmail}
+                                label="Username or Email"
                                 onChange={handleInputChange}
                                 type="text"
                                 margin="normal"
                                 required
                                 fullWidth
                                 autoFocus
-                                error={idError != ""}
-                                helperText={idError}
                             />
 
                             <TextField
@@ -148,18 +128,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                                 required
                                 fullWidth
                                 autoComplete="current-password"
-                                error={passwordError != ""}
-                                helperText={passwordError}
                             />
 
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                sx={{ mt: 3, mb: 2 }}
-                                onClick={handleSubmit}
-                                disabled={loading || idError != "" || passwordError != ""}
-                            >
+                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
                                 Sign In
                             </Button>
                         </Box>
