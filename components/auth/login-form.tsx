@@ -17,15 +17,10 @@ import { toast } from "react-toastify";
 import { Box, Container } from "@mui/system";
 import Image from "next/image";
 import { LoadingBarRef } from "react-top-loading-bar";
-<<<<<<< HEAD
-
 import { useSession } from "next-auth/react";
 
-=======
-import { blueGrey } from "@mui/material/colors";
 //sx: style chỉnh đây
-//
->>>>>>> fea0dc5 (login-form)
+import { blueGrey } from "@mui/material/colors";
 interface LoginFormProps {
     loadingBarRef: React.RefObject<LoadingBarRef>;
 }
@@ -34,13 +29,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
     const router = useRouter();
 
     const [formData, setData] = useState({
-<<<<<<< HEAD
         id: "nguyenvanadmin@example.com",
         password: "securepassword123",
-=======
-        id: "180076",
-        password: "12345678",
->>>>>>> fea0dc5 (login-form)
     });
 
     const [errors, setErrors] = useState({
@@ -69,12 +59,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
 
     //     const isIdValid = idRegex.test(id);
     //     const isPasswordValid = passwordRegex.test(password);
-
-    //     setErrors({
-    //         idError: isIdValid ? "" : "ID must be a 10 digit number",
-    //         passwordError: isPasswordValid ? "" : "Password must be atleast 8 character long",
-    //     });
-    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -158,8 +142,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                         <Button
                             className={classes.button}
                             sx={{
-                                backgroundImage:
-                                    "url(/images/teacher-signin.png)",
+                                backgroundImage: "url(/images/teacher-signin.png)",
                             }}
                         >
                             <p
@@ -176,8 +159,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                         <Button
                             className={classes.button}
                             sx={{
-                                backgroundImage:
-                                    "url(/images/student-signin.png)",
+                                backgroundImage: "url(/images/student-signin.png)",
                             }}
                         >
                             <p
@@ -260,10 +242,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                             }}
                         >
                             <FormGroup>
-                                <FormControlLabel
-                                    control={<Checkbox />}
-                                    label="Remember me"
-                                />
+                                <FormControlLabel control={<Checkbox />} label="Remember me" />
                             </FormGroup>
 
                             <Typography
@@ -289,9 +268,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                                 backgroundColor: "#229594",
                             }}
                             onClick={handleSubmit}
-                            disabled={
-                                loading || idError != "" || passwordError != ""
-                            }
+                            disabled={loading || idError != "" || passwordError != ""}
                         >
                             Sign In
                         </Button>
@@ -308,8 +285,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                             justifyContent: "center",
                             width: "100%",
                             height: "100%",
-                            backgroundImage:
-                                "url(/images/background-signin.png)",
+                            backgroundImage: "url(/images/background-signin.png)",
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             backgroundRepeat: "no-repeat",
@@ -335,8 +311,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                                 fontWeight: 400,
                             }}
                         >
-                            Enter your personal details to use all of site
-                            features
+                            Enter your personal details to use all of site features
                         </Typography>
                         <Button
                             onClick={() => router.push("/auth/signup")}
