@@ -16,8 +16,8 @@ const LoginPage = () => {
             </Head>
 
             <LoadingBar color="#1665C0" ref={loadingBarRef} />
-
-            <NavBarHome loadingBarRef={loadingBarRef} />
+            {/* 
+            <NavBarHome loadingBarRef={loadingBarRef} /> */}
             <LoginForm loadingBarRef={loadingBarRef} />
         </div>
     );
