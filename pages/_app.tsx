@@ -10,26 +10,26 @@ import Head from "next/head";
 import { createTheme, ThemeProvider } from "@mui/material";
 
 const theme = createTheme({
-  typography: {
-    fontFamily: `"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif`,
-  },
+    typography: {
+        fontFamily: `"Montserrat", "Roboto", "Helvetica", "Arial", sans-serif`,
+    },
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <SessionProvider session={pageProps?.session}>
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <Head>
-            <title>ExamGuard</title>
-            <meta name="author" content="Prathamesh Mutkure" />
-          </Head>
-          <Component {...pageProps} />
-          <ToastContainer position="bottom-center" theme="light" />
-        </ThemeProvider>
-      </Provider>
-    </SessionProvider>
-  );
+    return (
+        <SessionProvider session={pageProps?.session}>
+            <Provider store={store}>
+                <ThemeProvider theme={theme}>
+                    <Head>
+                        <title>ExamGuard</title>
+                        <meta name="author" content="Prathamesh Mutkure" />
+                    </Head>
+                    <Component {...pageProps} />
+                    <ToastContainer position="bottom-center" theme="light" />
+                </ThemeProvider>
+            </Provider>
+        </SessionProvider>
+    );
 }
 
 export default MyApp;
