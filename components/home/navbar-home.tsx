@@ -41,7 +41,10 @@ interface ElevationScrollProps {
     window?: () => Window;
 }
 
-const ElevationScroll: React.FC<ElevationScrollProps> = ({ children, window }) => {
+const ElevationScroll: React.FC<ElevationScrollProps> = ({
+    children,
+    window,
+}) => {
     const trigger = useScrollTrigger({
         disableHysteresis: true,
         threshold: 0,
@@ -129,7 +132,8 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
         </Box>
     );
 
-    const container = window !== undefined ? () => window().document.body : undefined;
+    const container =
+        window !== undefined ? () => window().document.body : undefined;
 
     return (
         <React.Fragment>
@@ -166,7 +170,11 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
                                 />
                             </Link>
 
-                            <Typography variant="h6" component="div" sx={{ flexGrow: 1, ml: 2 }}>
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{ flexGrow: 1, ml: 2 }}
+                            >
                                 {/* ExamGuard App */}
                             </Typography>
 
@@ -176,15 +184,24 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
                                 </Link>
 
                                 {session.status === "authenticated" && (
-                                    <NavButton text="Dashboard" onClick={() => gotoPage("/dashboard")} />
+                                    <NavButton
+                                        text="Dashboard"
+                                        onClick={() => gotoPage("/dashboard")}
+                                    />
                                 )}
 
                                 {session.status === "unauthenticated" && (
-                                    <NavButton text="Sign in" onClick={() => gotoPage("/auth/login")} />
+                                    <NavButton
+                                        text="Sign in"
+                                        onClick={() => gotoPage("/auth/login")}
+                                    />
                                 )}
 
                                 {session.status === "authenticated" && (
-                                    <NavButton text="Logout" onClick={handleLogout} />
+                                    <NavButton
+                                        text="Logout"
+                                        onClick={handleLogout}
+                                    />
                                 )}
                             </Box>
                         </Toolbar>

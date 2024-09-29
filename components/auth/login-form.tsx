@@ -1,4 +1,14 @@
-import { Avatar, Button, CssBaseline, TextField, Typography } from "@mui/material";
+import {
+    Avatar,
+    Button,
+    CssBaseline,
+    TextField,
+    Typography,
+    FormGroup,
+    FormControlLabel,
+    Checkbox,
+} from "@mui/material";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -7,9 +17,15 @@ import { toast } from "react-toastify";
 import { Box, Container } from "@mui/system";
 import Image from "next/image";
 import { LoadingBarRef } from "react-top-loading-bar";
+<<<<<<< HEAD
 
 import { useSession } from "next-auth/react";
 
+=======
+import { blueGrey } from "@mui/material/colors";
+//sx: style chỉnh đây
+//
+>>>>>>> fea0dc5 (login-form)
 interface LoginFormProps {
     loadingBarRef: React.RefObject<LoadingBarRef>;
 }
@@ -18,8 +34,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
     const router = useRouter();
 
     const [formData, setData] = useState({
+<<<<<<< HEAD
         id: "nguyenvanadmin@example.com",
         password: "securepassword123",
+=======
+        id: "180076",
+        password: "12345678",
+>>>>>>> fea0dc5 (login-form)
     });
 
     const [errors, setErrors] = useState({
@@ -91,81 +112,259 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
 
     return (
         <React.Fragment>
-            <div className={classes.formContainer}>
-                <Container component="main" maxWidth="xs">
+            <div className={classes.formContainer} style={{ display: "flex" }}>
+                <Container
+                    component="main"
+                    sx={{
+                        marginLeft: 0,
+                        maxWidth: "50%",
+                        width: "50%",
+                    }}
+                >
                     <CssBaseline />
-
-                    <Box
-                        sx={{
-                            marginTop: 8,
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            border: "solid rgba(0, 0, 0, 0.23) 1px",
-                            borderRadius: "0.4rem",
-                            padding: "3rem",
-                        }}
-                    >
-                        <Avatar
-                            sx={{
-                                height: "5rem",
-                                width: "5rem",
-                                mb: 3,
+                    <div className={`${classes.header}`}>
+                        <img
+                            style={{
+                                width: "153px",
+                                height: "70px",
+                            }}
+                            src="/images/Logo-ExamGuard.svg"
+                            alt="Logo"
+                        />
+                        <Link href="#">
+                            <a>Introduction</a>
+                        </Link>
+                    </div>
+                    <div className={classes.title}>
+                        <p
+                            style={{
+                                color: "#1D5E5D",
+                                fontSize: "36px",
+                                fontWeight: 700,
                             }}
                         >
-                            <Image src="/images/logo.png" height="128px" width="128px" alt="Logo" />
-                        </Avatar>
-
-                        <Typography component="h1" variant="h5" sx={{ mb: 5 }}>
-                            ExamGuard App
-                        </Typography>
-
-                        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                            <TextField
-                                name="id"
-                                id="id"
-                                value={id}
-                                label="ID"
-                                onChange={handleInputChange}
-                                type="text"
-                                margin="normal"
-                                required
-                                fullWidth
-                                autoFocus
-                                error={idError != ""}
-                                helperText={idError}
-                            />
-
-                            <TextField
-                                name="password"
-                                id="password"
-                                value={password}
-                                label="Password"
-                                onChange={handleInputChange}
-                                type="password"
-                                margin="normal"
-                                required
-                                fullWidth
-                                autoComplete="current-password"
-                                error={passwordError != ""}
-                                helperText={passwordError}
-                            />
-
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                sx={{ mt: 3, mb: 2 }}
-                                onClick={handleSubmit}
-                                disabled={loading || idError != "" || passwordError != ""}
+                            SIGN IN
+                        </p>
+                        <p
+                            style={{
+                                color: "#1DB0A6",
+                                fontWeight: 700,
+                            }}
+                        >
+                            CHOOSE ACCOUNT ROLE
+                        </p>
+                    </div>
+                    <div className={classes.buttonContainer}>
+                        <Button
+                            className={classes.button}
+                            sx={{
+                                backgroundImage:
+                                    "url(/images/teacher-signin.png)",
+                            }}
+                        >
+                            <p
+                                style={{
+                                    margin: "285px auto auto 65px",
+                                    fontSize: "14px",
+                                    color: "#1DB0A6",
+                                    fontWeight: 700,
+                                }}
                             >
-                                Sign In
-                            </Button>
+                                TEACHER
+                            </p>
+                        </Button>
+                        <Button
+                            className={classes.button}
+                            sx={{
+                                backgroundImage:
+                                    "url(/images/student-signin.png)",
+                            }}
+                        >
+                            <p
+                                style={{
+                                    margin: "285px auto auto 65px",
+                                    fontSize: "14px",
+                                    color: "#1DB0A6",
+                                    fontWeight: 700,
+                                }}
+                            >
+                                STUDENT
+                            </p>
+                        </Button>
+                    </div>
+                    <div className={classes.greeting}>
+                        <div style={{ display: "flex" }}>
+                            <p
+                                style={{
+                                    color: "#1DB0A6",
+                                    fontSize: "12px",
+                                    fontWeight: 700,
+                                }}
+                            >
+                                Hello
+                            </p>
+                            <Typography>{/* người được chọn */}</Typography>
+                        </div>
+                        <p
+                            style={{
+                                marginTop: "12px",
+                                color: "#1DB0A6",
+                                fontSize: "12px",
+                                fontWeight: 700,
+                            }}
+                        >
+                            Please fill out the form below to get started
+                        </p>
+                    </div>
+                    <Box
+                        component="form"
+                        onSubmit={handleSubmit}
+                        noValidate
+                        sx={{ margin: "52px auto", maxWidth: "325px" }}
+                    >
+                        <TextField
+                            name="id"
+                            id="id"
+                            value={id}
+                            label="ID"
+                            onChange={handleInputChange}
+                            type="text"
+                            margin="normal"
+                            required
+                            fullWidth
+                            autoFocus
+                            error={idError != ""}
+                            helperText={idError}
+                        />
+
+                        <TextField
+                            name="password"
+                            id="password"
+                            value={password}
+                            label="Password"
+                            onChange={handleInputChange}
+                            type="password"
+                            margin="normal"
+                            required
+                            fullWidth
+                            autoComplete="current-password"
+                            error={passwordError != ""}
+                            helperText={passwordError}
+                        />
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                margin: "20px auto",
+                            }}
+                        >
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={<Checkbox />}
+                                    label="Remember me"
+                                />
+                            </FormGroup>
+
+                            <Typography
+                                style={{
+                                    color: "#000",
+                                    fontFamily: "Lexend",
+                                    fontSize: "15px",
+                                    fontWeight: 400,
+                                }}
+                            >
+                                Forgot password?
+                            </Typography>
                         </Box>
+
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            // style chỉnh đây
+                            sx={{
+                                fontSize: "16px",
+                                fontWeight: 700,
+                                backgroundColor: "#229594",
+                            }}
+                            onClick={handleSubmit}
+                            disabled={
+                                loading || idError != "" || passwordError != ""
+                            }
+                        >
+                            Sign In
+                        </Button>
                     </Box>
 
                     {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
                 </Container>
+                <Box sx={{ maxWidth: "50%", width: "50%" }}>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "100%",
+                            height: "100%",
+                            backgroundImage:
+                                "url(/images/background-signin.png)",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat",
+                        }}
+                    >
+                        <Typography
+                            style={{
+                                color: "#fff",
+                                fontFamily: "Lexend",
+                                fontSize: "40px",
+                                fontWeight: 700,
+                            }}
+                        >
+                            Welcome Back!
+                        </Typography>
+                        <Typography
+                            style={{
+                                marginTop: "60px",
+                                width: "460px",
+                                color: "#fff",
+                                fontFamily: "Lexend",
+                                fontSize: "34px",
+                                fontWeight: 400,
+                            }}
+                        >
+                            Enter your personal details to use all of site
+                            features
+                        </Typography>
+                        <Button
+                            onClick={() => router.push("/auth/signup")}
+                            variant="outlined"
+                            color="primary"
+                            sx={{
+                                marginTop: "60px",
+                                width: "300px",
+                                height: "80px",
+                                borderRadius: "2rem",
+                                fontSize: "30px",
+                                fontWeight: 700,
+                                border: "0.5px solid #fff",
+                                color: "#fff",
+                                ":hover": {
+                                    border: "transparent",
+                                    color: "#229594",
+                                    opacity: "0.8",
+                                    backgroundColor: "#fff",
+                                    fontWeight: "bold",
+                                    transition: "all 0.9s ease-in-out",
+                                },
+                            }}
+                        >
+                            Sign Up
+                        </Button>
+                    </Box>
+                </Box>
             </div>
             {/* <div className={classes.footerContainer}>
         <Footer />
