@@ -8,6 +8,8 @@ import { Box, Container } from "@mui/system";
 import Image from "next/image";
 import { LoadingBarRef } from "react-top-loading-bar";
 
+import { useSession } from "next-auth/react";
+
 interface LoginFormProps {
     loadingBarRef: React.RefObject<LoadingBarRef>;
 }
@@ -16,8 +18,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
     const router = useRouter();
 
     const [formData, setData] = useState({
-        id: "1800760308",
-        password: "12345678",
+        id: "nguyenvanadmin@example.com",
+        password: "securepassword123",
     });
 
     const [errors, setErrors] = useState({
@@ -37,21 +39,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
         };
 
         setData(newData);
-        validateInputs(newData.id, newData.password);
+        // validateInputs(newData.id, newData.password); // Commented out validation
     };
 
-    const validateInputs = (id: string, password: string) => {
-        const idRegex = /^\d{10}$/;
-        const passwordRegex = /^.{8,}$/;
+    // const validateInputs = (id: string, password: string) => {
+    //     const idRegex = /^\d{10}$/;
+    //     const passwordRegex = /^.{8,}$/;
 
-        const isIdValid = idRegex.test(id);
-        const isPasswordValid = passwordRegex.test(password);
+    //     const isIdValid = idRegex.test(id);
+    //     const isPasswordValid = passwordRegex.test(password);
 
-        setErrors({
-            idError: isIdValid ? "" : "ID must be a 10 digit number",
-            passwordError: isPasswordValid ? "" : "Password must be atleast 8 character long",
-        });
-    };
+    //     setErrors({
+    //         idError: isIdValid ? "" : "ID must be a 10 digit number",
+    //         passwordError: isPasswordValid ? "" : "Password must be atleast 8 character long",
+    //     });
+    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -78,14 +80,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                 router.replace("/dashboard");
             }
         } catch (e) {
-            // TODO: Fix login toast error message
-
             console.log(e);
             toast(e.message || "Login failed, please try again!");
             setLoading(false);
             loadingBarRef?.current?.complete();
         } finally {
-            // setLoading(false);
             loadingBarRef?.current?.complete();
         }
     };
