@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 // import { getUsers } from "../helpers/api/user-api"; // Adjust the import based on your API helper
 // import { User } from "../models/user-models"; // Adjust the import based on your User model
 import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
@@ -7,8 +7,7 @@ import NavBarHome from "../../components/home/navbar-home";
 import { LoadingBarRef } from "react-top-loading-bar";
 
 const UsersPage: React.FC = () => {
-    // const [users, setUsers] = useState<User[]>([]);
-    // const [loading, setLoading] = useState<boolean>(true);
+    const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null); // Move this to the top
     const [error, setError] = useState<string | null>(null);
 
     // useEffect(() => {
@@ -68,8 +67,6 @@ const UsersPage: React.FC = () => {
     if (error) {
         return <div>Error: {error}</div>;
     }
-
-    const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
 
     return (
         <>

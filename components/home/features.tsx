@@ -66,20 +66,12 @@ const Features: React.FC<FeaturesProps> = () => {
                                     }}
                                 >
                                     <CardMedia>
-                                        <Image
-                                            src={`/images/icon/${feature.icon}`}
-                                            height="108px"
-                                            width="200px"
-                                            objectFit="contain"
-                                            alt="icon"
-                                        />
+                                        <Image src={`/images/icon/${feature.icon}`} height="108px" width="200px" objectFit="contain" alt="icon" />
                                     </CardMedia>
 
                                     <CardContent>
                                         <h3 style={{ color: "#fff", fontSize: "1.25rem" }}>{feature.title}</h3>
-                                        <p style={{ color: "#fff", fontSize: "1.125rem", fontWeight: "500" }}>
-                                            {feature.content}
-                                        </p>
+                                        <p style={{ color: "#fff", fontSize: "1.125rem", fontWeight: "500" }}>{feature.content}</p>
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -88,10 +80,30 @@ const Features: React.FC<FeaturesProps> = () => {
                 </Grid>
             </Container>
 
-            <img className={`${classes.decor} ${classes.decor01}`} src="/images/decor/decor-01.png" alt="" />
-            <img className={`${classes.decor} ${classes.decor02}`} src="/images/decor/decor-02.png" alt="" />
-            <img className={`${classes.decor} ${classes.decor03}`} src="/images/decor/decor-03.png" alt="" />
-            <img className={`${classes.decor} ${classes.decor04}`} src="/images/decor/decor-04.png" alt="" />
+            <Image
+                src="/images/decor/decor-01.png"
+                alt=""
+                width={50} // Specify width
+                height={50} // Specify height
+            />
+            <Image
+                src="/images/decor/decor-02.png"
+                alt=""
+                width={50} // Specify width
+                height={50} // Specify height
+            />
+            <Image
+                src="/images/decor/decor-03.png"
+                alt=""
+                width={50} // Specify width
+                height={50} // Specify height
+            />
+            <Image
+                src="/images/decor/decor-04.png"
+                alt=""
+                width={50} // Specify width
+                height={50} // Specify height
+            />
         </section>
     );
 };

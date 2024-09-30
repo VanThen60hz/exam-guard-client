@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import classes from "./login-form.module.scss";
 import { toast } from "react-toastify";
 import { Box, Container } from "@mui/system";
-import Image from "next/image";
+import Image from "next/image"; // Ensure this import is present
 import { LoadingBarRef } from "react-top-loading-bar";
 import { useSession } from "next-auth/react";
 
@@ -105,13 +105,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                 >
                     <CssBaseline />
                     <div className={`${classes.header}`}>
-                        <img
+                        <Image
                             style={{
                                 width: "153px",
                                 height: "70px",
                             }}
                             src="/images/Logo-ExamGuard.svg"
                             alt="Logo"
+                            width={153} // Specify width
+                            height={70} // Specify height
                         />
                         <Link href="#">
                             <a>Introduction</a>
