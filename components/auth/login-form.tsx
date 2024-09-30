@@ -1,13 +1,4 @@
-import {
-    Avatar,
-    Button,
-    CssBaseline,
-    TextField,
-    Typography,
-    FormGroup,
-    FormControlLabel,
-    Checkbox,
-} from "@mui/material";
+import { Avatar, Button, CssBaseline, TextField, Typography, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -50,20 +41,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
         };
 
         setData(newData);
-        // validateInputs(newData.id, newData.password); // Commented out validation
+        validateInputs(newData.id, newData.password); // Call validation
     };
 
-    // const validateInputs = (id: string, password: string) => {
-    //     const idRegex = /^\d{10}$/;
-    //     const passwordRegex = /^.{8,}$/;
+    const validateInputs = (id: string, password: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email validation
+        const usernameRegex = /^[^\s]+$/; // Username validation (any string without spaces)
+        const passwordRegex = /^.{8,}$/; // Password must be at least 8 characters
 
-    //     const isIdValid = idRegex.test(id);
-    //     const isPasswordValid = passwordRegex.test(password);
+        const isIdValid = emailRegex.test(id) || usernameRegex.test(id);
+        const isPasswordValid = passwordRegex.test(password);
+
+        setErrors({
+            idError: isIdValid ? "" : "Invalid ID (must be email or username without spaces)",
+            passwordError: isPasswordValid ? "" : "Password must be at least 8 characters",
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (loading || idError !== "" || passwordError != "") {
+        if (loading || idError !== "" || passwordError !== "") {
             return;
         }
 
@@ -198,12 +196,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                             Please fill out the form below to get started
                         </p>
                     </div>
-                    <Box
-                        component="form"
-                        onSubmit={handleSubmit}
-                        noValidate
-                        sx={{ margin: "52px auto", maxWidth: "325px" }}
-                    >
+                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ margin: "52px auto", maxWidth: "325px" }}>
                         <TextField
                             name="id"
                             id="id"
