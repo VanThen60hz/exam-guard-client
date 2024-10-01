@@ -1,0 +1,121 @@
+.updateProfileContainer button,
+.profileContainer button {
+    padding: 0;
+}
+.updateProfileContainer a,
+.profileContainer a {
+    display: block;
+    padding: 5px 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: inherit;
+}
+.container {
+    color: #000;
+}
+//Date time
+.dateTime {
+    width: 260px;
+    border-radius: 10px;
+    font-family: Lexend;
+    padding: 10px;
+    background-color: #229594;
+    box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25);
+}
+//ProfileContainer
+.profileContainer,
+.updateProfileContainer {
+    margin-top: 50px;
+    position: relative;
+    width: 1060px;
+    border: 1px solid #000;
+    border-radius: 10px;
+    box-shadow: 4px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-family: Lexend;
+    font-size: 30px;
+    font-weight: 400;
+    line-height: normal;
+}
+//ProfileHeader
+.profileHeader,
+.updateProfileHeader {
+    position: absolute;
+    padding: 10px 15px;
+    top: 0;
+    left: 0;
+    width: 340px;
+    border-radius: 10px 0 20px 0;
+    color: #fff;
+    background-color: #229594;
+}
+//ProfileContent
+.profileContent {
+    margin: 90px 0 0 90px;
+}
+.profileItem {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+.profileItem::after {
+    content: "";
+    position: absolute;
+    top: 50px;
+    left: 0;
+    display: block;
+    width: 600px;
+    height: 1px;
+    background-color: #000;
+}
+.profileItem:last-child::after {
+    content: none;
+}
+.profileItem p {
+    margin-top: 10px;
+    color: #000;
+}
+
+//Avatar
+.profileAvatar {
+    margin: 130px 50px 0 0;
+}
+
+.textField {
+    width: 450px;
+}
+
+.updateProfileContainer {
+}
+
+.updateProfileHeader {
+    width: 380px;
+}
+.chooseGender {
+    margin-top: 45px;
+    display: flex;
+    gap: 20px;
+}
+
+.buttonUploadAvatar {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 255px;
+    background-color: #fff;
+    border-radius: 10px;
+    border: 1px solid #229594;
+    padding: 10px 20px;
+}
+.buttonUploadAvatar:hover {
+    opacity: 0.8;
+    background-color: #229594;
+}
+.buttonUploadAvatar:hover p {
+    color: #fff !important;
+}
+.buttonUploadAvatar:hover img {
+    filter: invert(100%) brightness(200%);
+}

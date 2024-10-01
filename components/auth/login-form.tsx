@@ -1,4 +1,14 @@
-import { Avatar, Button, CssBaseline, TextField, Typography, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
+import {
+    Avatar,
+    Button,
+    CssBaseline,
+    TextField,
+    Typography,
+    FormGroup,
+    FormControlLabel,
+    Checkbox,
+    InputAdornment,
+} from "@mui/material";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -30,6 +40,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
     });
 
     const [loading, setLoading] = useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const toggleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
 
     const { id, password } = formData;
     const { idError, passwordError } = errors;
@@ -198,7 +214,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                             Please fill out the form below to get started
                         </p>
                     </div>
-                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ margin: "52px auto", maxWidth: "325px" }}>
+                    <Box
+                        component="form"
+                        onSubmit={handleSubmit}
+                        noValidate
+                        sx={{ margin: "52px auto", maxWidth: "325px" }}
+                    >
                         <TextField
                             name="id"
                             id="id"
@@ -220,13 +241,27 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                             value={password}
                             label="Password"
                             onChange={handleInputChange}
-                            type="password"
+                            type={showPassword ? "text" : "password"} // Điều khiển hiển thị mật khẩu
                             margin="normal"
                             required
                             fullWidth
                             autoComplete="current-password"
-                            error={passwordError != ""}
+                            error={passwordError !== ""}
                             helperText={passwordError}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Image
+                                            src="/images/icon/viewPassword.svg"
+                                            alt="view password"
+                                            onClick={toggleShowPassword} // Hàm để chuyển đổi hiện/ẩn mật khẩu
+                                            style={{ cursor: "pointer" }} // Thêm con trỏ để người dùng biết nó có thể click
+                                            width={24}
+                                            height={24}
+                                        />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                         <Box
                             sx={{
