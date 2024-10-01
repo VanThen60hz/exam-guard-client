@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react";
 import { BASE_URL } from "../../constants";
 
 const getUser = async (id: string, password: string) => {
@@ -13,6 +14,8 @@ const getUser = async (id: string, password: string) => {
 
         const data = await res.json();
 
+        console.log("Response Status:", res.status); // Log the response status
+
         if (!res.ok || data.status !== 200) {
             throw new Error(data.message || "Failed to signin user!");
         }
@@ -23,55 +26,33 @@ const getUser = async (id: string, password: string) => {
     }
 };
 
-const submitExam = async (
-    studentId: string,
-    examId: string,
-    answers: string[],
-    token: string
-) => {
+const getUserProfile = async (id: string, accessToken: string) => {
     try {
-        const res = await fetch(`${BASE_URL}/submitExam/${studentId}`, {
-            method: "POST",
-            body: JSON.stringify({ examId, answers }),
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
+        console.log("User ID:", id);
+        console.log("Access Token:", accessToken);
+
+        // Create a Headers object
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+
+        const res = await fetch(`${BASE_URL}/user/profile/${id}`, {
+            method: "GET",
+            headers: myHeaders, // Use the Headers object
         });
+
+        console.log("Response Status:", res.status); // Log the response status
 
         const data = await res.json();
 
-        if (!res.ok || data.err) {
-            throw new Error(data.err || "Failed to submit exam!");
+        if (!res.ok || data.status !== 200) {
+            throw new Error(data.message || "Failed to get user profile!");
         }
 
         return data;
     } catch (e) {
-        throw e;
+        throw new Error(e.message || "Failed to get user profile!");
     }
 };
 
-export { getUser, submitExam };
-
-const getUserProfile = async (token: string) => {
-    try {
-        const res = await fetch(`${BASE_URL}/user/profile`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || data.err) {
-            throw new Error(data.err || "Failed to get user profile!");
-        }
-
-        return data;
-    } catch (e) {
-        throw e;
-    }
-};
-
-export { getUserProfile };
+export { getUser, getUserProfile };
