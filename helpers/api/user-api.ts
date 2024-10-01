@@ -23,7 +23,12 @@ const getUser = async (id: string, password: string) => {
     }
 };
 
-const submitExam = async (studentId: string, examId: string, answers: string[], token: string) => {
+const submitExam = async (
+    studentId: string,
+    examId: string,
+    answers: string[],
+    token: string
+) => {
     try {
         const res = await fetch(`${BASE_URL}/submitExam/${studentId}`, {
             method: "POST",
@@ -48,3 +53,25 @@ const submitExam = async (studentId: string, examId: string, answers: string[], 
 };
 
 export { getUser, submitExam };
+
+const getUserProfile = async (token: string) => {
+    try {
+        const res = await fetch(`${BASE_URL}/user/profile`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.err) {
+            throw new Error(data.err || "Failed to get user profile!");
+        }
+
+        return data;
+    } catch (e) {
+        throw e;
+    }
+};
+
+export { getUserProfile };
