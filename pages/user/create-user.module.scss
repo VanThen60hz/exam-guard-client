@@ -1,0 +1,17 @@
+.inputField {
+    border-radius: 10px; /* Độ bo góc */
+    border: 1px solid #46c17b;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    outline: none;
+
+    &:focus {
+        border-color: #1DB0A6; /* Màu khi focus */
+        box-shadow: 0 0 5px rgba(29, 176, 166, 0.5);
+    }
+}
+
+/* Thêm class cho trạng thái lỗi */
+.errorField {
+    border-color: red;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
