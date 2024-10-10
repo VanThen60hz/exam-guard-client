@@ -76,9 +76,10 @@ const UpdateProfileUserPage: React.FC = () => {
     const fetchUserProfile = async () => {
         setLoading(true);
         try {
+            const id = localStorage.getItem("id");
             const token = localStorage.getItem("token");
             if (!token) throw new Error("No token found");
-            const response = await getUserProfile(token);
+            const response = await getUserProfile(id, token);
             setFormData(response);
         } catch (err: any) {
             setError(err.message);
@@ -124,19 +125,11 @@ const UpdateProfileUserPage: React.FC = () => {
             <NavBarHome loadingBarRef={loadingBarRef} />
             <Container>
                 <div style={{ marginTop: "155px" }}>
-                    <Typography className={classes.dateTime}>
-                        {currentDateTime}
-                    </Typography>
+                    <Typography className={classes.dateTime}>{currentDateTime}</Typography>
                 </div>
 
-                <form
-                    onSubmit={handleSubmit}
-                    className={classes.updateProfileContainer}
-                >
-                    <Typography
-                        variant="h4"
-                        className={classes.updateProfileHeader}
-                    >
+                <form onSubmit={handleSubmit} className={classes.updateProfileContainer}>
+                    <Typography variant="h4" className={classes.updateProfileHeader}>
                         Change Information
                     </Typography>
                     <Grid
@@ -212,11 +205,7 @@ const UpdateProfileUserPage: React.FC = () => {
                                     border: "1px solid #000",
                                 }}
                             />
-                            <Button
-                                className={classes.buttonUploadAvatar}
-                                variant="contained"
-                                component="label"
-                            >
+                            <Button className={classes.buttonUploadAvatar} variant="contained" component="label">
                                 <p
                                     style={{
                                         paddingTop: "4px",
@@ -248,21 +237,9 @@ const UpdateProfileUserPage: React.FC = () => {
                                         defaultValue="female"
                                         name="radio-buttons-group"
                                     >
-                                        <FormControlLabel
-                                            value="female"
-                                            control={<Radio />}
-                                            label="Female"
-                                        />
-                                        <FormControlLabel
-                                            value="male"
-                                            control={<Radio />}
-                                            label="Male"
-                                        />
-                                        <FormControlLabel
-                                            value="other"
-                                            control={<Radio />}
-                                            label="Other"
-                                        />
+                                        <FormControlLabel value="female" control={<Radio />} label="Female" />
+                                        <FormControlLabel value="male" control={<Radio />} label="Male" />
+                                        <FormControlLabel value="other" control={<Radio />} label="Other" />
                                     </RadioGroup>
                                 </FormControl>
                             </div>
