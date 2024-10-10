@@ -95,25 +95,20 @@
 .chooseGender {
     margin-top: 45px;
     display: flex;
-    gap: 20px;
 }
 
 .buttonUploadAvatar {
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
+    margin-top: 20px !important;
     gap: 10px;
     width: 255px;
-    background-color: #fff;
-    border-radius: 10px;
-    border: 1px solid #229594;
-    padding: 10px 20px;
+    background-color: #fff !important;
+    border-radius: 10px !important  ;
+    border: 1px solid #229594 !important;
+    padding: 10px 20px !important;
 }
 .buttonUploadAvatar:hover {
     opacity: 0.8;
-    background-color: #229594;
-}
-.buttonUploadAvatar:hover p {
+    background-color: #229594 !important;
     color: #fff !important;
 }
 .buttonUploadAvatar:hover img {

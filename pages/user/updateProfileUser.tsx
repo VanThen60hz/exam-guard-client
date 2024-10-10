@@ -14,40 +14,47 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import classes from "./profileUser.module.scss";
-import { getUserProfile } from "../../helpers/api/user-api";
 import NavBarHome from "../../components/home/navbar-home";
 import { LoadingBarRef } from "react-top-loading-bar";
+import { useSession } from "next-auth/react";
+import { updateProfile } from "../../helpers/api/user-api";
+import { saveID } from "./profileUser";
 interface User {
-    id: number;
+    id: string;
     name: string;
     email: string;
     role: string;
     gender: string;
-    dateOfBirth: string;
+    //dateOfBirth: string;
     address: string;
-    phoneNumber: string;
-    avatarUrl: string;
+    phone_number: string;
+    //avatarUrl: string;
 }
 
 const UpdateProfileUserPage: React.FC = () => {
     const [currentDateTime, setCurrentDateTime] = useState<string>("");
 
     const [formData, setFormData] = useState<User>({
-        id: 0,
+        id: `${saveID}`,
+        // id: "67039e7b781821d111af8f1b",
         name: "",
         email: "",
         role: "",
         gender: "",
-        dateOfBirth: "",
+        //dateOfBirth: "",
         address: "",
-        phoneNumber: "",
-        avatarUrl: "",
+        phone_number: "",
+        //avatarUrl: "",
     });
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const loadingBarRef = useRef<LoadingBarRef>(null);
+
+    const { data: session, status } = useSession(); // Get session data
+
+    //console.log("Session:", session);
 
     useEffect(() => {
         // Cập nhật ngày giờ mỗi giây
@@ -67,56 +74,49 @@ const UpdateProfileUserPage: React.FC = () => {
             setCurrentDateTime(`${formattedDate}, ${formattedTime}`);
         }, 1000);
 
-        // Fetch user profile data when component mounts
-        // fetchUserProfile();
+        //Fetch user profile data when component mounts
 
         return () => clearInterval(intervalId);
     }, []);
-
-    const fetchUserProfile = async () => {
-        setLoading(true);
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) throw new Error("No token found");
-            const response = await getUserProfile(token);
-            setFormData(response);
-        } catch (err: any) {
-            setError(err.message);
-            toast.error(err.message || "Error fetching user profile");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        // e.preventDefault();
-        // setLoading(true);
-        // setError(null);
-        // try {
-        //     const token = localStorage.getItem("token");
-        //     if (!token) throw new Error("No token found");
-        //     const response = await updateUserProfile(token, formData);
-        //     if (response.status === 200) {
-        //         toast.success("Profile updated successfully!");
-        //     } else {
-        //         throw new Error("Failed to update profile");
-        //     }
-        // } catch (err: any) {
-        //     setError(err.message);
-        //     toast.error(err.message || "Error updating profile");
-        // } finally {
-        //     setLoading(false);
-        // }
+    const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setFormData({ ...formData, gender: value });
     };
 
-    const handleButtonClick = () => {
-        // Navigate programmatically if needed
-        // If using Next.js, you can use router.push('/user/profile')
+    const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setFormData({ ...formData, role: value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault(); // Ngăn không cho trang bị reload
+        setLoading(true);
+        setError(null);
+
+        try {
+            if (!session || !session.accessToken) {
+                throw new Error("User is not authenticated");
+            }
+
+            const response = await updateProfile(
+                session.userId,
+                session.accessToken,
+                formData
+            ); // Gọi hàm updateUser với token và formData
+            toast.success("Profile updated successfully!");
+        } catch (err: any) {
+            setError(err.message);
+            toast.error(err.message || "Error updating profile");
+        } finally {
+            setLoading(false);
+        }
+        console.log(formData);
     };
 
     return (
@@ -152,6 +152,14 @@ const UpdateProfileUserPage: React.FC = () => {
                         <Grid sx={{ width: "450px", padding: "0" }} item md={5}>
                             <TextField
                                 className={classes.textField}
+                                label={formData.id}
+                                name="id"
+                                value={formData.id}
+                                margin="normal"
+                                disabled
+                            />
+                            <TextField
+                                className={classes.textField}
                                 label="Full Name"
                                 name="name"
                                 value={formData.name}
@@ -165,17 +173,8 @@ const UpdateProfileUserPage: React.FC = () => {
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 margin="normal"
-                                disabled
                             />
-                            <TextField
-                                className={classes.textField}
-                                label="Gender"
-                                name="gender"
-                                value={formData.gender}
-                                onChange={handleInputChange}
-                                margin="normal"
-                            />
-                            <TextField
+                            {/* <TextField
                                 className={classes.textField}
                                 label="Date of Birth"
                                 name="dateOfBirth"
@@ -184,7 +183,7 @@ const UpdateProfileUserPage: React.FC = () => {
                                 onChange={handleInputChange}
                                 margin="normal"
                                 InputLabelProps={{ shrink: true }}
-                            />
+                            /> */}
                             <TextField
                                 className={classes.textField}
                                 label="Address"
@@ -196,8 +195,8 @@ const UpdateProfileUserPage: React.FC = () => {
                             <TextField
                                 className={classes.textField}
                                 label="Phone Number"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
+                                name="phone_number"
+                                value={formData.phone_number}
                                 onChange={handleInputChange}
                                 margin="normal"
                             />
@@ -216,55 +215,98 @@ const UpdateProfileUserPage: React.FC = () => {
                                 className={classes.buttonUploadAvatar}
                                 variant="contained"
                                 component="label"
+                                style={{
+                                    paddingTop: "4px",
+                                    fontFamily: "Lexend",
+                                    fontSize: "16px",
+                                    fontWeight: 400,
+                                    color: "#229594",
+                                    lineHeight: "normal",
+                                }}
                             >
-                                <p
+                                Upload New Avatar
+                                <img
                                     style={{
-                                        paddingTop: "4px",
-                                        fontFamily: "Lexend",
-                                        fontSize: "16px",
-                                        fontWeight: 400,
-                                        color: "#229594",
-                                        lineHeight: "normal",
+                                        marginTop: "-5px",
                                     }}
-                                >
-                                    Upload New Avatar
-                                </p>
-                                <img src="/images/icon/uploadFile.svg" alt="" />
+                                    src="/images/icon/uploadFile.svg"
+                                    alt=""
+                                />
                             </Button>
-                            <div className={classes.chooseGender}>
-                                <p
-                                    style={{
-                                        fontFamily: "Lexend",
-                                        fontSize: "20px",
-                                        fontWeight: 400,
-                                        color: "#229594",
-                                    }}
-                                >
-                                    Choose Gender
-                                </p>
-                                <FormControl>
-                                    <RadioGroup
-                                        aria-labelledby="demo-radio-buttons-group-label"
-                                        defaultValue="female"
-                                        name="radio-buttons-group"
+                            <div
+                                style={{
+                                    display: "flex",
+                                    gap: "40px",
+                                    marginLeft: "-70px",
+                                }}
+                            >
+                                <div className={classes.chooseGender}>
+                                    <p
+                                        style={{
+                                            fontFamily: "Lexend",
+                                            fontSize: "20px",
+                                            fontWeight: 400,
+                                            color: "#229594",
+                                        }}
                                     >
-                                        <FormControlLabel
-                                            value="female"
-                                            control={<Radio />}
-                                            label="Female"
-                                        />
-                                        <FormControlLabel
-                                            value="male"
-                                            control={<Radio />}
-                                            label="Male"
-                                        />
-                                        <FormControlLabel
-                                            value="other"
-                                            control={<Radio />}
-                                            label="Other"
-                                        />
-                                    </RadioGroup>
-                                </FormControl>
+                                        Choose Gender
+                                    </p>
+                                    <FormControl>
+                                        <RadioGroup
+                                            aria-labelledby="demo-radio-buttons-group-label"
+                                            defaultValue="female"
+                                            name="gender"
+                                            onChange={handleGenderChange}
+                                        >
+                                            <FormControlLabel
+                                                value="female"
+                                                control={<Radio />}
+                                                label="Female"
+                                            />
+                                            <FormControlLabel
+                                                value="male"
+                                                control={<Radio />}
+                                                label="Male"
+                                            />
+                                            <FormControlLabel
+                                                value="other"
+                                                control={<Radio />}
+                                                label="Other"
+                                            />
+                                        </RadioGroup>
+                                    </FormControl>
+                                </div>
+                                <div className={classes.chooseGender}>
+                                    <p
+                                        style={{
+                                            fontFamily: "Lexend",
+                                            fontSize: "20px",
+                                            fontWeight: 400,
+                                            color: "#229594",
+                                        }}
+                                    >
+                                        Choose Role
+                                    </p>
+                                    <FormControl>
+                                        <RadioGroup
+                                            aria-labelledby="demo-radio-buttons-group-label"
+                                            defaultValue="TEACHER"
+                                            name="role"
+                                            onChange={handleRoleChange}
+                                        >
+                                            <FormControlLabel
+                                                value="TEACHER"
+                                                control={<Radio />}
+                                                label="Teacher"
+                                            />
+                                            <FormControlLabel
+                                                value="STUDENT"
+                                                control={<Radio />}
+                                                label="Student"
+                                            />
+                                        </RadioGroup>
+                                    </FormControl>
+                                </div>
                             </div>
                         </Grid>
                         <div style={{ margin: "50px 0 " }}>
@@ -284,17 +326,18 @@ const UpdateProfileUserPage: React.FC = () => {
                                         opacity: "0.8",
                                     },
                                 }}
-                                onClick={handleButtonClick}
                             >
                                 <a href="/user/profileUser">Cancel</a>
                             </Button>
                             <Button
+                                type="submit"
                                 fullWidth
                                 variant="contained"
                                 sx={{
                                     fontFamily: "Lexend",
                                     marginLeft: "90px",
                                     width: "220px",
+                                    height: "45px",
                                     fontSize: "20px",
                                     fontWeight: 400,
                                     borderRadius: "10px",
@@ -304,9 +347,9 @@ const UpdateProfileUserPage: React.FC = () => {
                                         opacity: "0.8",
                                     },
                                 }}
-                                onClick={handleButtonClick}
                             >
-                                <a href="/user/profileUser">Update Profile</a>
+                                {/* <a href="/user/profileUser">Update Profile</a> */}
+                                Update Profile
                             </Button>
                         </div>
                     </Grid>
