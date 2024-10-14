@@ -11,50 +11,66 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
 } from "@mui/material";
+
 import { toast } from "react-toastify";
-import classes from "./profileUser.module.scss";
-import NavBarHome from "../../components/home/navbar-home";
 import { LoadingBarRef } from "react-top-loading-bar";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+
+import NavBarHome from "../../components/home/navbar-home";
 import { updateProfile } from "../../helpers/api/user-api";
 import { saveID } from "./profileUser";
+
+// SCSS
+import classes from "./profileUser.module.scss";
+
 interface User {
     id: string;
     name: string;
     email: string;
     role: string;
     gender: string;
-    //dateOfBirth: string;
     address: string;
     phone_number: string;
-    //avatarUrl: string;
+    avatarUrl: string;
 }
 
 const UpdateProfileUserPage: React.FC = () => {
-    const [currentDateTime, setCurrentDateTime] = useState<string>("");
-
     const [formData, setFormData] = useState<User>({
         id: `${saveID}`,
-        // id: "67039e7b781821d111af8f1b",
         name: "",
         email: "",
         role: "",
         gender: "",
-        //dateOfBirth: "",
         address: "",
         phone_number: "",
-        //avatarUrl: "",
+        avatarUrl: "",
     });
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    //Biến thời gian
+    const [currentDateTime, setCurrentDateTime] = useState<string>("");
 
+    // Router chuyển Page
+    const router = useRouter();
+
+    // Load page
+    const [loading, setLoading] = useState(false);
     const loadingBarRef = useRef<LoadingBarRef>(null);
 
-    const { data: session, status } = useSession(); // Get session data
+    //Biến báo lỗi
+    const [error, setError] = useState<string | null>(null);
 
-    //console.log("Session:", session);
+    // Get session data
+    const { data: session, status } = useSession();
+
+    // Thêm state cho modal xác nhận cancel
+    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
     useEffect(() => {
         // Cập nhật ngày giờ mỗi giây
@@ -74,26 +90,39 @@ const UpdateProfileUserPage: React.FC = () => {
             setCurrentDateTime(`${formattedDate}, ${formattedTime}`);
         }, 1000);
 
-        //Fetch user profile data when component mounts
-
         return () => clearInterval(intervalId);
     }, []);
 
+    // Mở modal khi nhấn nút Cancel
+    const handleCancelButton = () => {
+        setOpenConfirmDialog(true);
+    };
+    const handleCloseDialog = (confirm: boolean) => {
+        setOpenConfirmDialog(false); // Đóng modal
+        if (confirm) {
+            router.push("/user/profileUser"); // Chuyển hướng nếu xác nhận
+        }
+    };
+
+    // Xử lí thay đổi khi nhập vào TextField
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
+    // Xử lí thay đổi khi chọn Giới tính
     const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setFormData({ ...formData, gender: value });
     };
 
+    // Xử lí thay đổi khi chọn Role user
     const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setFormData({ ...formData, role: value });
     };
 
+    // Xử lí nút Cập nhật
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // Ngăn không cho trang bị reload
         setLoading(true);
@@ -119,16 +148,30 @@ const UpdateProfileUserPage: React.FC = () => {
         console.log(formData);
     };
 
+    // Hiển thị ra màn hình
     return (
         <>
             <NavBarHome loadingBarRef={loadingBarRef} />
+
+            {/* Ngày giờ */}
             <Container>
-                <div style={{ marginTop: "155px" }}>
-                    <Typography className={classes.dateTime}>
+                <div
+                    className={classes.dateTime}
+                    style={{ marginTop: "155px" }}
+                >
+                    <Typography
+                        style={{
+                            fontFamily: "Lexend",
+                            fontSize: "20px",
+                            fontWeight: 400,
+                            color: "#fff",
+                        }}
+                    >
                         {currentDateTime}
                     </Typography>
                 </div>
 
+                {/* Form submit */}
                 <form
                     onSubmit={handleSubmit}
                     className={classes.updateProfileContainer}
@@ -140,7 +183,7 @@ const UpdateProfileUserPage: React.FC = () => {
                         Change Information
                     </Typography>
                     <Grid
-                        sx={{
+                        style={{
                             margin: "100px 0 0 90px",
                             padding: "0",
                             display: "flex",
@@ -149,12 +192,16 @@ const UpdateProfileUserPage: React.FC = () => {
                         }}
                         container
                     >
-                        <Grid sx={{ width: "450px", padding: "0" }} item md={5}>
+                        <Grid
+                            style={{ width: "450px", padding: "0" }}
+                            item
+                            md={5}
+                        >
                             <TextField
                                 className={classes.textField}
-                                label={formData.id}
+                                label={`${saveID}`}
                                 name="id"
-                                value={formData.id}
+                                value={`${saveID}`}
                                 margin="normal"
                                 disabled
                             />
@@ -201,6 +248,7 @@ const UpdateProfileUserPage: React.FC = () => {
                                 margin="normal"
                             />
                         </Grid>
+
                         <Grid item xs={12} md={4} sx={{ marginLeft: "200px" }}>
                             <Avatar
                                 src={"/images/avatar_mau.png"}
@@ -211,28 +259,28 @@ const UpdateProfileUserPage: React.FC = () => {
                                     border: "1px solid #000",
                                 }}
                             />
+
+                            {/* Nút upload Avatar */}
                             <Button
                                 className={classes.buttonUploadAvatar}
                                 variant="contained"
                                 component="label"
-                                style={{
-                                    paddingTop: "4px",
-                                    fontFamily: "Lexend",
-                                    fontSize: "16px",
-                                    fontWeight: 400,
-                                    color: "#229594",
-                                    lineHeight: "normal",
-                                }}
                             >
-                                Upload New Avatar
-                                <img
+                                <p
                                     style={{
-                                        marginTop: "-5px",
+                                        paddingTop: "4px",
+                                        fontFamily: "Lexend",
+                                        fontSize: "16px",
+                                        fontWeight: 400,
+                                        color: "#229594",
+                                        lineHeight: "normal",
                                     }}
-                                    src="/images/icon/uploadFile.svg"
-                                    alt=""
-                                />
+                                >
+                                    Upload New Avatar
+                                </p>
+                                <img src="/images/icon/uploadFile.svg" alt="" />
                             </Button>
+
                             <div
                                 style={{
                                     display: "flex",
@@ -240,6 +288,7 @@ const UpdateProfileUserPage: React.FC = () => {
                                     marginLeft: "-70px",
                                 }}
                             >
+                                {/* Radio button chọn Giới tính */}
                                 <div className={classes.chooseGender}>
                                     <p
                                         style={{
@@ -254,28 +303,30 @@ const UpdateProfileUserPage: React.FC = () => {
                                     <FormControl>
                                         <RadioGroup
                                             aria-labelledby="demo-radio-buttons-group-label"
-                                            defaultValue="female"
+                                            defaultValue="FEMALE"
                                             name="gender"
                                             onChange={handleGenderChange}
                                         >
                                             <FormControlLabel
-                                                value="female"
+                                                value="FEMALE"
                                                 control={<Radio />}
                                                 label="Female"
                                             />
                                             <FormControlLabel
-                                                value="male"
+                                                value="MALE"
                                                 control={<Radio />}
                                                 label="Male"
                                             />
                                             <FormControlLabel
-                                                value="other"
+                                                value="OTHER"
                                                 control={<Radio />}
                                                 label="Other"
                                             />
                                         </RadioGroup>
                                     </FormControl>
                                 </div>
+
+                                {/* Radio button chọn Role user */}
                                 <div className={classes.chooseGender}>
                                     <p
                                         style={{
@@ -309,52 +360,106 @@ const UpdateProfileUserPage: React.FC = () => {
                                 </div>
                             </div>
                         </Grid>
+
+                        {/* Nút Cancel và Update */}
                         <div style={{ margin: "50px 0 " }}>
                             <Button
+                                className={classes.button}
                                 fullWidth
                                 variant="contained"
-                                sx={{
-                                    fontFamily: "Lexend",
+                                style={{
                                     marginLeft: "150px",
-                                    width: "220px",
-                                    fontSize: "20px",
-                                    fontWeight: 400,
-                                    borderRadius: "10px",
-                                    backgroundColor: "#229594",
-                                    ":hover": {
-                                        backgroundColor: "#229594",
-                                        opacity: "0.8",
-                                    },
+                                    padding: "5px 0",
                                 }}
+                                onClick={handleCancelButton}
                             >
-                                <a href="/user/profileUser">Cancel</a>
+                                Cancel
                             </Button>
                             <Button
+                                className={classes.button}
                                 type="submit"
                                 fullWidth
                                 variant="contained"
-                                sx={{
-                                    fontFamily: "Lexend",
+                                style={{
                                     marginLeft: "90px",
-                                    width: "220px",
-                                    height: "45px",
-                                    fontSize: "20px",
-                                    fontWeight: 400,
-                                    borderRadius: "10px",
-                                    backgroundColor: "#229594",
-                                    ":hover": {
-                                        backgroundColor: "#229594",
-                                        opacity: "0.8",
-                                    },
+                                    padding: "5px 0",
                                 }}
                             >
-                                {/* <a href="/user/profileUser">Update Profile</a> */}
                                 Update Profile
                             </Button>
                         </div>
                     </Grid>
                 </form>
             </Container>
+
+            {/* Modal xác nhận Cancel*/}
+            <Dialog
+                open={openConfirmDialog}
+                onClose={() => handleCloseDialog(false)}
+            >
+                <div
+                    style={{
+                        width: "500px",
+                        padding: "20px 20px",
+                        border: "3px solid #229594",
+                    }}
+                >
+                    <DialogTitle
+                        style={{
+                            fontSize: "25px",
+                        }}
+                    >
+                        Xác Nhận
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText
+                            style={{
+                                fontSize: "20px",
+                            }}
+                        >
+                            Bạn có muốn thoát không?
+                        </DialogContentText>
+                    </DialogContent>
+
+                    {/* Nút Hủy và Đồng ý */}
+                    <DialogActions
+                        style={{
+                            gap: "10px",
+                        }}
+                    >
+                        <Button
+                            onClick={() => handleCloseDialog(false)}
+                            color="primary"
+                            sx={{
+                                fontSize: "20px",
+                                fontWeight: 400,
+                                color: "#229594",
+                                ":hover": {
+                                    backgroundColor: "#229594",
+                                    color: "#fff",
+                                },
+                            }}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            onClick={() => handleCloseDialog(true)}
+                            color="primary"
+                            sx={{
+                                fontSize: "20px",
+                                fontWeight: 400,
+                                color: "#229594",
+                                ":hover": {
+                                    backgroundColor: "#229594",
+                                    color: "#fff",
+                                },
+                            }}
+                        >
+                            Đồng Ý
+                        </Button>
+                    </DialogActions>
+                </div>
+            </Dialog>
         </>
     );
 };

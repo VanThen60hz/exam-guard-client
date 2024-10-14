@@ -109,6 +109,34 @@ const updateProfile = async (id: string, accessToken: string, user: any) => {
         throw new Error(e.message || "Failed to get user profile!");
     }
 };
+const updateUser = async (
+    id: string,
+    accessToken: string,
+    userId: string,
+    userData: any
+) => {
+    try {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken);
+        myHeaders.append("x-client-id", id);
+        myHeaders.append("Content-Type", "application/json");
+
+        const res = await fetch(`${BASE_URL}/user/${userId}`, {
+            method: "PATCH",
+            headers: myHeaders,
+            body: JSON.stringify(userData),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(data.message || "Failed to update user!");
+        }
+        return data.metadata;
+    } catch (e) {
+        throw new Error(e.message || "Failed to update user!");
+    }
+};
 
 const deleteUser = async (
     id: string,
@@ -139,4 +167,11 @@ const deleteUser = async (
     }
 };
 
-export { getUser, getUserProfile, updateProfile, getListUser, deleteUser };
+export {
+    getUser,
+    getUserProfile,
+    updateProfile,
+    updateUser,
+    getListUser,
+    deleteUser,
+};

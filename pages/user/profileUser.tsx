@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Container,
     TextField,
     Button,
     Typography,
     Avatar,
+    Modal,
+    Box,
 } from "@mui/material";
-import { useRouter } from "next/router";
 import { toast } from "react-toastify";
-import classes from "./profileUser.module.scss";
-import { getUserProfile } from "../../helpers/api/user-api";
-import NavBarHome from "../../components/home/navbar-home";
-import { LoadingBarRef } from "react-top-loading-bar";
-import { useRef } from "react";
 import { useSession } from "next-auth/react";
-// State cho ngày giờ hiện tại
+import { useRouter } from "next/router";
+
+import NavBarHome from "../../components/home/navbar-home";
+import { getUserProfile, updateProfile } from "../../helpers/api/user-api";
+
+// SCSS
+import classes from "./profileUser.module.scss";
 
 // Định nghĩa kiểu dữ liệu cho user
 interface User {
@@ -23,14 +25,12 @@ interface User {
     email: string;
     role: string;
     gender: string;
-    //dateOfBirth: string;
     address: string;
-    phoneNumber: string;
+    phone_number: string;
     avatarUrl: string;
 }
 
 const ProfileUserPage: React.FC = () => {
-    const router = useRouter();
     const [currentDateTime, setCurrentDateTime] = useState<string>("");
     const [formData, setFormData] = useState<User>({
         id: "",
@@ -39,16 +39,28 @@ const ProfileUserPage: React.FC = () => {
         role: "",
         gender: "",
         address: "",
-        phoneNumber: "",
+        phone_number: "",
         avatarUrl: "",
     });
-    const formProfile = {};
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
+    // Thay đổi mật khẩu
+    const [openPasswordModal, setOpenPasswordModal] = useState(false);
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    // Router chuyển page
+    const router = useRouter();
+
+    // Load trang
+    const [loading, setLoading] = useState(false);
     const loadingBarRef = useRef(null);
 
-    const { data: session, status } = useSession(); // Get session data
+    // Báo lỗi
+    const [error, setError] = useState<string | null>(null);
+
+    // Get session data
+    const { data: session, status } = useSession();
 
     // console.log("Session:", session);
 
@@ -78,8 +90,12 @@ const ProfileUserPage: React.FC = () => {
         return () => clearInterval(intervalId);
     }, []);
 
+    // Lấy thông tin người dung
     useEffect(() => {
         const fetchUserProfile = async () => {
+            setLoading(true);
+            setLoading(false);
+
             if (status === "authenticated" && session) {
                 const userId = session.userId;
                 const accessToken = session.accessToken;
@@ -91,20 +107,21 @@ const ProfileUserPage: React.FC = () => {
                             userId,
                             accessToken
                         );
-                        console.log("Profile:", profile);
+                        console.log("Profile:", profile.password);
 
-                        // Ánh xạ các trường từ dữ liệu API vào formData
                         setFormData({
                             id: profile._id || "",
                             name: profile.name || "",
                             email: profile.email || "",
                             role: profile.role || "",
-                            gender: profile.gender, // Ánh xạ giới tính
+                            gender: profile.gender,
                             address: profile.address || "",
-                            phoneNumber: profile.phone_number || "",
-                            avatarUrl: profile.avatar || "", // Đảm bảo URL ảnh hợp lệ
+                            phone_number: profile.phone_number || "",
+                            avatarUrl:
+                                profile.avatar || "/images/default-avatar.png",
                         });
-                        console.log("FormData:", formProfile);
+
+                        console.log("Form Data:", formData);
                     } catch (error) {
                         console.error("Error getting user profile:", error);
                         toast.error("Failed to fetch user profile");
@@ -119,40 +136,65 @@ const ProfileUserPage: React.FC = () => {
         fetchUserProfile(); // Call the function to fetch user profile
     }, [status, session]);
 
-    const handleChangePasswordButton = () => {
+    // Nút bấm cập nhật thông tin
+    const handleUpdateButton = () => {
         saveID = formData.id;
-        router.push(`/user/changePassword`);
+        router.push("/user/updateProfileUser");
         return saveID;
     };
 
-    const handleButtonClick = () => {
-        saveID = formData.id;
-        router.push(`/user/updateProfileUser`);
-        return saveID;
+    // Nút bấm đổi mật khẩu
+    const handleOpenPasswordModal = () => setOpenPasswordModal(true);
+    const handleClosePasswordModal = () => {
+        setOpenPasswordModal(false);
+        setNewPassword("");
+        setConfirmPassword("");
     };
 
-    const [isLoading, setIsLoading] = useState(true);
+    const handleChangePassword = async () => {
+        if (newPassword !== confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
+        // if (oldPassword !== formData.password) {
+        //     toast.error("Old password is incorrect");
+        //     return;
+        // }
+        setLoading(true);
+        setError(null);
 
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            setIsLoading(true);
-            // ... (rest of the fetchUserProfile function)
-            setIsLoading(false);
-        };
+        try {
+            if (!session || !session.accessToken) {
+                throw new Error("User is not authenticated");
+            }
 
-        fetchUserProfile();
-    }, [status, session]);
+            const response = await updateProfile(
+                session.userId,
+                session.accessToken,
+                { password: newPassword }
+            ); // Gọi hàm updateUser với token và formData
+            toast.success("Profile updated successfully!");
+        } catch (err: any) {
+            setError(err.message);
+            toast.error(err.message || "Error updating profile");
+        } finally {
+            setLoading(false);
+        }
+        console.log(formData);
+        console.log("Changing password...");
 
-    // In your render method:
-    if (isLoading) {
+        handleClosePasswordModal();
+    };
+
+    if (loading) {
         return <div>Loading user profile...</div>;
     }
 
+    //Hiển thị ra màn hình
     return (
         <>
             <NavBarHome loadingBarRef={loadingBarRef} />
             <Container>
-                {/* Hiển thị ngày giờ hiện tại */}
                 <div
                     style={{
                         marginTop: "155px",
@@ -161,6 +203,7 @@ const ProfileUserPage: React.FC = () => {
                         alignItems: "center",
                     }}
                 >
+                    {/* Hiển thị ngày giờ hiện tại */}
                     <div className={classes.dateTime}>
                         <Typography
                             style={{
@@ -173,29 +216,24 @@ const ProfileUserPage: React.FC = () => {
                             {currentDateTime}
                         </Typography>
                     </div>
+
+                    {/* Nút bấm đổi mật khẩu */}
                     <div>
                         <Button
+                            className={classes.button}
                             fullWidth
                             variant="contained"
-                            sx={{
-                                fontFamily: "Lexend",
+                            style={{
                                 width: "250px",
-                                fontSize: "20px",
-                                fontWeight: 400,
-                                borderRadius: "10px",
-                                backgroundColor: "#229594",
-                                ":hover": {
-                                    backgroundColor: "#229594",
-                                    opacity: "0.8",
-                                },
                             }}
-                            onClick={handleChangePasswordButton}
+                            onClick={handleOpenPasswordModal}
                         >
                             Change Password
                         </Button>
                     </div>
                 </div>
 
+                {/* Cửa sổ thông tin người dùng */}
                 <div className={classes.profileContainer}>
                     <div className={classes.profileHeader}>
                         <p>Information Account</p>
@@ -223,17 +261,13 @@ const ProfileUserPage: React.FC = () => {
                                 <p>Email: </p>
                                 <p>{formData.email}</p>
                             </div>
-                            {/* <div className={classes.profileItem}>
-                                <p>Date of birth: </p>
-                                <p>{formData.dateOfBirth}</p>
-                            </div> */}
                             <div className={classes.profileItem}>
                                 <p>Address: </p>
                                 <p>{formData.address}</p>
                             </div>
                             <div className={classes.profileItem}>
                                 <p>Phone number: </p>
-                                <p>{formData.phoneNumber}</p>
+                                <p>{formData.phone_number}</p>
                             </div>
                         </div>
                         <div className={classes.profileAvatar}>
@@ -247,27 +281,78 @@ const ProfileUserPage: React.FC = () => {
                             />
                         </div>
                     </div>
+
+                    {/* Nút thay đổi thông tin người dùng */}
                     <Button
+                        className={classes.button}
                         fullWidth
                         variant="contained"
-                        sx={{
-                            fontFamily: "Lexend",
+                        style={{
                             margin: "34px 0 26px 90px",
-                            width: "220px",
-                            fontSize: "20px",
-                            fontWeight: 400,
-                            borderRadius: "10px",
-                            backgroundColor: "#229594",
-                            ":hover": {
-                                backgroundColor: "#229594",
-                                opacity: "0.8",
-                            },
+                            padding: "5px 0",
                         }}
-                        onClick={handleButtonClick}
+                        onClick={handleUpdateButton}
                     >
                         Update Profile
                     </Button>
                 </div>
+
+                {/* Cửa sổ đổi mật khẩu */}
+                <Modal
+                    open={openPasswordModal}
+                    onClose={handleClosePasswordModal}
+                    aria-labelledby="change-password-modal"
+                >
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: 400,
+                            bgcolor: "background.paper",
+                            boxShadow: 24,
+                            p: 4,
+                            borderRadius: 2,
+                        }}
+                    >
+                        <Typography variant="h6" component="h2" gutterBottom>
+                            Change Password
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            type="password"
+                            label="Old Password"
+                            value={oldPassword}
+                            onChange={(e) => setOldPassword(e.target.value)}
+                            margin="normal"
+                        />
+                        <TextField
+                            fullWidth
+                            type="password"
+                            label="New Password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            margin="normal"
+                        />
+                        <TextField
+                            fullWidth
+                            type="password"
+                            label="Confirm New Password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            margin="normal"
+                        />
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            onClick={handleChangePassword}
+                            sx={{ mt: 2 }}
+                        >
+                            Change Password
+                        </Button>
+                    </Box>
+                </Modal>
             </Container>
         </>
     );
