@@ -2,27 +2,36 @@
 .profileContainer button {
     padding: 0;
 }
-.updateProfileContainer a,
-.profileContainer a {
-    display: block;
-    padding: 5px 0;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    line-height: inherit;
-}
+
 .container {
     color: #000;
 }
+
+.button {
+    font-family: Lexend, Helvetica, sans-serif;
+    width: 220px;
+    color: #fff;
+    background-color: #229594;
+    border-radius: 10px;
+    font-size: 20px;
+}
+.button:hover {
+    border: 1px solid #229594;
+    padding: 4px 0 !important;
+    color: #229594;
+    background-color: #fff;
+}
+
 //Date time
 .dateTime {
     width: 260px;
-    border-radius: 10px;
-    font-family: Lexend;
-    padding: 10px;
     background-color: #229594;
+    border-radius: 10px;
+
+    padding: 10px;
     box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25);
 }
+
 //ProfileContainer
 .profileContainer,
 .updateProfileContainer {
@@ -37,6 +46,7 @@
     font-weight: 400;
     line-height: normal;
 }
+
 //ProfileHeader
 .profileHeader,
 .updateProfileHeader {
@@ -49,6 +59,7 @@
     color: #fff;
     background-color: #229594;
 }
+
 //ProfileContent
 .profileContent {
     margin: 90px 0 0 90px;
@@ -82,16 +93,15 @@
     margin: 130px 50px 0 0;
 }
 
+//Update profile
 .textField {
     width: 450px;
-}
-
-.updateProfileContainer {
 }
 
 .updateProfileHeader {
     width: 380px;
 }
+
 .chooseGender {
     margin-top: 45px;
     display: flex;

@@ -36,7 +36,11 @@ import { LoadingBarRef } from "react-top-loading-bar";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import NavBarHome from "../../components/home/navbar-home";
-import { getListUser, updateUser, deleteUser } from "../../helpers/api/user-api";
+import {
+    getListUser,
+    updateUser,
+    deleteUser,
+} from "../../helpers/api/user-api";
 import classes from "./list.module.scss";
 
 // Icons
@@ -108,12 +112,17 @@ const UsersPage: React.FC = () => {
 
         // Apply gender filter
         if (selectedGender) {
-            filtered = filtered.filter((user) => user.gender.toUpperCase() === selectedGender.toUpperCase());
+            filtered = filtered.filter(
+                (user) =>
+                    user.gender.toUpperCase() === selectedGender.toUpperCase()
+            );
         }
 
         // Apply role filter
         if (selectedRole) {
-            filtered = filtered.filter((user) => user.role.toUpperCase() === selectedRole.toUpperCase());
+            filtered = filtered.filter(
+                (user) => user.role.toUpperCase() === selectedRole.toUpperCase()
+            );
         }
 
         // Apply search filter
@@ -124,7 +133,7 @@ const UsersPage: React.FC = () => {
                     (user.name?.toLowerCase() || "").includes(searchValue) ||
                     (user.phone_number || "").includes(searchValue) ||
                     (user.address?.toLowerCase() || "").includes(searchValue) ||
-                    (user.email?.toLowerCase() || "").includes(searchValue),
+                    (user.email?.toLowerCase() || "").includes(searchValue)
             );
         }
 
@@ -198,8 +207,19 @@ const UsersPage: React.FC = () => {
 
             if (userId && accessToken) {
                 try {
-                    const updatedUserData = await updateUser(userId, accessToken, updatedUser._id, updatedUser);
-                    setlistUser(listUser.map((user) => (user._id === updatedUserData._id ? updatedUserData : user)));
+                    const updatedUserData = await updateUser(
+                        userId,
+                        accessToken,
+                        updatedUser._id,
+                        updatedUser
+                    );
+                    setlistUser(
+                        listUser.map((user) =>
+                            user._id === updatedUserData._id
+                                ? updatedUserData
+                                : user
+                        )
+                    );
                     setEditingUser(null);
                     toast.success("User updated successfully!");
                 } catch (error) {
@@ -229,8 +249,15 @@ const UsersPage: React.FC = () => {
             if (userId && accessToken) {
                 try {
                     // Assume you have a deleteUser function imported from your API
-                    await deleteUser(userId, accessToken, userToDelete._id, userToDelete);
-                    setlistUser(listUser.filter((user) => user._id !== userToDelete._id));
+                    await deleteUser(
+                        userId,
+                        accessToken,
+                        userToDelete._id,
+                        userToDelete
+                    );
+                    setlistUser(
+                        listUser.filter((user) => user._id !== userToDelete._id)
+                    );
                     toast.success("User deleted successfully!");
                 } catch (error) {
                     console.error("Error deleting user:", error);
@@ -243,12 +270,18 @@ const UsersPage: React.FC = () => {
     };
 
     // Search and pagination handlers
-    const handleSearch = (event: React.ChangeEvent<{}>, value: string | null) => {
+    const handleSearch = (
+        event: React.ChangeEvent<{}>,
+        value: string | null
+    ) => {
         setSearchTerm(value || "");
     };
 
     //Change page
-    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    const handlePageChange = (
+        event: React.ChangeEvent<unknown>,
+        value: number
+    ) => {
         setPage(value);
     };
 
@@ -325,7 +358,10 @@ const UsersPage: React.FC = () => {
         onChange?: (status: "ACTIVE" | "INACTIVE" | "SUSPENDED") => void;
     }
 
-    const StatusToggle: React.FC<StatusToggleProps> = ({ initialStatus, onChange }) => {
+    const StatusToggle: React.FC<StatusToggleProps> = ({
+        initialStatus,
+        onChange,
+    }) => {
         const [status, setStatus] = useState(initialStatus);
 
         const handleClick = () => {
@@ -380,7 +416,12 @@ const UsersPage: React.FC = () => {
                             borderRadius: "8px", // Điều chỉnh border radius
                             backgroundColor: "white",
                             top: "2px",
-                            left: status === "ACTIVE" ? "22px" : status === "SUSPENDED" ? "2px" : "12px", // Điều chỉnh vị trí
+                            left:
+                                status === "ACTIVE"
+                                    ? "22px"
+                                    : status === "SUSPENDED"
+                                    ? "2px"
+                                    : "12px", // Điều chỉnh vị trí
                             transition: "left 0.3s",
                         },
                     }}
@@ -400,7 +441,10 @@ const UsersPage: React.FC = () => {
     };
 
     //Displayed users (stt)
-    const displayedUsers = filteredUsers.slice((page - 1) * usersPerPage, page * usersPerPage);
+    const displayedUsers = filteredUsers.slice(
+        (page - 1) * usersPerPage,
+        page * usersPerPage
+    );
 
     return (
         <>
@@ -418,7 +462,9 @@ const UsersPage: React.FC = () => {
                     <Box sx={filterBoxStyle}>
                         <Button
                             id="gender-filter-button"
-                            aria-controls={openGender ? "gender-filter-menu" : undefined}
+                            aria-controls={
+                                openGender ? "gender-filter-menu" : undefined
+                            }
                             aria-haspopup="true"
                             aria-expanded={openGender ? "true" : undefined}
                             onClick={handleClick}
@@ -443,13 +489,22 @@ const UsersPage: React.FC = () => {
                                     border: "1px solid #229594", // Changed to match the theme color
                                 }}
                             >
-                                <MenuItem sx={menuItemStyle} onClick={() => handleGenderSelect("MALE")}>
+                                <MenuItem
+                                    sx={menuItemStyle}
+                                    onClick={() => handleGenderSelect("MALE")}
+                                >
                                     MALE
                                 </MenuItem>
-                                <MenuItem sx={menuItemStyle} onClick={() => handleGenderSelect("FEMALE")}>
+                                <MenuItem
+                                    sx={menuItemStyle}
+                                    onClick={() => handleGenderSelect("FEMALE")}
+                                >
                                     FEMALE
                                 </MenuItem>
-                                <MenuItem sx={menuItemStyle} onClick={() => handleGenderSelect("")}>
+                                <MenuItem
+                                    sx={menuItemStyle}
+                                    onClick={() => handleGenderSelect("")}
+                                >
                                     CLEAR FILTER
                                 </MenuItem>
                             </Box>
@@ -460,7 +515,9 @@ const UsersPage: React.FC = () => {
                     <Box sx={filterBoxStyle}>
                         <Button
                             id="role-filter-button"
-                            aria-controls={openRole ? "role-filter-menu" : undefined}
+                            aria-controls={
+                                openRole ? "role-filter-menu" : undefined
+                            }
                             aria-haspopup="true"
                             aria-expanded={openRole ? "true" : undefined}
                             onClick={handleClickRole}
@@ -485,13 +542,22 @@ const UsersPage: React.FC = () => {
                                     border: "1px solid #229594", // Changed to match the theme color
                                 }}
                             >
-                                <MenuItem sx={menuItemStyle} onClick={() => handleRoleSelect("STUDENT")}>
+                                <MenuItem
+                                    sx={menuItemStyle}
+                                    onClick={() => handleRoleSelect("STUDENT")}
+                                >
                                     STUDENT
                                 </MenuItem>
-                                <MenuItem sx={menuItemStyle} onClick={() => handleRoleSelect("TEACHER")}>
+                                <MenuItem
+                                    sx={menuItemStyle}
+                                    onClick={() => handleRoleSelect("TEACHER")}
+                                >
                                     TEACHER
                                 </MenuItem>
-                                <MenuItem sx={menuItemStyle} onClick={() => handleRoleSelect("")}>
+                                <MenuItem
+                                    sx={menuItemStyle}
+                                    onClick={() => handleRoleSelect("")}
+                                >
                                     CLEAR FILTER
                                 </MenuItem>
                             </Box>
@@ -514,7 +580,9 @@ const UsersPage: React.FC = () => {
                                     type: "text",
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <SearchIcon sx={{ color: "#229594" }} />
+                                            <SearchIcon
+                                                sx={{ color: "#229594" }}
+                                            />
                                         </InputAdornment>
                                     ),
                                     sx: {
@@ -526,12 +594,14 @@ const UsersPage: React.FC = () => {
                                         "& .MuiOutlinedInput-notchedOutline": {
                                             border: "2px solid #229594",
                                         },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#1a7170",
-                                        },
-                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#1a7170",
-                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline":
+                                            {
+                                                borderColor: "#1a7170",
+                                            },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                            {
+                                                borderColor: "#1a7170",
+                                            },
                                     },
                                 }}
                                 sx={{
@@ -567,18 +637,37 @@ const UsersPage: React.FC = () => {
                         transition: "box-shadow 0.3s ease",
                     }}
                 >
-                    <Table sx={{ minWidth: 700, tableLayout: "fixed" }} aria-label="customized table">
+                    <Table
+                        sx={{ minWidth: 700, tableLayout: "fixed" }}
+                        aria-label="customized table"
+                    >
                         <TableHead>
                             <TableRow>
-                                <StyledTableCell width="7%">Avatar</StyledTableCell>
+                                <StyledTableCell width="7%">
+                                    Avatar
+                                </StyledTableCell>
                                 <StyledTableCell width="3%">ID</StyledTableCell>
-                                <StyledTableCell width="11%">Name</StyledTableCell>
-                                <StyledTableCell width="6%">Gender</StyledTableCell>
-                                <StyledTableCell width="7%">Role</StyledTableCell>
-                                <StyledTableCell width="7%">Phone</StyledTableCell>
-                                <StyledTableCell width="15%">Email</StyledTableCell>
-                                <StyledTableCell width="15%">Address</StyledTableCell>
-                                <StyledTableCell width="11%">Status</StyledTableCell>
+                                <StyledTableCell width="11%">
+                                    Name
+                                </StyledTableCell>
+                                <StyledTableCell width="6%">
+                                    Gender
+                                </StyledTableCell>
+                                <StyledTableCell width="7%">
+                                    Role
+                                </StyledTableCell>
+                                <StyledTableCell width="7%">
+                                    Phone
+                                </StyledTableCell>
+                                <StyledTableCell width="15%">
+                                    Email
+                                </StyledTableCell>
+                                <StyledTableCell width="15%">
+                                    Address
+                                </StyledTableCell>
+                                <StyledTableCell width="11%">
+                                    Status
+                                </StyledTableCell>
                                 <StyledTableCell width="5%" align="center">
                                     Action
                                 </StyledTableCell>
@@ -587,12 +676,24 @@ const UsersPage: React.FC = () => {
                         <TableBody>
                             {displayedUsers.map((user, index) => (
                                 <StyledTableRow key={user._id}>
-                                    <StyledTableCell>{user.avatar}</StyledTableCell>
-                                    <StyledTableCell>{(page - 1) * usersPerPage + index + 1}</StyledTableCell>
-                                    <StyledTableCell>{user.name}</StyledTableCell>
-                                    <StyledTableCell>{user.gender}</StyledTableCell>
-                                    <StyledTableCell>{user.role}</StyledTableCell>
-                                    <StyledTableCell>{user.phone_number}</StyledTableCell>
+                                    <StyledTableCell>
+                                        {user.avatar}
+                                    </StyledTableCell>
+                                    <StyledTableCell>
+                                        {(page - 1) * usersPerPage + index + 1}
+                                    </StyledTableCell>
+                                    <StyledTableCell>
+                                        {user.name}
+                                    </StyledTableCell>
+                                    <StyledTableCell>
+                                        {user.gender}
+                                    </StyledTableCell>
+                                    <StyledTableCell>
+                                        {user.role}
+                                    </StyledTableCell>
+                                    <StyledTableCell>
+                                        {user.phone_number}
+                                    </StyledTableCell>
                                     <StyledTableCell>
                                         <Box>
                                             <span
@@ -609,29 +710,60 @@ const UsersPage: React.FC = () => {
                                             </span>
                                         </Box>
                                     </StyledTableCell>
-                                    <StyledTableCell>{user.address}</StyledTableCell>
+                                    <StyledTableCell>
+                                        {user.address}
+                                    </StyledTableCell>
                                     <StyledTableCell>
                                         <StatusToggle
-                                            initialStatus={user.status as "ACTIVE" | "INACTIVE" | "SUSPENDED"}
+                                            initialStatus={
+                                                user.status as
+                                                    | "ACTIVE"
+                                                    | "INACTIVE"
+                                                    | "SUSPENDED"
+                                            }
                                             onChange={(newStatus) => {
-                                                if (editingUser && editingUser._id === user._id) {
-                                                    setEditingUser({ ...editingUser, status: newStatus });
+                                                if (
+                                                    editingUser &&
+                                                    editingUser._id === user._id
+                                                ) {
+                                                    setEditingUser({
+                                                        ...editingUser,
+                                                        status: newStatus,
+                                                    });
                                                 } else {
-                                                    handleSaveEdit({ ...user, status: newStatus });
+                                                    handleSaveEdit({
+                                                        ...user,
+                                                        status: newStatus,
+                                                    });
                                                 }
                                             }}
                                         />
                                     </StyledTableCell>
                                     <StyledTableCell>
-                                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "center",
+                                            }}
+                                        >
                                             <Tooltip title="Edit">
-                                                <IconButton color="primary" onClick={() => handleEditClick(user)}>
+                                                <IconButton
+                                                    color="primary"
+                                                    onClick={() =>
+                                                        handleEditClick(user)
+                                                    }
+                                                >
                                                     <EditIcon />
                                                 </IconButton>
                                             </Tooltip>
 
                                             <Tooltip title="Delete">
-                                                <IconButton color="error" onClick={() => handleDeleteClick(user)}>
+                                                <IconButton
+                                                    color="error"
+                                                    onClick={() =>
+                                                        handleDeleteClick(user)
+                                                    }
+                                                >
                                                     <DeleteIcon />
                                                 </IconButton>
                                             </Tooltip>
@@ -643,7 +775,9 @@ const UsersPage: React.FC = () => {
                     </Table>
                 </TableContainer>
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
+            <Box
+                sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}
+            >
                 <Pagination
                     count={totalPages}
                     page={page}
@@ -707,7 +841,9 @@ const UsersPage: React.FC = () => {
                         Do you want to delete this member?
                     </DialogTitle>
                 </Box>
-                <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
+                <DialogActions
+                    sx={{ justifyContent: "space-between", px: 3, pb: 2 }}
+                >
                     <Button
                         onClick={handleDeleteClose}
                         color="primary"
@@ -789,7 +925,11 @@ const UsersPage: React.FC = () => {
                         value={editingUser?.address || ""}
                         onChange={handleEditChange}
                     />
-                    <FormControl component="fieldset" margin="dense" sx={{ margin: "10px" }}>
+                    <FormControl
+                        component="fieldset"
+                        margin="dense"
+                        sx={{ margin: "10px" }}
+                    >
                         <FormLabel component="legend">Gender</FormLabel>
                         <RadioGroup
                             aria-label="gender"
@@ -797,8 +937,16 @@ const UsersPage: React.FC = () => {
                             value={editingUser?.gender || ""}
                             onChange={handleEditChange}
                         >
-                            <FormControlLabel value="MALE" control={<Radio />} label="Male" />
-                            <FormControlLabel value="FEMALE" control={<Radio />} label="Female" />
+                            <FormControlLabel
+                                value="MALE"
+                                control={<Radio />}
+                                label="Male"
+                            />
+                            <FormControlLabel
+                                value="FEMALE"
+                                control={<Radio />}
+                                label="Female"
+                            />
                         </RadioGroup>
                     </FormControl>
                     <FormControl component="fieldset" margin="dense">
@@ -809,16 +957,32 @@ const UsersPage: React.FC = () => {
                             value={editingUser?.role || ""}
                             onChange={handleEditChange}
                         >
-                            <FormControlLabel value="TEACHER" control={<Radio />} label="Teacher" />
-                            <FormControlLabel value="STUDENT" control={<Radio />} label="Student" />
+                            <FormControlLabel
+                                value="TEACHER"
+                                control={<Radio />}
+                                label="Teacher"
+                            />
+                            <FormControlLabel
+                                value="STUDENT"
+                                control={<Radio />}
+                                label="Student"
+                            />
                         </RadioGroup>
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleEditClose} className={classes.btnRed} color="primary">
+                    <Button
+                        onClick={handleEditClose}
+                        className={classes.btnRed}
+                        color="primary"
+                    >
                         Cancel
                     </Button>
-                    <Button onClick={handleEditSave} className={classes.btnBlue} color="primary">
+                    <Button
+                        onClick={handleEditSave}
+                        className={classes.btnBlue}
+                        color="primary"
+                    >
                         Update
                     </Button>
                 </DialogActions>

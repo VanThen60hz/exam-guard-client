@@ -26,35 +26,6 @@ const getUser = async (id: string, password: string) => {
     }
 };
 
-const getUserProfile = async (id: string, accessToken: string) => {
-    try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
-        // Create a Headers object
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", accessToken); // Use the access token directly
-        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
-
-        const res = await fetch(`${BASE_URL}/user/profile`, {
-            method: "GET",
-            headers: myHeaders, // Use the Headers object
-        });
-
-        console.log("Response Status:", res.status); // Log the response status
-
-        const data = await res.json();
-
-        if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to get user profile!");
-        }
-
-        return data.metadata;
-    } catch (e) {
-        throw new Error(e.message || "Failed to get user profile!");
-    }
-};
-
 const getListUser = async (id: string, accessToken: string) => {
     try {
         console.log("User ID:", id);
@@ -84,33 +55,66 @@ const getListUser = async (id: string, accessToken: string) => {
     }
 };
 
-// const updateUserProfile = async (id: string, accessToken: string, userData: any) => {
-//     try {
-//         const myHeaders = new Headers();
-//         myHeaders.append("Authorization", accessToken);
-//         myHeaders.append("x-client-id", id);
-//         myHeaders.append("Content-Type", "application/json");
+const getUserProfile = async (id: string, accessToken: string) => {
+    try {
+        console.log("User ID:", id);
+        console.log("Access Token:", accessToken);
 
-//         const res = await fetch(`${BASE_URL}/user/profile`, {
-//             method: "PATCH",
-//             headers: myHeaders,
-//             body: JSON.stringify(userData),
-//         });
+        // Create a Headers object
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
 
-//         const data = await res.json();
+        const res = await fetch(`${BASE_URL}/user/profile`, {
+            method: "GET",
+            headers: myHeaders, // Use the Headers object
+        });
 
-//         if (!res.ok || data.status !== 200) {
-//             throw new Error(data.message || "Failed to update user profile!");
-//         }
+        console.log("Response Status:", res.status); // Log the response status
 
-//         return data.metadata;
-//     } catch (e) {
-//         throw new Error(e.message || "Failed to update user profile!");
-//     }
-// };
+        const data = await res.json();
 
-// Add this new function to update a user's information
-const updateUser = async (id: string, accessToken: string, userId: string, userData: any) => {
+        if (!res.ok || data.status !== 200) {
+            throw new Error(data.message || "Failed to get user profile!");
+        }
+
+        return data.metadata;
+    } catch (e) {
+        throw new Error(e.message || "Failed to get user profile!");
+    }
+};
+
+const updateProfile = async (id: string, accessToken: string, user: any) => {
+    try {
+        console.log("Access Token:", accessToken);
+
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken);
+        myHeaders.append("x-client-id", id || "");
+        myHeaders.append("Content-Type", "application/json");
+
+        const res = await fetch(`${BASE_URL}/user/profile`, {
+            method: "PATCH",
+            headers: myHeaders,
+            body: JSON.stringify(user),
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(data.message || "Failed to get user profile!");
+        }
+
+        return data.metadata;
+    } catch (e) {
+        throw new Error(e.message || "Failed to get user profile!");
+    }
+};
+const updateUser = async (
+    id: string,
+    accessToken: string,
+    userId: string,
+    userData: any
+) => {
     try {
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken);
@@ -134,7 +138,12 @@ const updateUser = async (id: string, accessToken: string, userId: string, userD
     }
 };
 
-const deleteUser = async (id: string, accessToken: string, userId: string, userData: any) => {
+const deleteUser = async (
+    id: string,
+    accessToken: string,
+    userId: string,
+    userData: any
+) => {
     try {
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken);
@@ -158,4 +167,11 @@ const deleteUser = async (id: string, accessToken: string, userId: string, userD
     }
 };
 
-export { getUser, getUserProfile, getListUser, updateUser, deleteUser };
+export {
+    getUser,
+    getUserProfile,
+    updateProfile,
+    updateUser,
+    getListUser,
+    deleteUser,
+};
