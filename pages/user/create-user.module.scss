@@ -1,3 +1,4 @@
+//create-user.module.scss
 .inputField {
     border-radius: 10px; /* Độ bo góc */
     border: 1px solid #46c17b;
@@ -15,3 +16,12 @@
     border-color: red;
     box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
+.dateTime {
+    width: 260px;
+    border-radius: 10px;
+    font-family: Lexend;
+    padding: 10px;
+    background-color: #22b9b7;
+    box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
