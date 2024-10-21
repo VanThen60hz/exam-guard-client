@@ -29,6 +29,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Avatar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
@@ -43,6 +44,7 @@ import {
   searchUser,
 } from "../../helpers/api/user-api";
 import classes from "./list.module.scss";
+import profileUserClasses from "./profileUser.module.scss";
 
 // Icons
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -57,7 +59,7 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import Autocomplete from "@mui/material/Autocomplete";
 
 enum EPaginationOfPage {
-  USERS_PER_PAGE = 5,
+  USERS_PER_PAGE = 8,
 }
 
 const UsersPage: React.FC = () => {
@@ -68,8 +70,9 @@ const UsersPage: React.FC = () => {
   const [role, setRole] = useState<null | HTMLElement>(null);
   const [listUser, setlistUser] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(2);
+  const [limit, setLimit] = useState(15); // Giới hạn số người dùng hiển thị
+  const [totalPages, setTotalPages] = useState(0);
   const [editingUser, setEditingUser] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -82,6 +85,48 @@ const UsersPage: React.FC = () => {
 
   const genderRef = useRef<HTMLDivElement>(null);
   const roleRef = useRef<HTMLDivElement>(null);
+
+  //Upload Avatar
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "ml_default"); // Thay thế bằng upload_preset từ Cloudinary
+    formData.append("folder", "imageUser"); // Thêm vào thư mục cụ thể
+
+    try {
+      // Tải ảnh mới lên Cloudinary
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/duv0ugc5x/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error uploading avatar: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const imgUrl: string = data.secure_url;
+
+      // Cập nhật avatar trong trạng thái editingUser
+      setEditingUser((prev) => ({
+        ...prev,
+        avatar: imgUrl, // Cập nhật URL của ảnh đã tải lên
+      }));
+
+      toast.success("Avatar uploaded successfully!");
+    } catch (error) {
+      toast.error("Failed to upload avatar.");
+    }
+  };
 
   //Null click
   useEffect(() => {
@@ -111,19 +156,25 @@ const UsersPage: React.FC = () => {
         const accessToken = session.accessToken;
 
         if (userId && accessToken) {
-          try {
-            const list = await getListUser(userId, accessToken);
-            setlistUser(list);
-            setFilteredUsers(list);
-          } catch (error) {
-            toast.error("Failed to fetch user profile");
+          // Kiểm tra xem limit có phải là số hợp lệ không
+          if (limit !== undefined && limit > 0) {
+            try {
+              const list = await getListUser(userId, accessToken, page, limit);
+              setlistUser(list);
+              setFilteredUsers(list);
+              setPage(list.totalPages);
+              setLimit(list.total);
+              setPage(1)
+            } catch (error) {
+              toast.error("Failed to fetch user profile");
+            }
           }
         }
       }
     };
 
     fetchListUser();
-  }, [status, session]);
+  }, [status, session, page, limit]);
 
   useEffect(() => {
     let filtered = listUser;
@@ -144,10 +195,12 @@ const UsersPage: React.FC = () => {
 
     setFilteredUsers(filtered);
     setTotalPages(
-      Math.ceil(filtered.length / EPaginationOfPage.USERS_PER_PAGE)
+      Math.ceil(filtered.length / EPaginationOfPage.USERS_PER_PAGE) 
     );
-    setPage(1); // Reset to first page when filters change
+    setPage(1);
   }, [selectedGender, selectedRole, listUser]);
+
+  useEffect(() => {});
 
   // Event handlers for filters
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -295,12 +348,12 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  //Change page
+  // Change page
   const handlePageChange = (
     event: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(value);
+    setPage(value); // Giữ nguyên trang hiện tại
   };
 
   //Styled
@@ -425,7 +478,7 @@ const UsersPage: React.FC = () => {
               content: '""',
               position: "absolute",
               width: "16px", // Giảm kích thước từ 26px xuống 16px
-              height: "16px", // Giảm kích thước từ 26px xuống 16px
+              height: "16px", // Gi���m kích thước từ 26px xuống 16px
               borderRadius: "8px", // Điều chỉnh border radius
               backgroundColor: "white",
               top: "2px",
@@ -453,11 +506,12 @@ const UsersPage: React.FC = () => {
     );
   };
 
-  //Displayed users (stt)
+  //Displayed users 
   const displayedUsers = filteredUsers.slice(
     (page - 1) * EPaginationOfPage.USERS_PER_PAGE,
     page * EPaginationOfPage.USERS_PER_PAGE
   );
+
 
   return (
     <>
@@ -700,7 +754,13 @@ const UsersPage: React.FC = () => {
             <TableBody>
               {displayedUsers.map((user, index) => (
                 <StyledTableRow key={user._id}>
-                  <StyledTableCell>{user.avatar}</StyledTableCell>
+                  <StyledTableCell>
+                    <Avatar
+                      src={user.avatar}
+                      alt="User Avatar"
+                      sx={{ width: 50, height: 50, borderRadius: "50%" }} // Use sx for styling
+                    />
+                  </StyledTableCell>
                   <StyledTableCell>
                     {(page - 1) * EPaginationOfPage.USERS_PER_PAGE + index + 1}
                   </StyledTableCell>
@@ -923,46 +983,101 @@ const UsersPage: React.FC = () => {
             value={editingUser?.address || ""}
             onChange={handleEditChange}
           />
-          <FormControl
-            component="fieldset"
-            margin="dense"
-            sx={{ margin: "10px" }}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            <FormLabel component="legend">Gender</FormLabel>
-            <RadioGroup
-              aria-label="gender"
-              name="gender"
-              value={editingUser?.gender || ""}
-              onChange={handleEditChange}
-            >
-              <FormControlLabel value="MALE" control={<Radio />} label="Male" />
-              <FormControlLabel
-                value="FEMALE"
-                control={<Radio />}
-                label="Female"
+            <Box>
+              <FormControl
+                component="fieldset"
+                margin="dense"
+                sx={{ margin: "10px" }}
+              >
+                <FormLabel component="legend">Gender</FormLabel>
+                <RadioGroup
+                  aria-label="gender"
+                  name="gender"
+                  value={editingUser?.gender || ""}
+                  onChange={handleEditChange}
+                >
+                  <FormControlLabel
+                    value="MALE"
+                    control={<Radio />}
+                    label="Male"
+                  />
+                  <FormControlLabel
+                    value="FEMALE"
+                    control={<Radio />}
+                    label="Female"
+                  />
+                </RadioGroup>
+              </FormControl>
+              <FormControl component="fieldset" margin="dense">
+                <FormLabel component="legend">Role</FormLabel>
+                <RadioGroup
+                  aria-label="role"
+                  name="role"
+                  value={editingUser?.role || ""}
+                  onChange={handleEditChange}
+                >
+                  <FormControlLabel
+                    value="TEACHER"
+                    control={<Radio />}
+                    label="Teacher"
+                  />
+                  <FormControlLabel
+                    value="STUDENT"
+                    control={<Radio />}
+                    label="Student"
+                  />
+                </RadioGroup>
+              </FormControl>
+            </Box>
+            <Box>
+              <Avatar
+                src={editingUser?.avatar || ""} // Use src instead of value
+                alt="User Avatar"
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  border: "1px solid #000",
+                  margin: "10px 30px -10px",
+                }}
               />
-            </RadioGroup>
-          </FormControl>
-          <FormControl component="fieldset" margin="dense">
-            <FormLabel component="legend">Role</FormLabel>
-            <RadioGroup
-              aria-label="role"
-              name="role"
-              value={editingUser?.role || ""}
-              onChange={handleEditChange}
-            >
-              <FormControlLabel
-                value="TEACHER"
-                control={<Radio />}
-                label="Teacher"
-              />
-              <FormControlLabel
-                value="STUDENT"
-                control={<Radio />}
-                label="Student"
-              />
-            </RadioGroup>
-          </FormControl>
+              <Button
+                className={profileUserClasses.buttonUploadAvatar}
+                sx={{
+                  width: "170px !important",
+                  height: "30px !important",
+                  marginRight: "40px",
+                }}
+                variant="contained"
+                component="label"
+                onChange={handleEditChange}
+              >
+                <p
+                  style={{
+                    paddingTop: "4px",
+                    fontFamily: "Lexend",
+                    fontSize: "10px",
+                    fontWeight: "bold",
+                    color: "#229594",
+                  }}
+                >
+                  Upload New Avatar
+                </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleAvatarUpload} // Gọi hàm handleAvatarUpload
+                />
+              </Button>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button

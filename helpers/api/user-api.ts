@@ -26,22 +26,16 @@ const getUser = async (id: string, password: string) => {
   }
 };
 
-const getListUser = async (id: string, accessToken: string) => {
+const getListUser = async (id: string, accessToken: string, page: number, limit: number) => {
   try {
-    console.log("User ID:", id);
-    console.log("Access Token:", accessToken);
-
-    // Create a Headers object
     const myHeaders = new Headers();
-    myHeaders.append("Authorization", accessToken); // Use the access token directly
-    myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+    myHeaders.append("Authorization", accessToken);
+    myHeaders.append("x-client-id", id || "");
 
-    const res = await fetch(`${BASE_URL}/user/list`, {
+    const res = await fetch(`${BASE_URL}/user/list?page=${page}&limit=${limit}`, {
       method: "GET",
-      headers: myHeaders, // Use the Headers object
+      headers: myHeaders,
     });
-
-    console.log("Response Status:", res.status); // Log the response status
 
     const data = await res.json();
 
