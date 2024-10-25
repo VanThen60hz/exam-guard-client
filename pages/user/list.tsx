@@ -57,28 +57,32 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 
 // Components
 import Autocomplete from "@mui/material/Autocomplete";
+import { useRouter } from "next/router";
 
 enum EPaginationOfPage {
-  USERS_PER_PAGE = 8,
+  USERS_PER_PAGE = 7,
 }
 
 const UsersPage: React.FC = () => {
   // State declarations
+  const USERS_PER_PAGE = EPaginationOfPage.USERS_PER_PAGE;
   const [selectedGender, setSelectedGender] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [gender, setGender] = useState<null | HTMLElement>(null);
   const [role, setRole] = useState<null | HTMLElement>(null);
   const [listUser, setlistUser] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [page, setPage] = useState(2);
-  const [limit, setLimit] = useState(15); // Giới hạn số người dùng hiển thị
-  const [totalPages, setTotalPages] = useState(0);
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(0);
+  const [total, setTotal] = useState(Infinity);
+  const [searchInput, setSearchInput] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   // Refs
   const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
@@ -157,14 +161,14 @@ const UsersPage: React.FC = () => {
 
         if (userId && accessToken) {
           // Kiểm tra xem limit có phải là số hợp lệ không
-          if (limit !== undefined && limit > 0) {
+          if (total !== undefined && total > 0) {
             try {
               const list = await getListUser(userId, accessToken, page, limit);
               setlistUser(list);
               setFilteredUsers(list);
               setPage(list.totalPages);
-              setLimit(list.total);
-              setPage(1)
+              setTotal(list.total);
+              setPage(1);
             } catch (error) {
               toast.error("Failed to fetch user profile");
             }
@@ -194,13 +198,9 @@ const UsersPage: React.FC = () => {
     }
 
     setFilteredUsers(filtered);
-    setTotalPages(
-      Math.ceil(filtered.length / EPaginationOfPage.USERS_PER_PAGE) 
-    );
-    setPage(1);
+    // setPage(Math.ceil(filtered.length / USERS_PER_PAGE));
+    // setPage(1);
   }, [selectedGender, selectedRole, listUser]);
-
-  useEffect(() => {});
 
   // Event handlers for filters
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -214,6 +214,7 @@ const UsersPage: React.FC = () => {
   const handleGenderSelect = (gender: string) => {
     setSelectedGender(gender || null);
     handleClose();
+    setSearchInput(""); // Clear search input
   };
 
   const handleClickRole = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -227,6 +228,7 @@ const UsersPage: React.FC = () => {
   const handleRoleSelect = (role: string) => {
     setSelectedRole(role || null);
     handleCloseRole();
+    setSearchInput(""); // Clear search input
   };
 
   // User editing functions
@@ -322,6 +324,7 @@ const UsersPage: React.FC = () => {
     event: React.ChangeEvent<{}>,
     value: string | null
   ) => {
+    setSearchInput(value || "");
     if (value) {
       try {
         const users = await searchUser(
@@ -330,10 +333,9 @@ const UsersPage: React.FC = () => {
           value
         );
         setFilteredUsers(users);
-        setTotalPages(
-          Math.ceil(users.length / EPaginationOfPage.USERS_PER_PAGE)
-        );
-        setPage(1); // Reset to first page when search is performed
+        setSelectedGender(""); // Reset gender filter
+        setSelectedRole("");
+        setPage(1);
         console.log(users);
       } catch (error) {
         toast.error("Failed to search users");
@@ -341,9 +343,7 @@ const UsersPage: React.FC = () => {
     } else {
       // If search term is empty, reset to the full user list
       setFilteredUsers(listUser);
-      setTotalPages(
-        Math.ceil(listUser.length / EPaginationOfPage.USERS_PER_PAGE)
-      );
+      // setPage(Math.ceil(listUser.length / USERS_PER_PAGE));
       setPage(1);
     }
   };
@@ -506,12 +506,12 @@ const UsersPage: React.FC = () => {
     );
   };
 
-  //Displayed users 
+  //Displayed users
   const displayedUsers = filteredUsers.slice(
-    (page - 1) * EPaginationOfPage.USERS_PER_PAGE,
-    page * EPaginationOfPage.USERS_PER_PAGE
+    (page - 1) * USERS_PER_PAGE,
+    page * USERS_PER_PAGE
   );
-
+  console.log(filteredUsers.length / USERS_PER_PAGE);
 
   return (
     <>
@@ -689,9 +689,11 @@ const UsersPage: React.FC = () => {
                 }}
               />
             )}
+            value={searchInput}
           />
         </Stack>
         <Button
+          onClick={() => router.push("/user/create-user")}
           sx={{
             display: "flex",
             alignItems: "center",
@@ -737,7 +739,7 @@ const UsersPage: React.FC = () => {
           >
             <TableHead>
               <TableRow>
-                <StyledTableCell width="7%">Avatar</StyledTableCell>
+                <StyledTableCell width="5%">Avatar</StyledTableCell>
                 <StyledTableCell width="3%">ID</StyledTableCell>
                 <StyledTableCell width="11%">Name</StyledTableCell>
                 <StyledTableCell width="6%">Gender</StyledTableCell>
@@ -762,7 +764,7 @@ const UsersPage: React.FC = () => {
                     />
                   </StyledTableCell>
                   <StyledTableCell>
-                    {(page - 1) * EPaginationOfPage.USERS_PER_PAGE + index + 1}
+                    {(page - 1) * USERS_PER_PAGE + index + 1}
                   </StyledTableCell>
                   <StyledTableCell>{user.name}</StyledTableCell>
                   <StyledTableCell>{user.gender}</StyledTableCell>
@@ -839,7 +841,7 @@ const UsersPage: React.FC = () => {
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
-          count={totalPages}
+          count={Math.ceil(filteredUsers.length / USERS_PER_PAGE)}
           page={page}
           onChange={handlePageChange}
           sx={{
