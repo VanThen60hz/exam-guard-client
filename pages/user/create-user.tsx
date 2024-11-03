@@ -156,17 +156,18 @@ const CreateUserPage: React.FC = () => {
     setPasswordError("");
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData((prevState) => ({ ...prevState }));
-      setAvatarPreview(URL.createObjectURL(file));
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        avatar: "", // Xóa lỗi khi người dùng chọn file
-      }));
-    }
-  };
+  // const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setFormData((prevState) => ({ ...prevState }));
+  //     setAvatarPreview(URL.createObjectURL(file));
+  //     setErrors((prevErrors) => ({
+  //       ...prevErrors,
+  //       avatar: "", // Xóa lỗi khi người dùng chọn file
+  //     }));
+  //   }
+  // };
+
   const handleAvatarUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {

@@ -103,6 +103,7 @@ const updateProfile = async (id: string, accessToken: string, user: any) => {
     throw new Error(e.message || "Failed to get user profile!");
   }
 };
+
 const updateUser = async (
   id: string,
   accessToken: string,
@@ -190,6 +191,7 @@ const searchUser = async (id: string, accessToken: string, query: string) => {
     throw new Error(e.message || "Failed to search user!");
   }
 };
+
 const createUser = async (id: string, accessToken: string, user: any) => {
   try {
       console.log("Creating user with ID:", id);
