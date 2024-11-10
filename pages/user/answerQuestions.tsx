@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
+    LinearProgress,
     Container,
     Button,
     Typography,
@@ -21,7 +22,7 @@ import { useRouter } from "next/router";
 
 import NavBarHome from "../../components/home/navbar-home";
 import { getListQuestion } from "../../helpers/api/exam-api";
-import { examID, examTitle } from "./homeStudent";
+import { examTime, examID, examTitle } from "./homeStudent";
 
 import classes from "./homeStudent.module.scss";
 import classes2 from "./profileUser.module.scss";
@@ -61,6 +62,11 @@ const AnswerQuestionPage: React.FC = () => {
     const [allQuestion, setAllQuestion] = useState([]);
     const page2 = 1;
     const limit2 = 100000;
+
+    // totalTime là tổng thời gian làm bài, tính bằng giây
+    const totalTime = examTime * 60;
+    const [timeLeft, setTimeLeft] = useState(totalTime);
+    const progress = (timeLeft / totalTime) * 100;
 
     // Camera
     const videoRef = useRef(null);
@@ -209,6 +215,26 @@ const AnswerQuestionPage: React.FC = () => {
         };
     }, []);
 
+    // Thời gian làm bài
+    useEffect(() => {
+        // Hàm cập nhật thanh tiến trình mỗi giây
+        const intervalId = setInterval(() => {
+            setTimeLeft((prevTime) => {
+                if (prevTime <= 1) {
+                    clearInterval(intervalId);
+                    return 0; // Hết giờ
+                }
+                return prevTime - 1; // Giảm dần thời gian còn lại
+            });
+        }, 1000);
+
+        if (timeLeft == 0) {
+            handleSubmit();
+        }
+
+        return () => clearInterval(intervalId);
+    }, [totalTime]);
+
     // Chuyển trang
     const handlePageChange = (
         event: React.ChangeEvent<unknown>,
@@ -331,24 +357,34 @@ const AnswerQuestionPage: React.FC = () => {
         <>
             <NavBarHome loadingBarRef={loadingBarRef} />
             <Container className={classes.container}>
-                {/* Hiển thị ngày giờ hiện tại */}
-                <div
-                    className={`${classes2.dateTime}`}
-                    style={{
-                        marginTop: "120px",
-                    }}
-                >
-                    <Typography
+                <div className={classes.countdownTimer}>
+                    <p style={{ padding: "5px" }} className={classes.fontStyle}>
+                        Thời gian còn lại: {Math.floor(timeLeft / 60)} phút
+                    </p>
+                    <LinearProgress
+                        variant="determinate"
+                        value={progress}
+                        style={{ width: "100%", height: 10, marginTop: 10 }}
+                    />
+                </div>
+                {/* Hiển thị ngày giờ hiện tại
+                    <div
+                        className={`${classes2.dateTime}`}
                         style={{
-                            fontFamily: "Lexend",
-                            fontSize: "20px",
-                            fontWeight: 400,
-                            color: "#fff",
+                            marginTop: "120px",
                         }}
                     >
-                        {currentDateTime}
-                    </Typography>
-                </div>
+                        <Typography
+                            style={{
+                                fontFamily: "Lexend",
+                                fontSize: "20px",
+                                fontWeight: 400,
+                                color: "#fff",
+                            }}
+                        >
+                            {currentDateTime}
+                        </Typography>
+                    </div> */}
 
                 <div
                     style={{

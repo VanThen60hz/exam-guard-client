@@ -137,13 +137,27 @@ const homeStudentPage: React.FC = () => {
     };
 
     const handleStart = (exam) => {
-        examID = exam._id;
-        examTitle = exam.title;
+        const currentTime = Date.now();
+        const examStartTime = new Date(exam.startTime).getTime();
+        const examEndTime = new Date(exam.endTime).getTime();
 
-        router.push({
-            pathname: "/user/answerQuestions",
-            query: { examId: exam._id }, // Pass the exam ID as a query parameter
-        });
+        if (currentTime >= examStartTime && currentTime < examEndTime) {
+            // Tính thời gian làm bài thi theo phút
+            examTime = Math.abs((examEndTime - currentTime) / 60000);
+            examID = exam._id;
+            examTitle = exam.title;
+
+            // Chuyển trang nếu thời gian hợp lệ
+            router.push({
+                pathname: "/user/answerQuestions",
+                query: { examId: exam._id },
+            });
+        } else if (currentTime >= examEndTime) {
+            alert("Hết hạn thời gian làm bài!");
+        } else {
+            // Hiển thị thông báo nếu chưa đến thời gian làm bài
+            alert("Chưa đến thời gian làm bài!");
+        }
     };
 
     //Hiển thị ra màn hình
@@ -327,6 +341,7 @@ const homeStudentPage: React.FC = () => {
     );
 };
 
+export let examTime: number;
 export let examID: string;
 export let examTitle: string;
 export default homeStudentPage;
