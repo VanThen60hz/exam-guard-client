@@ -45,6 +45,20 @@
     background-color: #fff;
 }
 
+//answerQuestion page
+.countdownTimer {
+    position: sticky;
+    top: 96px;
+
+    margin-top: 120px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    z-index: 1000;
+}
+
 .questionBox {
     border: 1px solid #000;
     border-radius: 20px;
@@ -53,9 +67,6 @@
 }
 
 .header {
-    position: sticky;
-    top: -500;
-    z-index: 1000;
     padding: 10px 50px;
     border-bottom: 1px solid #000;
 }
