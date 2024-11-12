@@ -15,8 +15,7 @@ import { createExam } from "../../helpers/api/exam-api";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { SelectChangeEvent } from "@mui/material/Select";
-import NavBarHome from "../../components/home/navbar-home";
-import classes from "./manageExam.module.scss";
+import classes from "../../components/exam-main/manage-exam.module.scss";
 
 interface FormData {
   title: string;
@@ -34,7 +33,7 @@ type Errors = {
   status?: string;
 };
 
-const CreateExam: React.FC = () => {
+const CreateExamForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
@@ -48,6 +47,8 @@ const CreateExam: React.FC = () => {
   const [errors, setErrors] = useState<Errors>({});
   const dateInputRef = useRef<HTMLInputElement>(null);
   const loadingBarRef = useRef(null);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -127,12 +128,29 @@ const CreateExam: React.FC = () => {
         setLoading(false);
       }
     }
-    router.push("/exam/manageExam");
+    router.push("/exam/manage-exam");
+  };
+
+  //Minutes calculation
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    // Cập nhật giá trị vào formData
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value, // Cập nhật giá trị vào formData
+    }));
+  };
+
+  const saveStartTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartTime(e.target.value);
+  };
+
+  const saveEndTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndTime(e.target.value);
   };
 
   return (
     <>
-      <NavBarHome loadingBarRef={loadingBarRef} />
       <Container sx={{ marginTop: "150px" }}>
         <Container
           component="main"
@@ -242,7 +260,7 @@ const CreateExam: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Box>
-                <Box sx={{ width: 250, margin: "0 10px" }}>
+                <Box sx={{ width: 210, margin: "0 10px" }}>
                   <TextField
                     name="startTime"
                     fullWidth
@@ -254,7 +272,10 @@ const CreateExam: React.FC = () => {
                       shrink: true, // Đảm bảo nhãn không bị che khuất
                     }}
                     inputRef={dateInputRef}
-                    onChange={handleInputChange}
+                    onChange={(e) => {
+                      handleEditChange(e);
+                      saveStartTime(e as React.ChangeEvent<HTMLInputElement>);
+                    }}
                   />
                   {errors.startTime && (
                     <Typography variant="body2" sx={{ color: "red" }}>
@@ -263,7 +284,7 @@ const CreateExam: React.FC = () => {
                   )}
                 </Box>
 
-                <Box sx={{ width: 250 }}>
+                <Box sx={{ width: 210, marginRight: "10px" }}>
                   <TextField
                     name="endTime"
                     fullWidth
@@ -275,13 +296,42 @@ const CreateExam: React.FC = () => {
                       shrink: true, // Đảm bảo nhãn không bị che khuất
                     }}
                     inputRef={dateInputRef}
-                    onChange={handleInputChange}
+                    onChange={(e) => {
+                      handleEditChange(e);
+                      saveEndTime(e as React.ChangeEvent<HTMLInputElement>);
+                    }}
                   />
                   {errors.endTime && (
                     <Typography variant="body2" sx={{ color: "red" }}>
                       {errors.endTime}
                     </Typography>
                   )}
+                </Box>
+                <Box
+                  sx={{
+                    width: "230px",
+                  }}
+                >
+                  <TextField
+                    variant="outlined"
+                    disabled
+                    className={classes.textFieldCustom}
+                    value={
+                      startTime && endTime
+                        ? `${Math.abs(
+                            (new Date(endTime).getTime() -
+                              new Date(startTime).getTime()) /
+                              60000
+                          ).toFixed(0)} min`
+                        : "0 min"
+                    }
+                    InputProps={{
+                      sx: {
+                        backgroundColor: "#a4eeed",
+                        fontWeight: "bold",
+                      },
+                    }}
+                  />
                 </Box>
               </Box>
 
@@ -293,7 +343,7 @@ const CreateExam: React.FC = () => {
                 }}
               >
                 <Button
-                  onClick={() => router.push("/exam/manageExam")}
+                  onClick={() => router.push("/exam/manage-exam")}
                   variant="contained"
                   className={`${classes.btnRed} ${classes.btnMedium}`}
                   sx={{ marginRight: 2 }}
@@ -316,4 +366,4 @@ const CreateExam: React.FC = () => {
   );
 };
 
-export default CreateExam;
+export default CreateExamForm;

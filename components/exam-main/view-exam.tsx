@@ -23,8 +23,10 @@ import Radio from "@mui/material/Radio"; // Nhập Radio từ Material-UI
 import { toast } from "react-toastify";
 import SearchIcon from "@mui/icons-material/Search"; // Import the Search icon
 import InputAdornment from "@mui/material/InputAdornment"; // {{ edit_1 }}
-import EPaginationOfPage from "../user/list"; // Adjusted to default import
-import Pagination from "@mui/material/Pagination";
+// import EPaginationOfPage from "../user/list"; // Adjusted to default import
+// import Pagination from "@mui/material/Pagination";
+// Components
+import { useRouter } from "next/router";
 
 interface Exam {
   id: string;
@@ -43,7 +45,9 @@ interface Question {
   originalIndex?: number; // Add this line to include the originalIndex property
 }
 
-const ViewExam: React.FC = () => {
+const ViewExamForm: React.FC = () => {
+  const router = useRouter();
+  const { examId } = router.query;
   const { data: session, status } = useSession(); // Lấy dữ liệu phiên làm việc và trạng thái
   const token = session?.accessToken; // Giả sử accessToken được lưu trong phiên làm việc
   const [currentDateTime, setCurrentDateTime] = useState<string>(""); // Trạng thái cho thời gian hiện tại
@@ -51,7 +55,7 @@ const ViewExam: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]); // Khởi tạo với mảng rỗng
   const [error, setError] = useState<string | null>(null); // Lưu trữ lỗi
   const loadingBarRef = useRef(null); // Tham chiếu đến thanh tải
-  const examId = "671f5ac78df4d692c782a559"; // Thay thế bằng ID kỳ thi thực tế
+  //   const examId = "671f5ac78df4d692c782a559"; // Thay thế bằng ID kỳ thi thực tế
   const [page, setPage] = useState(1); // Bắt đầu từ trang 1
   const USERS_PER_PAGE = 3; // Đảm bảo rằng giá trị này là một số hợp lệ
   const [limit, setLimit] = useState(USERS_PER_PAGE); // Use the defined constant
@@ -75,12 +79,11 @@ const ViewExam: React.FC = () => {
   const [options, setOptions] = useState<string[]>(
     selectedQuestion?.options || ["", "", ""]
   ); // Khởi tạo với 3 tùy chọn rỗng
-  
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<
     number | null
   >(null); // Chỉ số câu hỏi hiện tại
-const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái modal xác nhận xóa
+  const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái modal xác nhận xóa
   const [questionToDelete, setQuestionToDelete] = useState<string | null>(null); // Câu hỏi cần xóa
 
   const [searchQuery, setSearchQuery] = useState<string>(""); // State for search query
@@ -95,7 +98,7 @@ const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái 
         const results = await searchQuestions(
           session.userId,
           session.accessToken,
-          examId,
+          examId as string,
           value
         );
         setSearchResults(results);
@@ -118,10 +121,9 @@ const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái 
       const accessToken = session.accessToken;
 
       if (userId && accessToken) {
-        
         try {
           const questionsResponse = await listQuestions(
-            examId,
+            examId as string,
             userId,
             accessToken,
             page,
@@ -146,7 +148,9 @@ const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái 
       const results = await searchQuestionsHandler(value);
       // Ánh xạ kết quả để bao gồm chỉ số gốc
       const indexedResults = results.map((question) => {
-        const originalIndex = allQuestions.findIndex(q => q._id === question._id);
+        const originalIndex = allQuestions.findIndex(
+          (q) => q._id === question._id
+        );
         return { ...question, originalIndex };
       });
       setSearchResults(indexedResults);
@@ -169,7 +173,7 @@ const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái 
       };
       await updateQuestion(
         // Gọi API để cập nhật câu hỏi
-        examId,
+        examId as string,
         selectedQuestion._id,
         session.userId,
         session.accessToken,
@@ -196,7 +200,7 @@ const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái 
         options: newOptions,
       };
       await updateQuestion(
-        examId,
+        examId as string,
         selectedQuestion._id,
         session.userId,
         session.accessToken,
@@ -213,7 +217,7 @@ const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái 
       return correctAnswer
         .map((answer) => {
           const index = options.indexOf(answer);
-return index !== -1 ? String.fromCharCode(65 + index) : null;
+          return index !== -1 ? String.fromCharCode(65 + index) : null;
         })
         .filter(Boolean)
         .join(" and ");
@@ -234,7 +238,7 @@ return index !== -1 ? String.fromCharCode(65 + index) : null;
       if (status === "authenticated" && session) {
         try {
           const response = await getExamById(
-            examId,
+            examId as string,
             session.userId,
             session.accessToken
           );
@@ -310,7 +314,7 @@ return index !== -1 ? String.fromCharCode(65 + index) : null;
     setSelectedQuestion((prev) => ({
       ...prev,
       questionType: "Single Choice",
-options: ["Option A", "Option B", "Option C", "Option D"],
+      options: ["Option A", "Option B", "Option C", "Option D"],
       correctAnswer: "",
     }));
   };
@@ -340,7 +344,7 @@ options: ["Option A", "Option B", "Option C", "Option D"],
 
       // Gọi API để cập nhật câu hỏi
       await updateQuestion(
-        examId,
+        examId as string,
         selectedQuestion._id,
         session.userId,
         session.accessToken,
@@ -373,7 +377,7 @@ options: ["Option A", "Option B", "Option C", "Option D"],
       if (userId && accessToken) {
         try {
           const questionsResponse = await listQuestions(
-            examId,
+            examId as string,
             userId,
             accessToken,
             page,
@@ -403,8 +407,7 @@ options: ["Option A", "Option B", "Option C", "Option D"],
   const totalPages = Math.ceil(totalQuestions / limit);
 
   const handleExit = () => {
-    // Logic to handle exit, e.g., redirecting or closing the exam
-    console.log("Exiting the exam");
+    
   };
 
   const handleDeleteQuestion = (questionId: string) => {
@@ -416,7 +419,7 @@ options: ["Option A", "Option B", "Option C", "Option D"],
     if (questionToDelete) {
       try {
         await deleteQuestion(
-          examId,
+          examId as string,
           questionToDelete,
           session.userId,
           session.accessToken
@@ -434,7 +437,7 @@ options: ["Option A", "Option B", "Option C", "Option D"],
       }
     }
   };
-const handleCloseDeleteModal = () => {
+  const handleCloseDeleteModal = () => {
     setOpenDeleteModal(false);
     setQuestionToDelete(null);
   };
@@ -460,7 +463,7 @@ const handleCloseDeleteModal = () => {
         if (userId && accessToken) {
           try {
             const response = await listQuestions(
-              examId,
+              examId as string,
               userId,
               accessToken,
               1,
@@ -573,9 +576,9 @@ const handleCloseDeleteModal = () => {
             placeholder="Search"
             value={searchQuery}
             onChange={(event) => handleSearch(event, event.target.value)}
-            sx={{ 
-              marginLeft: 2, 
-              width: "600px", 
+            sx={{
+              marginLeft: 2,
+              width: "600px",
               borderRadius: "20px", // Add border radius for rounded corners
               boxShadow: 3, // Add shadow effect
             }} // Adjust width as needed
@@ -602,9 +605,9 @@ const handleCloseDeleteModal = () => {
                 padding: "10px 30px", // Increase padding for a larger button
                 fontSize: "15px",
                 borderRadius: "20px",
-                 boxShadow: 3// Increase font size
+                boxShadow: 3, // Increase font size
               }}
-              onClick={handleExit}
+              onClick={() => router.push("/exam/manage-exam")}
             >
               Exit
             </Button>
@@ -745,7 +748,11 @@ justifyContent: "space-between",
                       variant="body1"
                       sx={{ color: "black", fontWeight: "bold" }}
                     >
-                      Question {searchQuery ? question.originalIndex + 1 : index + 1 + (page - 1) * USERS_PER_PAGE}: {question.questionText}
+                      Question{" "}
+                      {searchQuery
+                        ? question.originalIndex + 1
+                        : index + 1 + (page - 1) * USERS_PER_PAGE}
+                      : {question.questionText}
                     </Typography>
                     <Box>
                       <Button
@@ -804,7 +811,13 @@ justifyContent: "space-between",
             </Button>
             <Button
               onClick={() => handlePageChange(page + 1)}
-              disabled={page === calculateTotalPages(searchQuery ? searchResults.length : totalQuestions, limit)}
+              disabled={
+                page ===
+                calculateTotalPages(
+                  searchQuery ? searchResults.length : totalQuestions,
+                  limit
+                )
+              }
               sx={{ color: "black" }}
             >
               Next {">>"}
@@ -837,7 +850,7 @@ justifyContent: "space-between",
               position: "absolute",
               top: "50%",
               left: "50%",
-transform: "translate(-50%, -50%)",
+              transform: "translate(-50%, -50%)",
               width: 400,
               bgcolor: "background.paper",
               boxShadow: 24,
@@ -933,7 +946,7 @@ transform: "translate(-50%, -50%)",
                 onChange={(e) =>
                   setSelectedQuestion({
                     ...selectedQuestion,
-questionText: e.target.value,
+                    questionText: e.target.value,
                   })
                 }
                 margin="normal"
@@ -1016,7 +1029,7 @@ questionText: e.target.value,
                       ...selectedQuestion,
                       correctAnswer: options[answerIndex],
                     });
-}
+                  }
                 }}
                 margin="normal"
                 sx={{ borderRadius: "8px" }}
@@ -1095,4 +1108,4 @@ questionText: e.target.value,
   );
 };
 
-export default ViewExam;
+export default ViewExamForm;

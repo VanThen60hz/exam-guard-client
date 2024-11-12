@@ -13,7 +13,6 @@ import {
   Select,
 } from "@mui/material";
 
-import { LoadingBarRef } from "react-top-loading-bar";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import NavBarHome from "../../components/home/navbar-home";
@@ -22,7 +21,7 @@ import {
   getExam,
   createQuestion,
 } from "../../helpers/api/exam-api";
-import classes from "./manageExam.module.scss";
+import classes from "../../components/exam-main/manage-exam.module.scss";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 // Components
@@ -33,8 +32,7 @@ type Errors = {
   questionScore?: string;
 };
 
-const EditExam: React.FC = () => {
-  const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
+const EditExamForm: React.FC = () => {
   const { data: session, status } = useSession();
   const [listExam, setListExam] = useState([]);
   const router = useRouter();
@@ -49,6 +47,7 @@ const EditExam: React.FC = () => {
 
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [editingExam, setEditingExam] = useState(null);
 
   useEffect(() => {
     const fetchExamData = async () => {
@@ -63,8 +62,6 @@ const EditExam: React.FC = () => {
     fetchExamData();
   }, [examId, session]);
 
-  const [editingExam, setEditingExam] = useState(null);
-
   const handleEditChange = (event) => {
     const { name, value } = event.target;
     setEditingExam((prevUser) => ({
@@ -77,7 +74,7 @@ const EditExam: React.FC = () => {
     try {
       await handleSaveEdit(editingExam);
       setEditingExam(null);
-      router.push("/exam/manageExam");
+      router.push("/exam/manage-exam");
     } catch (error) {
       toast.error("Failed to update user");
     }
@@ -184,7 +181,6 @@ const EditExam: React.FC = () => {
 
   return (
     <>
-      <NavBarHome loadingBarRef={loadingBarRef} />
       <Container sx={{ marginTop: "150px" }}>
         <Container
           component="main"
@@ -352,7 +348,7 @@ const EditExam: React.FC = () => {
                 }}
               >
                 <Button
-                  onClick={() => router.push("/exam/manageExam")}
+                  onClick={() => router.push("/exam/manage-exam")}
                   variant="contained"
                   className={`${classes.btnRed} ${classes.btnMedium}`}
                   sx={{ marginRight: 2 }}
@@ -531,4 +527,4 @@ const EditExam: React.FC = () => {
   );
 };
 
-export default EditExam;
+export default EditExamForm;

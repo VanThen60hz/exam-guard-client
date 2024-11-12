@@ -33,18 +33,16 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
-import { LoadingBarRef } from "react-top-loading-bar";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import NavBarHome from "../../components/home/navbar-home";
 import {
   getListUser,
   updateUser,
   deleteUser,
   searchUser,
 } from "../../helpers/api/user-api";
-import classes from "./list.module.scss";
-import profileUserClasses from "./profileUser.module.scss";
+import classes from "../../components/user/list-user.module.scss";
+import profileUserClasses from "../../components/user/profile-user.module.scss";
 
 // Icons
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -58,12 +56,13 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 // Components
 import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
+import withAuth from "../../components/withAuth/with-auth";
 
 enum EPaginationOfPage {
   USERS_PER_PAGE = 7,
 }
 
-const UsersPage: React.FC = () => {
+const ListUserForm: React.FC = () => {
   // State declarations
   const USERS_PER_PAGE = EPaginationOfPage.USERS_PER_PAGE;
   const [selectedGender, setSelectedGender] = useState("");
@@ -80,15 +79,11 @@ const UsersPage: React.FC = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-
   const { data: session, status } = useSession();
   const router = useRouter();
-
-  // Refs
-  const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
-
   const genderRef = useRef<HTMLDivElement>(null);
   const roleRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   //Upload Avatar
   const handleAvatarUpload = async (
@@ -166,7 +161,6 @@ const UsersPage: React.FC = () => {
               const list = await getListUser(userId, accessToken, page, limit);
               setlistUser(list);
               setFilteredUsers(list);
-              setPage(list.totalPages);
               setTotal(list.total);
               setPage(1);
             } catch (error) {
@@ -186,20 +180,22 @@ const UsersPage: React.FC = () => {
     // Apply gender filter
     if (selectedGender) {
       filtered = filtered.filter(
-        (user) => user.gender.toUpperCase() === selectedGender.toUpperCase()
+        (user) =>
+          user.gender &&
+          user.gender.toUpperCase() === selectedGender.toUpperCase()
       );
     }
 
     // Apply role filter
     if (selectedRole) {
       filtered = filtered.filter(
-        (user) => user.role.toUpperCase() === selectedRole.toUpperCase()
+        (user) =>
+          user.role && user.role.toUpperCase() === selectedRole.toUpperCase()
       );
     }
 
     setFilteredUsers(filtered);
-    // setPage(Math.ceil(filtered.length / USERS_PER_PAGE));
-    // setPage(1);
+    setPage(1); // Reset to the first page when filters are applied
   }, [selectedGender, selectedRole, listUser]);
 
   // Event handlers for filters
@@ -325,27 +321,32 @@ const UsersPage: React.FC = () => {
     value: string | null
   ) => {
     setSearchInput(value || "");
-    if (value) {
-      try {
-        const users = await searchUser(
-          session.userId,
-          session.accessToken,
-          value
-        );
-        setFilteredUsers(users);
-        setSelectedGender(""); // Reset gender filter
-        setSelectedRole("");
-        setPage(1);
-        console.log(users);
-      } catch (error) {
-        toast.error("Failed to search users");
-      }
-    } else {
-      // If search term is empty, reset to the full user list
-      setFilteredUsers(listUser);
-      // setPage(Math.ceil(listUser.length / USERS_PER_PAGE));
-      setPage(1);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current); // Clear the previous timeout
     }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      if (value) {
+        try {
+          const users = await searchUser(
+            session.userId,
+            session.accessToken,
+            value
+          );
+          setFilteredUsers(users);
+          setSelectedGender(""); // Reset gender filter
+          setSelectedRole("");
+          setPage(1);
+        } catch (error) {
+          toast.error("Failed to search users");
+        }
+      } else {
+        // If search term is empty, reset to the full user list
+        setFilteredUsers(listUser);
+        setPage(1);
+      }
+    }, 300); // Adjust the delay as needed (300ms in this case)
   };
 
   // Change page
@@ -389,17 +390,17 @@ const UsersPage: React.FC = () => {
 
   //Filter button style
   const filterButtonStyle = {
-    color: "#229594", // Changed to match the theme color
+    color: "#229594",
     padding: "8px 12px",
     width: "100%",
     justifyContent: "space-between",
     textTransform: "none",
     fontWeight: "bold",
-    border: "1px solid #229594", // Changed to match the theme color
+    border: "1px solid #229594",
     borderRadius: "4px",
     backgroundColor: "#FFFFFF",
     "&:hover": {
-      backgroundColor: "#e0f2f2", // Light teal color on hover
+      backgroundColor: "#e0f2f2",
     },
   };
 
@@ -467,19 +468,19 @@ const UsersPage: React.FC = () => {
         <Box
           onClick={handleClick}
           sx={{
-            width: "40px", // Giảm kích thước từ 60px xuống 40px
-            height: "20px", // Giảm kích thước từ 30px xuống 20px
+            width: "40px",
+            height: "20px",
             backgroundColor: getColor(),
-            borderRadius: "10px", // Điều chỉnh border radius
+            borderRadius: "10px",
             position: "relative",
             cursor: "pointer",
             transition: "background-color 0.3s",
             "&::after": {
               content: '""',
               position: "absolute",
-              width: "16px", // Giảm kích thước từ 26px xuống 16px
-              height: "16px", // Gi���m kích thước từ 26px xuống 16px
-              borderRadius: "8px", // Điều chỉnh border radius
+              width: "16px",
+              height: "16px",
+              borderRadius: "8px",
               backgroundColor: "white",
               top: "2px",
               left:
@@ -487,17 +488,17 @@ const UsersPage: React.FC = () => {
                   ? "22px"
                   : status === "SUSPENDED"
                   ? "2px"
-                  : "12px", // Điều chỉnh vị trí
+                  : "12px",
               transition: "left 0.3s",
             },
           }}
         />
         <Typography
           sx={{
-            marginLeft: "8px", // Giảm khoảng cách
+            marginLeft: "8px",
             color: getColor(),
             fontWeight: "bold",
-            fontSize: "14px", // Giảm kích thước chữ
+            fontSize: "14px",
           }}
         >
           {status}
@@ -515,7 +516,6 @@ const UsersPage: React.FC = () => {
 
   return (
     <>
-      <NavBarHome loadingBarRef={loadingBarRef} />
       <Box
         sx={{
           display: "flex",
@@ -533,7 +533,7 @@ const UsersPage: React.FC = () => {
               aria-haspopup="true"
               aria-expanded={gender ? "true" : undefined}
               onClick={handleClick}
-              variant="outlined" // Changed to outlined
+              variant="outlined"
               sx={filterButtonStyle}
             >
               <span>{selectedGender || "GENDER"}</span>
@@ -551,7 +551,7 @@ const UsersPage: React.FC = () => {
                   borderRadius: "4px",
                   width: "100%",
                   mt: "4px",
-                  border: "1px solid #229594", // Changed to match the theme color
+                  border: "1px solid #229594",
                 }}
               >
                 <MenuItem
@@ -602,7 +602,7 @@ const UsersPage: React.FC = () => {
                   borderRadius: "4px",
                   width: "100%",
                   mt: "4px",
-                  border: "1px solid #229594", // Changed to match the theme color
+                  border: "1px solid #229594",
                 }}
               >
                 <MenuItem
@@ -709,7 +709,7 @@ const UsersPage: React.FC = () => {
             boxShadow:
               "rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px",
             transition:
-              "background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease", // Smooth transitions
+              "background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease",
             "&:hover": {
               backgroundColor: "#b2e0e0",
               transform: "translateY(-3px) scale(1.05)",
@@ -760,7 +760,7 @@ const UsersPage: React.FC = () => {
                     <Avatar
                       src={user.avatar}
                       alt="User Avatar"
-                      sx={{ width: 50, height: 50, borderRadius: "50%" }} // Use sx for styling
+                      sx={{ width: 50, height: 50, borderRadius: "50%" }}
                     />
                   </StyledTableCell>
                   <StyledTableCell>
@@ -1040,7 +1040,7 @@ const UsersPage: React.FC = () => {
             </Box>
             <Box>
               <Avatar
-                src={editingUser?.avatar || ""} // Use src instead of value
+                src={editingUser?.avatar || ""}
                 alt="User Avatar"
                 style={{
                   width: "100px",
@@ -1075,7 +1075,7 @@ const UsersPage: React.FC = () => {
                   type="file"
                   accept="image/*"
                   style={{ display: "none" }}
-                  onChange={handleAvatarUpload} // Gọi hàm handleAvatarUpload
+                  onChange={handleAvatarUpload}
                 />
               </Button>
             </Box>
@@ -1102,4 +1102,5 @@ const UsersPage: React.FC = () => {
   );
 };
 
-export default UsersPage;
+// export default UsersPage
+export default withAuth(ListUserForm, ["ADMIN"]);
