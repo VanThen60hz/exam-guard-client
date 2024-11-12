@@ -104,9 +104,14 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
     };
 
     const handleLogout = async () => {
-        loadingBarRef.current.continuousStart(50);
+        if (loadingBarRef.current) {
+            loadingBarRef.current.continuousStart(50);
+        }
         await signOut({ redirect: false });
-        loadingBarRef.current.complete();
+        if (loadingBarRef.current) {
+            loadingBarRef.current.complete();
+        }
+        router.push("/auth/login");
     };
 
     const gotoPage = async (url: string) => {
@@ -183,12 +188,12 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
                                     <NavButton text="Introduction" />
                                 </Link>
 
-                                {session.status === "authenticated" && (
+                                {/* {session.status === "authenticated" && (
                                     <NavButton
                                         text="Dashboard"
                                         onClick={() => gotoPage("/dashboard")}
                                     />
-                                )}
+                                )} */}
 
                                 {session.status === "unauthenticated" && (
                                     <NavButton
