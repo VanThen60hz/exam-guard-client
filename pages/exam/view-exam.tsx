@@ -7,14 +7,14 @@ import NavBarHome from "../../components/home/navbar-home";
 import ViewExamForm from "../../components/exam-main/view-exam";
 
 const ViewExam = () => {
-  const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
+    const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
 
-  return (
-    <div>
-      <NavBarHome loadingBarRef={loadingBarRef} />
-      <ViewExamForm />
-    </div>
-  );
+    return (
+        <div>
+            <NavBarHome loadingBarRef={loadingBarRef} />
+            <ViewExamForm />
+        </div>
+    );
 };
 
 export default ViewExam;
