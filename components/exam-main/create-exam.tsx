@@ -16,6 +16,8 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { SelectChangeEvent } from "@mui/material/Select";
 import classes from "../../components/exam-main/manage-exam.module.scss";
+import LinearProgress from "@mui/material/LinearProgress";
+import withAuth from "../../components/withAuth/with-auth";
 
 interface FormData {
   title: string;
@@ -23,6 +25,7 @@ interface FormData {
   startTime: string;
   endTime: string;
   status: string;
+  duration: number;
 }
 
 type Errors = {
@@ -31,6 +34,7 @@ type Errors = {
   startTime?: string;
   endTime?: string;
   status?: string;
+  duration?: string;
 };
 
 const CreateExamForm: React.FC = () => {
@@ -42,6 +46,7 @@ const CreateExamForm: React.FC = () => {
     startTime: "",
     endTime: "",
     status: "Scheduled",
+    duration: 0,
   });
   const { data: session, status } = useSession();
   const [errors, setErrors] = useState<Errors>({});
@@ -96,6 +101,7 @@ const CreateExamForm: React.FC = () => {
       newErrors.description = "Description is required";
     if (!formData.startTime) newErrors.startTime = "Start Time is required";
     if (!formData.endTime) newErrors.endTime = "End Time is required";
+    if (!formData.duration) newErrors.duration = "Duration is required";
 
     setErrors(newErrors);
 
@@ -115,6 +121,7 @@ const CreateExamForm: React.FC = () => {
           startTime: formData.startTime,
           endTime: formData.endTime,
           status: formData.status,
+          duration: formData.duration,
         };
         const response = await createExam(
           session.userId,
@@ -151,6 +158,20 @@ const CreateExamForm: React.FC = () => {
 
   return (
     <>
+      {loading && (
+        <Box
+          sx={{
+            width: "100%",
+            padding: "0 50px",
+            position: "fixed",
+            top: 100,
+            left: 0,
+            zIndex: 100,
+          }}
+        >
+          <LinearProgress color="primary" />
+        </Box>
+      )}
       <Container sx={{ marginTop: "150px" }}>
         <Container
           component="main"
@@ -245,13 +266,14 @@ const CreateExamForm: React.FC = () => {
               >
                 <Box sx={{ width: 210 }}>
                   <FormControl fullWidth>
-                    <InputLabel id="status-label">Status</InputLabel>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      Status <span style={{ color: "red" }}>*</span>
+                    </Typography>
                     <Select
                       labelId="status-label"
                       id="status"
                       name="status"
                       value={formData.status}
-                      label="Status"
                       onChange={handleSelectChange}
                     >
                       <MenuItem value="Scheduled">Scheduled</MenuItem>
@@ -261,12 +283,14 @@ const CreateExamForm: React.FC = () => {
                   </FormControl>
                 </Box>
                 <Box sx={{ width: 210, margin: "0 10px" }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Start Time <span style={{ color: "red" }}>*</span>
+                  </Typography>
                   <TextField
                     name="startTime"
                     fullWidth
                     required
                     id="startTime"
-                    label="Start Time"
                     type="datetime-local"
                     InputLabelProps={{
                       shrink: true, // Đảm bảo nhãn không bị che khuất
@@ -285,12 +309,14 @@ const CreateExamForm: React.FC = () => {
                 </Box>
 
                 <Box sx={{ width: 210, marginRight: "10px" }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    End Time <span style={{ color: "red" }}>*</span>
+                  </Typography>
                   <TextField
                     name="endTime"
                     fullWidth
                     required
                     id="endTime"
-                    label="End Time"
                     type="datetime-local"
                     InputLabelProps={{
                       shrink: true, // Đảm bảo nhãn không bị che khuất
@@ -307,7 +333,7 @@ const CreateExamForm: React.FC = () => {
                     </Typography>
                   )}
                 </Box>
-                <Box
+                {/* <Box
                   sx={{
                     width: "230px",
                   }}
@@ -332,6 +358,37 @@ const CreateExamForm: React.FC = () => {
                       },
                     }}
                   />
+                </Box> */}
+                <Box sx={{ marginBottom: 2, width: "100%" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: 600,
+                    }}
+                  >
+                    Duration <span style={{ color: "red" }}>*</span>
+                  </Typography>
+                  <TextField
+                    name="duration"
+                    type="number"
+                    required
+                    fullWidth
+                    className={classes.textFieldCustom}
+                    variant="outlined"
+                    onChange={handleInputChange}
+                    InputProps={{
+                      endAdornment: (
+                        <Typography variant="subtitle1" sx={{ marginLeft: 1 }}>
+                          min
+                        </Typography>
+                      ),
+                    }}
+                  />
+                  {errors.duration && (
+                    <Typography variant="body2" sx={{ color: "red" }}>
+                      {errors.duration}
+                    </Typography>
+                  )}
                 </Box>
               </Box>
 
@@ -366,4 +423,4 @@ const CreateExamForm: React.FC = () => {
   );
 };
 
-export default CreateExamForm;
+export default withAuth(CreateExamForm, ["TEACHER"]);

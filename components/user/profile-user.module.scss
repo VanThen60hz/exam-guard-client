@@ -1,26 +1,26 @@
-.updateProfileContainer button,
-.profileContainer button {
-    padding: 0;
-}
+// .updateProfileContainer button,
+// .profileContainer button {
+//     padding: 0;
+// }
 
 .container {
     color: #000;
 }
 
-.button {
-    font-family: Lexend, Helvetica, sans-serif;
-    width: 220px;
-    color: #fff;
-    background-color: #229594;
-    border-radius: 10px;
-    font-size: 20px;
-}
-.button:hover {
-    border: 1px solid #229594;
-    padding: 4px 0 !important;
-    color: #229594;
-    background-color: #fff;
-}
+// .button {
+//     font-family: Lexend, Helvetica, sans-serif;
+//     width: 220px;
+//     color: #fff;
+//     background-color: #229594;
+//     border-radius: 10px;
+//     font-size: 20px;
+// }
+// .button:hover {
+//     border: 1px solid #229594;
+//     padding: 4px 0 !important;
+//     color: #229594;
+//     background-color: #fff;
+// }
 
 //Date time
 .dateTime {
@@ -54,10 +54,12 @@
     padding: 10px 15px;
     top: 0;
     left: 0;
-    width: 340px;
+    width: 320px;
     border-radius: 10px 0 20px 0;
     color: #fff;
     background-color: #229594;
+    font-size: 25px;
+    font-weight: bold;
 }
 
 //ProfileContent

@@ -12,6 +12,7 @@ import {
   Stack,
   TextField,
   Tooltip,
+  Avatar,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
@@ -21,6 +22,8 @@ import {
   deleteExam,
   getExamsByStatus,
 } from "../../helpers/api/exam-api";
+import { getUserProfile } from "../../helpers/api/user-api";
+
 import classes from "../../components/exam-main/manage-exam.module.scss";
 
 // Icons
@@ -39,6 +42,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
 
 import { updateExam } from "../../helpers/api/exam-api";
+import LinearProgress from "@mui/material/LinearProgress";
+import withAuth from "../../components/withAuth/with-auth";
 
 enum EPaginationOfPage {
   EXAMS_PER_PAGE = 6,
@@ -56,10 +61,39 @@ const ManageExamForm: React.FC = () => {
   const router = useRouter();
   const [filterStatus, setFilterStatus] = useState("All");
   const [activeButton, setActiveButton] = useState<string>("All");
+  const loadingBarRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true); // Bắt đầu loading
+      if (status === "authenticated" && session) {
+        const userId = session.userId;
+        const accessToken = session.accessToken;
+
+        if (userId && accessToken) {
+          // Kiểm tra xem limit có phải là số hợp lệ không
+          if (total !== undefined && total > 0) {
+            try {
+              const user = await getUserProfile(userId, accessToken);
+              setUser(user);
+            } catch (error) {
+              toast.error("Failed to fetch user profile");
+            }
+          }
+        }
+      }
+      setLoading(false); // Kết thúc loading
+    };
+
+    fetchUser();
+  }, [status, session]);
 
   //Get List exams
   useEffect(() => {
-    const fetchListUser = async () => {
+    const fetchListExam = async () => {
+      setLoading(true);
       if (status === "authenticated" && session) {
         const userId = session.userId;
         const accessToken = session.accessToken;
@@ -73,14 +107,15 @@ const ManageExamForm: React.FC = () => {
               setTotal(list.total);
               setPage(1);
             } catch (error) {
-              toast.error("Failed to fetch user profile");
+              toast.error("Failed to fetch list exam");
             }
           }
         }
       }
+      setLoading(false);
     };
 
-    fetchListUser();
+    fetchListExam();
   }, [status, session, page, limit]);
 
   // Get exams by status
@@ -267,8 +302,35 @@ const ManageExamForm: React.FC = () => {
     });
   };
 
+  const formatDateTime = (dateTime: string) => {
+    // Cắt chuỗi để lấy các phần
+    const [datePart, timePart] = dateTime.split("T");
+    const [year, month, day] = datePart.split("-");
+    const [hour, minute] = timePart.split(":");
+
+    // Chuyển đổi giờ sang định dạng 12 giờ
+    const hour12 = parseInt(hour) % 12 || 12; // Chuyển đổi 0 giờ thành 12
+    const ampm = parseInt(hour) >= 12 ? "PM" : "AM";
+
+    return `${day}/${month}/${year} ${hour12}:${minute} ${ampm}`;
+  };
+
   return (
     <>
+      {loading && (
+        <Box
+          sx={{
+            width: "100%",
+            padding: "0 50px",
+            position: "fixed",
+            top: 100,
+            left: 0,
+            zIndex: 100,
+          }}
+        >
+          <LinearProgress color="primary" />
+        </Box>
+      )}
       <Box
         sx={{
           display: "flex",
@@ -277,6 +339,21 @@ const ManageExamForm: React.FC = () => {
           margin: "108px 50px 0 ",
         }}
       >
+        {/* <Box>
+          {user ? ( // Check if user is not null
+            <Avatar
+              src={user.avatar}
+              alt="User Avatar"
+              sx={{ width: 50, height: 50, borderRadius: "50%" }}
+            />
+          ) : (
+            // Fallback if user is null
+            <Avatar
+              alt="User Avatar"
+              sx={{ width: 50, height: 50, borderRadius: "50%" }}
+            />
+          )}
+        </Box> */}
         <Box>
           <h1 style={{ fontSize: "32px" }}>Manage Exam</h1>
         </Box>
@@ -431,7 +508,7 @@ const ManageExamForm: React.FC = () => {
         }}
       >
         <Grid container spacing={4}>
-          {displayedExams.map((exam, index) => (
+          {displayedExams?.map((exam, index) => (
             <Grid item xs={12} sm={6} key={exam._id}>
               {" "}
               {/* Chia thành 2 cột */}
@@ -489,27 +566,9 @@ const ManageExamForm: React.FC = () => {
                       marginTop: "10px",
                     }}
                   >
-                    <span>
-                      {new Date(exam.startTime).toLocaleString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true,
-                      })}{" "}
-                    </span>
+                    <span>{formatDateTime(exam.startTime)} </span>
                     <EastIcon />
-                    <span>
-                      {new Date(exam.endTime).toLocaleString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true,
-                      })}{" "}
-                    </span>
+                    <span>{formatDateTime(exam.endTime)} </span>
                   </Box>
                   <span
                     style={{
@@ -653,4 +712,4 @@ const ManageExamForm: React.FC = () => {
   );
 };
 
-export default ManageExamForm;
+export default withAuth(ManageExamForm, ["TEACHER"]);

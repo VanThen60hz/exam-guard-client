@@ -22,6 +22,7 @@ import { createUser } from "../../helpers/api/user-api";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { SelectChangeEvent } from "@mui/material/Select";
+import withAuth from "../../components/withAuth/with-auth";
 
 interface FormData {
   username: string;
@@ -748,4 +749,5 @@ const CreateUserForm: React.FC = () => {
   );
 };
 
-export default CreateUserForm;
+// export default CreateUserForm;
+export default withAuth(CreateUserForm, ["ADMIN"]);

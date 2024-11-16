@@ -58,6 +58,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 
+import LinearProgress from "@mui/material/LinearProgress";
+
 enum EPaginationOfPage {
   USERS_PER_PAGE = 7,
 }
@@ -84,7 +86,8 @@ const ListUserForm: React.FC = () => {
   const genderRef = useRef<HTMLDivElement>(null);
   const roleRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+  const [loading, setLoading] = useState(false); // Thêm state loading
+  
   //Upload Avatar
   const handleAvatarUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -150,6 +153,7 @@ const ListUserForm: React.FC = () => {
   //Get List users
   useEffect(() => {
     const fetchListUser = async () => {
+      setLoading(true); // Bắt đầu loading
       if (status === "authenticated" && session) {
         const userId = session.userId;
         const accessToken = session.accessToken;
@@ -169,6 +173,7 @@ const ListUserForm: React.FC = () => {
           }
         }
       }
+      setLoading(false); // Kết thúc loading
     };
 
     fetchListUser();
@@ -516,6 +521,11 @@ const ListUserForm: React.FC = () => {
 
   return (
     <>
+      {loading && (
+        <Box sx={{ width: '100%', padding: "0 50px", position: 'fixed', top: 100, left: 0, zIndex: 100 }}>
+          <LinearProgress color="primary" /> 
+        </Box>
+      )}
       <Box
         sx={{
           display: "flex",
@@ -754,7 +764,7 @@ const ListUserForm: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {displayedUsers.map((user, index) => (
+              {displayedUsers?.map((user, index) => (
                 <StyledTableRow key={user._id}>
                   <StyledTableCell>
                     <Avatar
