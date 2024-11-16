@@ -150,7 +150,7 @@ const HomeStudentForm: React.FC = () => {
 
       // Chuyển trang nếu thời gian hợp lệ
       router.push({
-        pathname: "/user/answerQuestions",
+        pathname: "/user/answer-question",
         query: { examId: exam._id },
       });
     } else if (currentTime >= examEndTime) {

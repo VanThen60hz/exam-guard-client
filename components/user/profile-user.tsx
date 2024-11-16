@@ -16,6 +16,9 @@ import { getUserProfile, updateProfile } from "../../helpers/api/user-api";
 
 // SCSS
 import classes from "../../components/user/profile-user.module.scss";
+import classes2 from "../../components/exam-main/manage-exam.module.scss";
+
+import LinearProgress from "@mui/material/LinearProgress";
 
 // Định nghĩa kiểu dữ liệu cho user
 interface User {
@@ -59,41 +62,11 @@ const ProfileUserForm: React.FC = () => {
 
   // Get session data
   const { data: session, status } = useSession();
-
-  // console.log("Session:", session);
-
-  useEffect(() => {
-    // Cập nhật ngày giờ mỗi giây
-    const intervalId = setInterval(() => {
-      const now = new Date();
-
-      // Định dạng ngày giờ theo dd/MM/YYYY, hh:mm:ss
-      const formattedDate = now.toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-
-      const formattedTime = now.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true, // Thêm tùy chọn hour12 để hiển thị giờ theo 12 giờ và AM/PM
-      });
-
-      setCurrentDateTime(`${formattedDate}, ${formattedTime}`);
-    }, 1000); // Cập nhật mỗi giây
-
-    // Clear interval khi component bị unmount
-    return () => clearInterval(intervalId);
-  }, []);
+  const { userId } = router.query;
 
   // Lấy thông tin người dung
   useEffect(() => {
     const fetchUserProfile = async () => {
-      setLoading(true);
-      setLoading(false);
-
       if (status === "authenticated" && session) {
         const userId = session.userId;
         const accessToken = session.accessToken;
@@ -131,10 +104,21 @@ const ProfileUserForm: React.FC = () => {
   }, [status, session]);
 
   // Nút bấm cập nhật thông tin
-  const handleUpdateButton = () => {
-    saveID = formData.id;
-    router.push("/user/update-profile");
-    return saveID;
+  const handleUpdateButton = (profile) => {
+    router.push({
+      pathname: "/user/update-profile",
+      query: { userId: profile._id }, // Pass the exam ID as a query parameter
+    });
+  };
+
+  const handleBackButton = () => {
+    if (formData.role === "TEACHER") {
+      router.push("/exam/manage-exam");
+    } else if (formData.role === "ADMIN") {
+      router.push("/user/list-user");
+    } else if (formData.role === "STUDENT") {
+      router.push("/user/home-student");
+    }
   };
 
   // Nút bấm đổi mật khẩu
@@ -180,37 +164,39 @@ const ProfileUserForm: React.FC = () => {
     handleClosePasswordModal();
   };
 
-  if (loading) {
-    return <div>Loading user profile...</div>;
-  }
-
   //Hiển thị ra màn hình
   return (
     <>
-      <Container>
-        <div
-          style={{
-            marginTop: "155px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+      {loading && (
+        <Box
+          sx={{
+            width: "100%",
+            padding: "0 50px",
+            position: "fixed",
+            top: 100,
+            left: 0,
+            zIndex: 100,
           }}
         >
-          {/* Hiển thị ngày giờ hiện tại */}
-          <div className={classes.dateTime}>
-            <Typography
-              style={{
-                fontFamily: "Lexend",
-                fontSize: "20px",
-                fontWeight: 400,
-                color: "#fff",
-              }}
-            >
-              {currentDateTime}
-            </Typography>
-          </div>
-        </div>
-
+          <LinearProgress color="primary" />
+        </Box>
+      )}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          margin: "108px 50px 0 ",
+        }}
+      ></Box>
+      <Container
+        sx={{
+          marginTop: "10px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         {/* Cửa sổ thông tin người dùng */}
         <div className={classes.profileContainer}>
           <div className={classes.profileHeader}>
@@ -261,18 +247,45 @@ const ProfileUserForm: React.FC = () => {
           </div>
 
           {/* Nút thay đổi thông tin người dùng */}
-          <Button
-            className={classes.button}
-            fullWidth
-            variant="contained"
+          <div
             style={{
-              margin: "34px 0 26px 90px",
-              padding: "5px 0",
+              display: "flex",
+              justifyContent: "flex-end",
+              marginRight: "40px",
             }}
-            onClick={handleUpdateButton}
           >
-            Update Profile
-          </Button>
+            <Button
+              className={classes2.btnRed}
+              fullWidth
+              variant="contained"
+              style={{
+                margin: "30px",
+                width: "95px",
+                display: "flex",
+                justifyContent: "flex-end",
+                marginRight: "-10px",
+              }}
+              onClick={handleBackButton}
+            >
+              Back
+            </Button>
+
+            <Button
+              className={classes2.btnBlue}
+              fullWidth
+              variant="contained"
+              style={{
+                margin: "30px",
+                width: "190px",
+                display: "flex",
+                justifyContent: "flex-end",
+                marginRight: "-10px",
+              }}
+              onClick={() => handleUpdateButton(formData)}
+            >
+              Update Profile
+            </Button>
+          </div>
         </div>
 
         {/* Cửa sổ đổi mật khẩu */}
@@ -335,5 +348,4 @@ const ProfileUserForm: React.FC = () => {
     </>
   );
 };
-export let saveID: string;
 export default ProfileUserForm;

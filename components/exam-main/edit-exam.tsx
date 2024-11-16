@@ -26,6 +26,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 // Components
 import { useRouter } from "next/router";
+import LinearProgress from "@mui/material/LinearProgress";
+import withAuth from "../../components/withAuth/with-auth";
 
 type Errors = {
   questionText?: string;
@@ -48,8 +50,10 @@ const EditExamForm: React.FC = () => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [editingExam, setEditingExam] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     const fetchExamData = async () => {
       if (examId && session) {
         const userId = session.userId;
@@ -57,6 +61,7 @@ const EditExamForm: React.FC = () => {
         const examData = await getExam(userId, accessToken, examId as string);
         setEditingExam(examData);
       }
+      setLoading(false);
     };
 
     fetchExamData();
@@ -129,24 +134,29 @@ const EditExamForm: React.FC = () => {
     }
     if (!correctAnswer) {
       setIsAnswerSelected(false);
-      toast.error("Please select a correct answer.");
+      toast.error("Please select a correct answer");
       return;
     }
+
+    // Calculate total score of existing questions
+    const newQuestionScore = parseFloat(questionScore);
 
     const questionData = {
       questionText,
       questionType,
-      questionScore,
+      questionScore: newQuestionScore, // Ensure this is a number
       correctAnswer,
       options,
     };
     try {
-      await createQuestion(
+      const createdQuestion = await createQuestion(
         session.userId,
         session.accessToken,
         examId as string,
         questionData
       );
+      // Update the list of questions with the newly created question
+      setListExam((prevList) => [...prevList, createdQuestion]);
       toast.success("Question created successfully!");
       // Reset form after submission
       setQuestionText("");
@@ -155,7 +165,7 @@ const EditExamForm: React.FC = () => {
       setCorrectAnswer("");
       setOptions([""]);
     } catch (error) {
-      toast.error("Failed to create question: " + error.message);
+      toast.error(error.message);
     }
   };
 
@@ -171,16 +181,22 @@ const EditExamForm: React.FC = () => {
     }));
   };
 
-  const saveStartTime = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStartTime(e.target.value);
-  };
-
-  const saveEndTime = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndTime(e.target.value);
-  };
-
   return (
     <>
+      {loading && (
+        <Box
+          sx={{
+            width: "100%",
+            padding: "0 50px",
+            position: "fixed",
+            top: 100,
+            left: 0,
+            zIndex: 100,
+          }}
+        >
+          <LinearProgress color="primary" />
+        </Box>
+      )}
       <Container sx={{ marginTop: "150px" }}>
         <Container
           component="main"
@@ -256,18 +272,19 @@ const EditExamForm: React.FC = () => {
                   display: "flex",
                   justifyContent: "",
                   alignItems: "center",
-                  marginBottom: 2,
+                  marginBottom: 3,
                 }}
                 className={classes.textFieldCustom}
               >
                 <Box sx={{ minWidth: 140 }}>
                   <FormControl fullWidth>
-                    <InputLabel id="status-label">Status</InputLabel>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      Status <span style={{ color: "red" }}>*</span>
+                    </Typography>{" "}
                     <Select
                       labelId="status-label"
                       id="status"
                       name="status"
-                      label="Status"
                       value={editingExam?.status || ""}
                       onChange={handleEditChange}
                     >
@@ -278,42 +295,66 @@ const EditExamForm: React.FC = () => {
                   </FormControl>
                 </Box>
                 <Box sx={{ width: 210, margin: "0 10px" }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Start Time <span style={{ color: "red" }}>*</span>
+                  </Typography>
                   <TextField
                     name="startTime"
                     fullWidth
                     required
                     id="startTime"
-                    label="Start Time"
                     type="datetime-local"
                     InputLabelProps={{
                       shrink: true, // Đảm bảo nhãn không bị che khuất
                     }}
                     value={editingExam?.startTime || ""}
-                    onChange={(e) => {
-                      handleEditChange(e);
-                      saveStartTime(e as React.ChangeEvent<HTMLInputElement>);
-                    }}
+                    onChange={handleEditChange}
                   />
                 </Box>
-                <Box sx={{ width: 210, marginRight: "10px" }}>
+                <Box sx={{ minWidth: 210, marginRight: "10px" }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    End Time <span style={{ color: "red" }}>*</span>
+                  </Typography>
                   <TextField
                     name="endTime"
                     fullWidth
                     required
                     id="endTime"
-                    label="End Time"
                     type="datetime-local"
                     InputLabelProps={{
                       shrink: true, // Đảm bảo nhãn không bị che khuất
                     }}
                     value={editingExam?.endTime || ""}
-                    onChange={(e) => {
-                      handleEditChange(e);
-                      saveEndTime(e as React.ChangeEvent<HTMLInputElement>);
+                    onChange={handleEditChange}
+                  />
+                </Box>
+                <Box sx={{ width: "100%" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontWeight: 600,
+                    }}
+                  >
+                    Duration <span style={{ color: "red" }}>*</span>
+                  </Typography>
+                  <TextField
+                    name="duration"
+                    type="number"
+                    fullWidth
+                    value={editingExam?.duration || ""}
+                    onChange={handleEditChange}
+                    className={classes.textFieldCustom}
+                    InputProps={{
+                      endAdornment: (
+                        <Typography variant="subtitle1" sx={{ marginLeft: 1 }}>
+                          min
+                        </Typography>
+                      ),
                     }}
                   />
                 </Box>
-                <Box
+
+                {/* <Box
                   sx={{
                     width: "230px",
                   }}
@@ -338,7 +379,7 @@ const EditExamForm: React.FC = () => {
                       },
                     }}
                   />
-                </Box>
+                </Box> */}
               </Box>
               <Box
                 sx={{
@@ -527,4 +568,4 @@ const EditExamForm: React.FC = () => {
   );
 };
 
-export default EditExamForm;
+export default withAuth(EditExamForm, ["TEACHER"]);

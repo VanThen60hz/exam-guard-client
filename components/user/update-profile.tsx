@@ -16,47 +16,24 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Box,
 } from "@mui/material";
-
+import Image from "next/image";
 import { toast } from "react-toastify";
-import { LoadingBarRef } from "react-top-loading-bar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-
-import { updateProfile } from "../../helpers/api/user-api";
-import { saveID } from "./profile-user";
+import { updateProfile, getUserProfile } from "../../helpers/api/user-api";
 
 // SCSS
 import classes from "../../components/user/profile-user.module.scss";
+import classes2 from "../../components/exam-main/manage-exam.module.scss";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  gender: string;
-  address: string;
-  phone_number: string;
-  avatarUrl: string;
-}
+import LinearProgress from "@mui/material/LinearProgress";
 
 const UpdateProfileUserForm: React.FC = () => {
-  const [formData, setFormData] = useState<User>({
-    id: `${saveID}`,
-    name: "",
-    email: "",
-    role: "",
-    gender: "",
-    address: "",
-    phone_number: "",
-    avatarUrl: "",
-  });
-
-  //Biến thời gian
-  const [currentDateTime, setCurrentDateTime] = useState<string>("");
-
   // Router chuyển Page
   const router = useRouter();
+  // const { userId } = router.query;
 
   // Load page
   const [loading, setLoading] = useState(false);
@@ -70,26 +47,72 @@ const UpdateProfileUserForm: React.FC = () => {
   // Thêm state cho modal xác nhận cancel
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
-  useEffect(() => {
-    // Cập nhật ngày giờ mỗi giây
-    const intervalId = setInterval(() => {
-      const now = new Date();
-      const formattedDate = now.toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-      const formattedTime = now.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      });
-      setCurrentDateTime(`${formattedDate}, ${formattedTime}`);
-    }, 1000);
+  const [editingUser, setEditingUser] = useState(null);
 
-    return () => clearInterval(intervalId);
-  }, []);
+  //Upload Avatar
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "ml_default"); // Thay thế bằng upload_preset từ Cloudinary
+    formData.append("folder", "imageUser"); // Thêm vào thư mục cụ thể
+
+    try {
+      // Tải ảnh mới lên Cloudinary
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/duv0ugc5x/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error uploading avatar: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const imgUrl: string = data.secure_url;
+
+      // Cập nhật avatar trong trạng thái
+      setEditingUser((prev) => ({
+        ...prev,
+        avatar: imgUrl, // Cập nhật URL của ảnh đã tải lên
+      }));
+
+      toast.success("Avatar uploaded successfully!");
+    } catch (error) {
+      toast.error("Failed to upload avatar.");
+    }
+  };
+
+  //Fetch dữ liệu user
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (status === "authenticated" && session) {
+        const userId = session.userId;
+        const accessToken = session.accessToken;
+
+        setLoading(true);
+        if (userId && accessToken) {
+          try {
+            const profile = await getUserProfile(userId as string, accessToken);
+            setEditingUser(profile);
+          } catch (error) {
+            toast.error("Failed to fetch user profile");
+          }
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile(); // Call the function to fetch user profile
+  }, [status, session]);
 
   // Mở modal khi nhấn nút Cancel
   const handleCancelButton = () => {
@@ -102,345 +125,325 @@ const UpdateProfileUserForm: React.FC = () => {
     }
   };
 
-  // Xử lí thay đổi khi nhập vào TextField
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditingUser((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
   };
 
-  // Xử lí thay đổi khi chọn Giới tính
-  const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFormData({ ...formData, gender: value });
-  };
-
-  // Xử lí thay đổi khi chọn Role user
-  const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFormData({ ...formData, role: value });
-  };
-
-  // Xử lí nút Cập nhật
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Ngăn không cho trang bị reload
-    setLoading(true);
-    setError(null);
-
+  const handleEditSave = async () => {
     try {
-      if (!session || !session.accessToken) {
-        throw new Error("User is not authenticated");
-      }
-
-      const response = await updateProfile(
-        session.userId,
-        session.accessToken,
-        formData
-      ); // Gọi hàm updateUser với token và formData
-      toast.success("Profile updated successfully!");
-    } catch (err: any) {
-      setError(err.message);
-      toast.error(err.message || "Error updating profile");
-    } finally {
-      setLoading(false);
+      await handleSaveEdit(editingUser);
+      setEditingUser(null);
+      router.push("/user/profile-user");
+    } catch (error) {
+      toast.error("Failed to update user");
     }
-    console.log(formData);
+  };
+
+  const handleSaveEdit = async (userToUpdate) => {
+    if (status === "authenticated" && session) {
+      const userId = session.userId;
+      const accessToken = session.accessToken;
+
+      if (userId && accessToken) {
+        try {
+          const updatedUserData = await updateProfile(
+            userId,
+            accessToken,
+            userToUpdate
+          );
+          // Update the editingExam state with the updated data
+          setEditingUser(updatedUserData); // {{ edit_1 }}
+          toast.success("User updated successfully!");
+        } catch (error) {
+          toast.error("Failed to update user");
+        }
+      }
+    }
   };
 
   // Hiển thị ra màn hình
   return (
     <>
-      <Container>
-        <div className={classes.dateTime} style={{ marginTop: "155px" }}>
-          <Typography
-            style={{
-              fontFamily: "Lexend",
-              fontSize: "20px",
-              fontWeight: 400,
-              color: "#fff",
-            }}
-          >
-            {currentDateTime}
-          </Typography>
-        </div>
-
-        {/* Form submit */}
-        <form
-          onSubmit={handleSubmit}
-          className={classes.updateProfileContainer}
+      {loading && (
+        <Box
+          sx={{
+            width: "100%",
+            padding: "0 50px",
+            position: "fixed",
+            top: 100,
+            left: 0,
+            zIndex: 100,
+          }}
         >
-          <Typography variant="h4" className={classes.updateProfileHeader}>
+          <LinearProgress color="primary" />
+        </Box>
+      )}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          margin: "80px 50px 0 ",
+        }}
+      ></Box>
+      <Container
+        sx={{
+          marginTop: "10px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {/* Form submit */}
+        <Box
+          component="form"
+          // onSubmit={handleSubmit}
+          className={classes.updateProfileContainer}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            className={classes.updateProfileHeader}
+          >
             Change Information
           </Typography>
-          <Grid
-            style={{
-              margin: "100px 0 0 90px",
-              padding: "0",
-              display: "flex",
-              alignItems: "center",
-              width: "880px",
-            }}
-            container
-          >
-            <Grid style={{ width: "450px", padding: "0" }} item md={5}>
-              <TextField
-                className={classes.textField}
-                label={`${saveID}`}
-                name="id"
-                value={`${saveID}`}
-                margin="normal"
-                disabled
-              />
-              <TextField
-                className={classes.textField}
-                label="Full Name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                margin="normal"
-              />
-              <TextField
-                className={classes.textField}
-                label="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                margin="normal"
-              />
-              {/* <TextField
-                                className={classes.textField}
-                                label="Date of Birth"
-                                name="dateOfBirth"
-                                type="date"
-                                value={formData.dateOfBirth}
-                                onChange={handleInputChange}
-                                margin="normal"
-                                InputLabelProps={{ shrink: true }}
-                            /> */}
-              <TextField
-                className={classes.textField}
-                label="Address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                margin="normal"
-              />
-              <TextField
-                className={classes.textField}
-                label="Phone Number"
-                name="phone_number"
-                value={formData.phone_number}
-                onChange={handleInputChange}
-                margin="normal"
-              />
-            </Grid>
 
-            <Grid item xs={12} md={4} sx={{ marginLeft: "200px" }}>
-              <Avatar
-                src={"/images/avatar_mau.png"}
-                alt="User Avatar"
-                style={{
-                  width: "230px",
-                  height: "230px",
-                  border: "1px solid #000",
-                }}
-              />
-
-              {/* Nút upload Avatar */}
-              <Button
-                className={classes.buttonUploadAvatar}
-                variant="contained"
-                component="label"
-              >
-                <p
-                  style={{
-                    paddingTop: "4px",
-                    fontFamily: "Lexend",
-                    fontSize: "16px",
-                    fontWeight: 400,
-                    color: "#229594",
-                    lineHeight: "normal",
-                  }}
-                >
-                  Upload New Avatar
-                </p>
-                <img src="/images/icon/uploadFile.svg" alt="" />
-              </Button>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: "40px",
-                  marginLeft: "-70px",
-                }}
-              >
-                {/* Radio button chọn Giới tính */}
-                <div className={classes.chooseGender}>
-                  <p
-                    style={{
-                      fontFamily: "Lexend",
-                      fontSize: "20px",
-                      fontWeight: 400,
-                      color: "#229594",
-                    }}
+          <Box>
+            <Box
+              sx={{
+                margin: "80px 20px 10px ",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box>
+                <Box sx={{ marginBottom: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Name
+                  </Typography>
+                  <TextField
+                    className={classes.textField}
+                    name="name"
+                    value={editingUser?.name || ""}
+                    onChange={handleEditChange}
+                  />
+                </Box>
+                <Box sx={{ marginBottom: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Email
+                  </Typography>
+                  <TextField
+                    className={classes.textField}
+                    name="email"
+                    value={editingUser?.email || ""}
+                    onChange={handleEditChange}
+                  />
+                </Box>
+                <Box sx={{ marginBottom: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Address
+                  </Typography>
+                  <TextField
+                    className={classes.textField}
+                    name="address"
+                    value={editingUser?.address || ""}
+                    onChange={handleEditChange}
+                  />
+                </Box>
+                <Box sx={{ marginBottom: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Phone Number
+                  </Typography>
+                  <TextField
+                    className={classes.textField}
+                    name="phone_number"
+                    value={editingUser?.phone_number || ""}
+                    onChange={handleEditChange}
+                  />
+                </Box>
+                <Box sx={{ marginBottom: 1, marginRight: "25px" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 600, width: "140px" }}
                   >
                     Choose Gender
-                  </p>
+                  </Typography>
                   <FormControl>
                     <RadioGroup
                       aria-labelledby="demo-radio-buttons-group-label"
-                      defaultValue="FEMALE"
                       name="gender"
-                      onChange={handleGenderChange}
+                      value={editingUser?.gender || ""}
+                      onChange={handleEditChange}
                     >
-                      <FormControlLabel
-                        value="FEMALE"
-                        control={<Radio />}
-                        label="Female"
-                      />
-                      <FormControlLabel
-                        value="MALE"
-                        control={<Radio />}
-                        label="Male"
-                      />
-                      <FormControlLabel
-                        value="OTHER"
-                        control={<Radio />}
-                        label="Other"
-                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: "15px",
+                        }}
+                      >
+                        <FormControlLabel
+                          value="FEMALE"
+                          control={<Radio />}
+                          label="Female"
+                        />
+                        <FormControlLabel
+                          value="MALE"
+                          control={<Radio />}
+                          label="Male"
+                        />
+                      </Box>
                     </RadioGroup>
                   </FormControl>
-                </div>
-
-                {/* Radio button chọn Role user */}
-                <div className={classes.chooseGender}>
-                  <p
-                    style={{
-                      fontFamily: "Lexend",
-                      fontSize: "20px",
-                      fontWeight: 400,
-                      color: "#229594",
-                    }}
-                  >
-                    Choose Role
-                  </p>
-                  <FormControl>
-                    <RadioGroup
-                      aria-labelledby="demo-radio-buttons-group-label"
-                      defaultValue="TEACHER"
-                      name="role"
-                      onChange={handleRoleChange}
+                </Box>
+              </Box>
+              <Box sx={{ marginLeft: "80px" }}>
+                <Box sx={{ marginLeft: "25px" }}>
+                  <input
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    id="avatar-upload"
+                    type="file"
+                    onChange={handleAvatarUpload}
+                  />
+                  <label htmlFor="avatar-upload">
+                    <Avatar
+                      alt="User Avatar"
+                      src={editingUser?.avatar || ""}
+                      sx={{
+                        width: "150px",
+                        height: "150px",
+                        border: "1px solid #000",
+                        marginLeft: "50px",
+                      }}
+                    />
+                    <Button
+                      className={classes.buttonUploadAvatar}
+                      sx={{
+                        width: "200px",
+                        padding: "10px",
+                        margin: "10px 0 0 0",
+                      }}
+                      component="span"
+                      onChange={handleEditChange}
                     >
-                      <FormControlLabel
-                        value="TEACHER"
-                        control={<Radio />}
-                        label="Teacher"
+                      <p
+                        style={{
+                          fontFamily: "Lexend",
+                          fontSize: "12px",
+                          fontWeight: 400,
+                          color: "#229594",
+                          lineHeight: "normal",
+                        }}
+                      >
+                        Upload New Avatar
+                      </p>
+                      <Image
+                        src="/images/Vector.png"
+                        width="20px"
+                        height="20px"
+                        objectFit="contain"
+                        alt="Hero Image"
                       />
-                      <FormControlLabel
-                        value="STUDENT"
-                        control={<Radio />}
-                        label="Student"
-                      />
-                    </RadioGroup>
-                  </FormControl>
-                </div>
-              </div>
-            </Grid>
-
+                    </Button>
+                  </label>
+                </Box>
+              </Box>
+            </Box>
             {/* Nút Cancel và Update */}
-            <div style={{ margin: "50px 0 " }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: "20px",
+                marginTop: "-30px",
+              }}
+            >
               <Button
-                className={classes.button}
+                className={classes2.btnRed}
                 fullWidth
                 variant="contained"
-                style={{
-                  marginLeft: "150px",
-                  padding: "5px 0",
-                }}
+                sx={{}}
                 onClick={handleCancelButton}
               >
                 Cancel
               </Button>
               <Button
-                className={classes.button}
-                type="submit"
+                className={classes2.btnBlue}
+                onClick={handleEditSave}
                 fullWidth
                 variant="contained"
-                style={{
-                  marginLeft: "90px",
-                  padding: "5px 0",
-                }}
+                sx={{ marginLeft: "20px" }}
               >
-                Update Profile
+                Update
               </Button>
-            </div>
-          </Grid>
-        </form>
+            </Box>
+          </Box>
+        </Box>
       </Container>
 
       {/* Modal xác nhận Cancel*/}
-      <Dialog open={openConfirmDialog} onClose={() => handleCloseDialog(false)}>
-        <div
-          style={{
-            width: "500px",
-            padding: "20px 20px",
-            border: "3px solid #229594",
+      <Dialog
+        open={openConfirmDialog}
+        onClose={() => handleCloseDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        PaperProps={{
+          sx: {
+            minWidth: "400px",
+            padding: "20px",
+            borderRadius: "20px",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            mb: 2,
           }}
         >
           <DialogTitle
-            style={{
-              fontSize: "25px",
+            id="alert-dialog-title"
+            sx={{
+              textAlign: "center",
+              fontSize: "21px",
+              fontWeight: "bold",
             }}
           >
-            Xác Nhận
+            Do you want to exit?
           </DialogTitle>
-          <DialogContent>
-            <DialogContentText
-              style={{
-                fontSize: "20px",
-              }}
-            >
-              Bạn có muốn thoát không?
-            </DialogContentText>
-          </DialogContent>
-
-          {/* Nút Hủy và Đồng ý */}
-          <DialogActions
-            style={{
-              gap: "10px",
-            }}
+        </Box>
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
+          <Button
+            onClick={() => handleCloseDialog(false)}
+            color="primary"
+            autoFocus
+            className={classes2.btnRed}
+            sx={{ minWidth: "120px" }}
           >
-            <Button
-              onClick={() => handleCloseDialog(false)}
-              color="primary"
-              sx={{
-                fontSize: "20px",
-                fontWeight: 400,
-                color: "#229594",
-                ":hover": {
-                  backgroundColor: "#229594",
-                  color: "#fff",
-                },
-              }}
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={() => handleCloseDialog(true)}
-              color="primary"
-              sx={{
-                fontSize: "20px",
-                fontWeight: 400,
-                color: "#229594",
-                ":hover": {
-                  backgroundColor: "#229594",
-                  color: "#fff",
-                },
-              }}
-            >
-              Đồng Ý
-            </Button>
-          </DialogActions>
-        </div>
+            No
+          </Button>
+          <Button
+            onClick={() => handleCloseDialog(true)}
+            variant="contained"
+            color="error"
+            className={classes2.btnBlue}
+            sx={{ minWidth: "120px" }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );
