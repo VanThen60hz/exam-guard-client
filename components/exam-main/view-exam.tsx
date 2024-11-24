@@ -33,7 +33,7 @@ import { useRouter } from "next/router";
 import {
     deleteQuestion,
     getExamById,
-    getListQuestion,
+    listQuestionTeacher,
     searchQuestions,
     updateQuestion,
 } from "../../helpers/api/exam-api";
@@ -104,7 +104,7 @@ const ViewExamForm: React.FC = () => {
             const accessToken = session.accessToken;
             if (userId && accessToken) {
                 try {
-                    const listQuestions = await getListQuestion(
+                    const listQuestions = await listQuestionTeacher(
                         userId,
                         accessToken,
                         examId as string,
@@ -133,7 +133,7 @@ const ViewExamForm: React.FC = () => {
                 const accessToken = session.accessToken;
                 if (userId && accessToken) {
                     try {
-                        const allQuestions = await getListQuestion(
+                        const allQuestions = await listQuestionTeacher(
                             userId,
                             accessToken,
                             examId as string,

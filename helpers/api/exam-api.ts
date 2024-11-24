@@ -102,7 +102,7 @@ const getListExam = async (
     }
 };
 
-const getListQuestion = async (
+const listQuestionStudent = async (
     id: string,
     accessToken: string,
     examId: string,
@@ -353,10 +353,10 @@ const getExamById = async (
 };
 
 // Di chuyển hàm getQuestionsByExamId vào đây
-const listQuestions = async (
-    examId: string,
+const listQuestionTeacher = async (
     userId: string,
     accessToken: string,
+    examId: string,
     page: number,
     limit: number
 ) => {
@@ -369,10 +369,13 @@ const listQuestions = async (
         myHeaders.append("x-client-id", userId || ""); // Use the user ID as the client ID
 
         // Gọi API với đường dẫn đúng và thêm tham số phân trang
-        const res = await fetch(`${BASE_URL}/exam/join/${examId}`, {
-            method: "GET",
-            headers: myHeaders,
-        });
+        const res = await fetch(
+            `${BASE_URL}/question/${examId}/list?page=${page}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: myHeaders,
+            }
+        );
 
         console.log("Response Status:", res.status); // Log trạng thái phản hồi
         const data = await res.json();
@@ -503,9 +506,9 @@ export {
     updateExam,
     createQuestion,
     getExamsByStatus,
-    getListQuestion,
+    listQuestionStudent,
     getExamById,
-    listQuestions,
+    listQuestionTeacher,
     updateQuestion,
     deleteQuestion,
     searchQuestions,
