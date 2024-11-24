@@ -20,34 +20,50 @@ import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-import { getExamById, getListQuestion } from "../../helpers/api/exam-api";
+import { Camera } from "@mediapipe/camera_utils";
+import Webcam from "react-webcam";
+import { FaceDetection, Results } from "@mediapipe/face_detection";
+import NextImage from "next/image";
+import {
+    b64toBlob,
+    detectCheating,
+    extractFaceCoordinates,
+    getCheatingStatus,
+    printLandmarks,
+} from "../../helpers/face-detection/face-detection-helper";
+
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import {
+    getBrowserDocumentHiddenProp,
+    getBrowserVisibilityProp,
+} from "../../helpers/app/visibility-event";
+import { examActions } from "../../store/exam-store";
+
+import { listQuestionStudent } from "../../helpers/api/exam-api";
+import { detect_cheating } from "../../helpers/api/cheating-api";
 import { examTitle } from "./home-student";
 
 import classes from "../../components/user/home-student.module.scss";
 import classes2 from "../../components/user/profile-user.module.scss";
+import WarningModal from "../exam/exam-modals";
+import { BASE_URL } from "../../constants";
 
-interface ExamData {
-    _id: string;
-    title: string;
-    endTime: string;
-    startTime: string;
-}
 interface RemainingTime {
     minutes: number;
     seconds: number;
 }
+const TESTING = false;
 
 const AnswerQuestionForm: React.FC = () => {
     const router = useRouter();
     const { examId } = router.query;
 
     const [currentDateTime, setCurrentDateTime] = useState<string>("");
-    const [examData, setExamData] = useState<ExamData | null>(null);
     const [listData, setListData] = useState([]);
 
     // Lưu các câu trả lời
     const [answers, setAnswers] = useState<
-        { questionId: number; answer: string }[]
+        { questionId: string; answer: string }[]
     >([]);
 
     // State quản lý trạng thái của dialog và kết quả
@@ -78,17 +94,42 @@ const AnswerQuestionForm: React.FC = () => {
 
     // totalTime là tổng thời gian làm bài, tính bằng giây
     const [timeLeft, setTimeLeft] = useState<RemainingTime | null>(null);
-    const [totalSeconds, setTotalSeconds] = useState(Number);
-    const [progress, setProgress] = useState(100);
+    const [totalSeconds, setTotalSeconds] = useState(0);
 
     // Camera
     const videoRef = useRef(null);
+    const [img_, setImg_] = useState<string>();
+    const webcamRef: React.LegacyRef<Webcam> = useRef();
+    const faceDetectionRef = useRef<FaceDetection>(null);
+    const realtimeDetection = true;
+
+    const frameRefresh = 30;
+    let currentFrame = useRef(0);
+
+    const [chetingStatus, setChetingStatus] = useState("");
+
+    //chuyển tab
+    const dispatch = useAppDispatch();
+
+    const activeExam = useAppSelector((state) => state.exam.activeExam);
+
+    const [didLeaveExam, setDidLeaveExam] = useState(false);
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalData, setModalData] = useState<{
+        title: string;
+        description: string;
+    }>();
+
+    // Đếm số lần phát hiện gian lận
+    const [cheatingCount, setCheatingCount] = useState<number>(0);
 
     // Tạo mảng refs cho mỗi câu hỏi
     const questionRefs = useRef([]);
 
     // Load trang
     const [loading, setLoading] = useState(false);
+    const [time, settime] = useState(false);
 
     // Báo lỗi
     const [error, setError] = useState<string | null>(null);
@@ -98,60 +139,18 @@ const AnswerQuestionForm: React.FC = () => {
 
     const [correctAnswersCount, setCorrectAnswersCount] = useState<number>(0);
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            const now = new Date();
-
-            const formattedDate = now.toLocaleDateString("vi-VN", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-            });
-
-            const formattedTime = now.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true,
-            });
-
-            setCurrentDateTime(`${formattedDate}, ${formattedTime}`);
-        }, 1000); // Cập nhật mỗi giây
-
-        return () => clearInterval(intervalId);
-    }, []);
-
     // Lấy danh sách câu hỏi
     useEffect(() => {
         if (status === "authenticated" && session) {
             const userId = session.userId;
             const accessToken = session.accessToken;
-            const fetchExam = async () => {
-                setLoading(true);
-                if (userId && accessToken) {
-                    try {
-                        const exam = await getExamById(
-                            userId,
-                            accessToken,
-                            examId as string
-                        );
-                        setExamData(exam);
-                    } catch (error) {
-                        console.error("Error getting Exam:", error);
-                        setError(error.message);
-                    } finally {
-                        setLoading(false);
-                    }
-                }
-                return examData;
-            };
 
             const fetchListQuestions = async () => {
-                setLoading(true);
+                settime(true);
 
                 if (userId && accessToken) {
                     try {
-                        const listQuestions = await getListQuestion(
+                        const listQuestions = await listQuestionStudent(
                             userId,
                             accessToken,
                             examId as string,
@@ -167,10 +166,9 @@ const AnswerQuestionForm: React.FC = () => {
                     } catch (error) {
                         console.error("Error getting Questions:", error);
                         setError(error.message);
-                    } finally {
-                        setLoading(false);
                     }
                 }
+                setLoading(false);
                 return listData;
             };
             const fetchAllQuestions = async () => {
@@ -178,7 +176,7 @@ const AnswerQuestionForm: React.FC = () => {
 
                 if (userId && accessToken) {
                     try {
-                        const allQuestions = await getListQuestion(
+                        const allQuestions = await listQuestionStudent(
                             userId,
                             accessToken,
                             examId as string,
@@ -189,19 +187,110 @@ const AnswerQuestionForm: React.FC = () => {
                     } catch (error) {
                         console.error("Error getting all Questions:", error);
                         setError(error.message);
-                    } finally {
-                        setLoading(false);
                     }
                 }
+                setLoading(false);
                 return allQuestion;
             };
-            fetchExam();
+
             fetchListQuestions();
             fetchAllQuestions();
         }
-    }, [status, session, examId, page, limit, limit2]);
+    }, [status, session, examId, page, limit]);
 
     // Hàm để lấy luồng camera
+    useEffect(() => {
+        const faceDetection: FaceDetection = new FaceDetection({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
+            },
+        });
+
+        faceDetection.setOptions({
+            minDetectionConfidence: 0.5,
+            model: "short",
+        });
+
+        const onResult = async (result: Results) => {
+            // TODO: Fix multiple toasts
+            if (result.detections.length < 1) {
+                // toast(
+                //   "Face not detected, make sure your face is visible on the screen!"
+                // );
+                return;
+            } else if (result.detections.length > 1) {
+                // toast(
+                //   "Detected more than one person in frame, can be flagged as cheating!"
+                // );
+                return;
+            }
+
+            const faceCoordinates = extractFaceCoordinates(result);
+
+            // printLandmarks(result);
+
+            const [lookingLeft, lookingRight] = detectCheating(
+                faceCoordinates,
+                false
+            );
+
+            const userId = session.userId;
+            const accessToken = session.accessToken;
+            if (lookingLeft || lookingRight) {
+                try {
+                    const detect = await detect_cheating(
+                        userId,
+                        accessToken,
+                        examId as string,
+                        {
+                            infractionType: "Face",
+                            description:
+                                "Student was caught with unauthorized notes during the exam",
+                        }
+                    );
+                } catch (error) {
+                    console.error("Error detect cheating:", error);
+                    setError(error.message);
+                }
+                console.log("face");
+            }
+
+            const cheatingStatus = getCheatingStatus(lookingLeft, lookingRight);
+            setChetingStatus(cheatingStatus);
+        };
+
+        faceDetection.onResults(onResult);
+        faceDetectionRef.current = faceDetection;
+
+        if (webcamRef.current) {
+            const camera = new Camera(webcamRef.current.video, {
+                onFrame: async () => {
+                    // Proceed frames only if real time detection is on
+                    if (!realtimeDetection) {
+                        return;
+                    }
+
+                    currentFrame.current += 1;
+
+                    if (currentFrame.current >= frameRefresh) {
+                        currentFrame.current = 0;
+                        await faceDetection.send({
+                            image: webcamRef.current.video,
+                        });
+                    }
+                },
+                width: 1280,
+                height: 720,
+            });
+
+            camera.start();
+        }
+
+        return () => {
+            faceDetection.close();
+        };
+    }, [webcamRef, realtimeDetection]);
+
     useEffect(() => {
         const startCamera = async () => {
             try {
@@ -246,32 +335,131 @@ const AnswerQuestionForm: React.FC = () => {
         };
     }, []);
 
-    // Thời gian làm bài
+    // Tab change
     useEffect(() => {
-        if (!timeLeft || !totalSeconds) return;
+        const hiddenProp = getBrowserDocumentHiddenProp();
+        const visibilityChangeEventName = getBrowserVisibilityProp();
 
-        const interval = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (!prev) return null;
-
-                const remainingSeconds = prev.minutes * 60 + prev.seconds - 1;
-
-                if (remainingSeconds <= 0) {
-                    clearInterval(interval);
-                    return null; // Hết giờ
+        const handleVisibilityChange = async () => {
+            if (document[hiddenProp]) {
+                setDidLeaveExam(true);
+                const userId = session.userId;
+                const accessToken = session.accessToken;
+                try {
+                    const detect = await detect_cheating(
+                        userId,
+                        accessToken,
+                        examId as string,
+                        {
+                            infractionType: "Switch Tab",
+                            description:
+                                "Student was caught with unauthorized notes during the exam",
+                        }
+                    );
+                } catch (error) {
+                    console.error("Error detect cheating:", error);
+                    setError(error.message);
                 }
+            } else {
+                showModal(
+                    "WARNING!",
+                    "Leaving exam multiple times may be flagged as cheating!"
+                );
+            }
+        };
 
-                const newMinutes = Math.floor(remainingSeconds / 60);
-                const newSeconds = remainingSeconds % 60;
+        document.addEventListener(
+            visibilityChangeEventName,
+            handleVisibilityChange,
+            false
+        );
 
-                setProgress((remainingSeconds / totalSeconds) * 100);
+        return () => {
+            document.removeEventListener(
+                visibilityChangeEventName,
+                handleVisibilityChange
+            );
+        };
+    }, []);
 
-                return { minutes: newMinutes, seconds: newSeconds };
+    const showModal = (title: string, description: string) => {
+        setIsModalVisible(true);
+        setModalData({
+            title,
+            description,
+        });
+    };
+
+    const hideModel = () => {
+        if (!didLeaveExam) {
+            return;
+        }
+
+        setIsModalVisible(false);
+        setModalData({
+            title: "",
+            description: "",
+        });
+
+        dispatch(examActions.increaseTabChangeCount());
+
+        if (activeExam && activeExam.tabChangeCount > 3) {
+            toast("You've changed tab more than 3 times, submitting exam!");
+            // TODO: submit exam
+        }
+    };
+
+    // Thời gian làm bài
+    //Thêm state cho thời gian còn lại
+
+    useEffect(() => {
+        // Cập nhật thời gian còn lại mỗi giây
+        const intervalId = setInterval(() => {
+            setTotalSeconds((prev) => {
+                if (prev > 0) {
+                    return prev - 1;
+                } else {
+                    clearInterval(intervalId);
+                    return 0;
+                }
             });
         }, 1000);
 
-        return () => clearInterval(interval);
-    }, [timeLeft, totalSeconds]);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    useEffect(() => {
+        if (timeLeft) {
+            setTotalSeconds(timeLeft.minutes * 60 + timeLeft.seconds);
+        }
+    }, [timeLeft]);
+
+    // Tính toán thời gian còn lại theo định dạng phút và giây
+    const formatTimeLeft = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes.toString().padStart(2, "0")}:${secs
+            .toString()
+            .padStart(2, "0")}`;
+    };
+
+    // Danh sách màu sắc
+    const colors = [
+        "#80EE98",
+        "#46DFB1",
+        "#09D1C7",
+        "#15919B",
+        "#0C6478",
+        "#213A58",
+    ];
+
+    // Tính toán màu sắc của thanh dựa trên thời gian còn lại
+    const getProgressColor = () => {
+        const percentage =
+            totalSeconds / (timeLeft?.minutes * 60 + timeLeft?.seconds);
+        const colorIndex = Math.floor((1 - percentage) * (colors.length - 1)); // Tính chỉ số màu
+        return colors[Math.max(0, Math.min(colorIndex, colors.length - 1))]; // Đảm bảo chỉ số nằm trong khoảng
+    };
 
     // Chuyển trang
     const handlePageChange = (
@@ -285,13 +473,14 @@ const AnswerQuestionForm: React.FC = () => {
     // Chọn câu trả lời và lưu lại vào answer
     const handleChooseAnswer = (
         e: React.ChangeEvent<HTMLInputElement>,
-        question: any
+        correctAnswer: string,
+        questionId: string
     ) => {
         const { value } = e.target;
 
         setAnswers((prevAnswers) => {
             const existingAnswerIndex = prevAnswers.findIndex(
-                (answer) => answer.questionId === question._id
+                (answer) => answer.questionId === questionId
             );
 
             if (existingAnswerIndex !== -1) {
@@ -303,19 +492,22 @@ const AnswerQuestionForm: React.FC = () => {
                 // Nếu chưa có câu trả lời, thêm câu trả lời mới vào mảng
                 return [
                     ...prevAnswers,
-                    { questionId: question._id, answer: value },
+                    { questionId: questionId, answer: value },
                 ];
             }
         });
         //tính toán câu trả lời đúng
-        if (value === question.correctAnswer) {
+        if (value === correctAnswer) {
             setCorrectAnswersCount((prevCount) => prevCount + 1);
-            console.log("đúng");
+            console.log("value:", value);
+            console.log("correct: ", correctAnswer);
         } else {
             setCorrectAnswersCount((prevCount) =>
                 prevCount > 0 ? prevCount - 1 : 0
             );
             console.log("sai");
+            console.log("value:", value);
+            console.log("correct: ", correctAnswer);
         }
     };
 
@@ -376,9 +568,14 @@ const AnswerQuestionForm: React.FC = () => {
             }).length;
 
             openResultDialog(
-                `Số câu đúng: ${correctCount}/${allQuestion.length}`
+                `
+                <p>Số câu đúng: ${correctCount}/${allQuestion.length}</p>
+                
+                <p>Số lần gian lận: ${cheatingCount}</p>
+                `
             );
         }
+        console.log("Đã tl:  ", answers);
     };
 
     const CustomFormControlLabel = styled(FormControlLabel)({
@@ -394,45 +591,45 @@ const AnswerQuestionForm: React.FC = () => {
     return (
         <>
             <Container className={classes.container}>
-                <div className={classes.countdownTimer}>
-                    <p
-                        style={{
-                            color: "#000",
-                            fontSize: "18px",
-                            marginBottom: "10px",
-                        }}
-                    >
-                        Thời gian còn lại:{" "}
-                        {timeLeft
-                            ? `${timeLeft.minutes}:${timeLeft.seconds
-                                  .toString()
-                                  .padStart(2, "0")}`
-                            : "Hết giờ!"}
-                    </p>
-                    <LinearProgress
-                        variant="determinate"
-                        value={progress}
-                        style={{ width: "100%", height: 10 }}
-                    />
-                </div>
-                {/* Hiển thị ngày giờ hiện tại
+                {/* Thanh đếm ngược thời gian */}
+                <div
+                    style={{
+                        position: "relative",
+                        height: "20px",
+                        backgroundColor: "#e0e0e0",
+                        borderRadius: "5px",
+                        overflow: "hidden",
+                        marginTop: "120px",
+                    }}
+                >
                     <div
-                        className={`${classes2.dateTime}`}
                         style={{
-                            marginTop: "120px",
+                            position: "absolute",
+                            height: "100%",
+                            width: `${
+                                (totalSeconds /
+                                    (timeLeft?.minutes * 60 +
+                                        timeLeft?.seconds)) *
+                                100
+                            }%`,
+                            backgroundColor: getProgressColor(),
+                            transition:
+                                "width 1s linear, background-color 1.5s ease",
+                        }}
+                    />
+                    {/* Hiển thị thời gian còn lại bên trong thanh */}
+                    <div
+                        style={{
+                            position: "absolute",
+                            width: "100%",
+                            textAlign: "center",
+                            color: "#fff",
+                            fontWeight: "bold",
                         }}
                     >
-                        <Typography
-                            style={{
-                                fontFamily: "Lexend",
-                                fontSize: "20px",
-                                fontWeight: 400,
-                                color: "#fff",
-                            }}
-                        >
-                            {currentDateTime}
-                        </Typography>
-                    </div> */}
+                        {formatTimeLeft(totalSeconds)}
+                    </div>
+                </div>
 
                 <div
                     style={{
@@ -494,7 +691,8 @@ const AnswerQuestionForm: React.FC = () => {
                                                 onChange={(e) =>
                                                     handleChooseAnswer(
                                                         e,
-                                                        question
+                                                        question.correctAnswer,
+                                                        question._id
                                                     )
                                                 }
                                             >
@@ -888,14 +1086,50 @@ const AnswerQuestionForm: React.FC = () => {
                             </div>
                         </div>
                         {/* Thẻ camera */}
-                        <div>
-                            <video
-                                className={classes.camera}
-                                autoPlay
-                                playsInline
-                                muted
-                                ref={videoRef}
-                            />
+                        <div
+                            style={{
+                                // display: "flex",
+                                // flexDirection: "column",
+                                // alignItems: "center",
+                                width: "100%",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    margin: "10px 10px",
+                                }}
+                            >
+                                <p
+                                    className={classes.fontStyle}
+                                    style={{
+                                        maxWidth: "250px",
+                                        color: "#000",
+                                        fontSize: "12px",
+                                    }}
+                                >
+                                    Cheating status:
+                                </p>
+                                <p
+                                    className={classes.fontStyle}
+                                    style={{ fontSize: "12px" }}
+                                >
+                                    {chetingStatus}
+                                </p>
+                            </div>
+
+                            {true && (
+                                <Webcam
+                                    className={classes.camera}
+                                    ref={webcamRef}
+                                    screenshotFormat="image/jpeg"
+                                />
+                            )}
+
+                            <br />
+
+                            {/* <Button onClick={onResultClick}>Get Result</Button> */}
+
+                            {img_ && <NextImage src={img_} alt="Profile" />}
                         </div>
                     </div>
                 </div>
@@ -921,6 +1155,15 @@ const AnswerQuestionForm: React.FC = () => {
                     >
                         submit
                     </Button>
+                )}
+
+                {!TESTING && (
+                    <WarningModal
+                        open={isModalVisible}
+                        title={modalData?.title}
+                        description={modalData?.description}
+                        onClose={hideModel}
+                    />
                 )}
 
                 {/* Dialog hiển thị kết quả */}

@@ -299,14 +299,7 @@ const HomeStudentForm: React.FC = () => {
                                         marginTop: "20px",
                                     }}
                                 >
-                                    {Math.abs(
-                                        (new Date(exam.endTime).getTime() -
-                                            new Date(
-                                                exam.startTime
-                                            ).getTime()) /
-                                            60000
-                                    ).toFixed(0)}{" "}
-                                    minutes
+                                    {exam.duration} minutes
                                 </p>
                             </div>
                             <Button
