@@ -264,25 +264,7 @@ const CreateExamForm: React.FC = () => {
                 }}
                 className={classes.textFieldCustom}
               >
-                <Box sx={{ width: 210 }}>
-                  <FormControl fullWidth>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      Status <span style={{ color: "red" }}>*</span>
-                    </Typography>
-                    <Select
-                      labelId="status-label"
-                      id="status"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleSelectChange}
-                    >
-                      <MenuItem value="Scheduled">Scheduled</MenuItem>
-                      <MenuItem value="In Progress">In progress</MenuItem>
-                      <MenuItem value="Completed">Completed</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-                <Box sx={{ width: 210, margin: "0 10px" }}>
+                <Box sx={{ width: 240, marginRight: "10px" }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                     Start Time <span style={{ color: "red" }}>*</span>
                   </Typography>
@@ -308,7 +290,7 @@ const CreateExamForm: React.FC = () => {
                   )}
                 </Box>
 
-                <Box sx={{ width: 210, marginRight: "10px" }}>
+                <Box sx={{ width: 240, marginRight: "10px" }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                     End Time <span style={{ color: "red" }}>*</span>
                   </Typography>
@@ -333,32 +315,6 @@ const CreateExamForm: React.FC = () => {
                     </Typography>
                   )}
                 </Box>
-                {/* <Box
-                  sx={{
-                    width: "230px",
-                  }}
-                >
-                  <TextField
-                    variant="outlined"
-                    disabled
-                    className={classes.textFieldCustom}
-                    value={
-                      startTime && endTime
-                        ? `${Math.abs(
-                            (new Date(endTime).getTime() -
-                              new Date(startTime).getTime()) /
-                              60000
-                          ).toFixed(0)} min`
-                        : "0 min"
-                    }
-                    InputProps={{
-                      sx: {
-                        backgroundColor: "#a4eeed",
-                        fontWeight: "bold",
-                      },
-                    }}
-                  />
-                </Box> */}
                 <Box sx={{ marginBottom: 2, width: "100%" }}>
                   <Typography
                     variant="subtitle1"

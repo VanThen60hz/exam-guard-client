@@ -134,6 +134,16 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
     });
   };
 
+  const handleBackButton = () => {
+    if (user && user.role === "TEACHER") {
+      router.push("/exam/manage-exam");
+    } else if (user && user.role === "ADMIN") {
+      router.push("/user/list-user");
+    } else if (user && user.role === "STUDENT") {
+      router.push("/user/home-student");
+    }
+  };
+
   const showLoadingWidget = () => {
     loadingBarRef.current.continuousStart(50);
   };
@@ -146,15 +156,17 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
     if (loadingBarRef.current) {
       loadingBarRef.current.continuousStart(50);
     }
-    await signOut({ redirect: false });
+    await signOut({ callbackUrl: "/" });
     if (loadingBarRef.current) {
       loadingBarRef.current.complete();
     }
-    // router.push("/auth/login");
+    router.push("/");
   };
 
   const gotoPage = async (url: string) => {
-    loadingBarRef.current.continuousStart(50);
+    if (loadingBarRef.current) {
+      loadingBarRef.current.continuousStart(50);
+    }
     router.push(url);
   };
 
@@ -227,12 +239,9 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
                   <NavButton text="Introduction" />
                 </Link>
 
-                {/* {session.status === "authenticated" && (
-                                    <NavButton
-                                        text="Dashboard"
-                                        onClick={() => gotoPage("/dashboard")}
-                                    />
-                                )} */}
+                {status === "authenticated" && (
+                  <NavButton text="Dashboard" onClick={handleBackButton} />
+                )}
 
                 {status === "unauthenticated" && (
                   <NavButton
@@ -249,7 +258,7 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
                   onClick={() => handleEditClick(user)}
                   sx={{ marginLeft: "15px", cursor: "pointer" }}
                 >
-                  {user ? ( // Check if user is not null
+                  {status === "authenticated" && user ? ( // Kiểm tra trạng thái xác thực và user không null
                     <Avatar
                       src={user.avatar}
                       alt="User Avatar"
