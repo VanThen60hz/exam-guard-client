@@ -87,7 +87,7 @@ const ListUserForm: React.FC = () => {
   const roleRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [loading, setLoading] = useState(false); // Thêm state loading
-  
+
   //Upload Avatar
   const handleAvatarUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -522,8 +522,17 @@ const ListUserForm: React.FC = () => {
   return (
     <>
       {loading && (
-        <Box sx={{ width: '100%', padding: "0 50px", position: 'fixed', top: 100, left: 0, zIndex: 100 }}>
-          <LinearProgress color="primary" /> 
+        <Box
+          sx={{
+            width: "100%",
+            padding: "0 50px",
+            position: "fixed",
+            top: 100,
+            left: 0,
+            zIndex: 100,
+          }}
+        >
+          <LinearProgress color="primary" />
         </Box>
       )}
       <Box

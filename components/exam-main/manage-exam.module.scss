@@ -1,156 +1,191 @@
 .btnBlue {
-    cursor: pointer;
-    display: flex;
-    gap: 0.5rem;
-    border: none;
-  
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border-radius: 30px;
-    font-weight: 600;
-    place-content: center;
-  
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    line-height: 1rem;
-    width: 150px;
-  
-    background-color: #3498db;
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2),
-      0 0 10px rgba(52, 152, 219, 0.1);
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  border: none;
+
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 30px;
+  font-weight: 600;
+  place-content: center;
+
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  width: 150px;
+
+  background-color: #3498db;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2),
+    0 0 10px rgba(52, 152, 219, 0.1);
+}
+
+.btnBlue:hover {
+  background-color: #2980b9;
+  box-shadow: 0 6px 15px rgba(41, 128, 185, 0.3),
+    0 0 30px rgba(41, 128, 185, 0.2), 0 0 60px rgba(41, 128, 185, 0.1);
+  transform: translateY(-2px);
+}
+
+.btnBlue:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(41, 128, 185, 0.2),
+    0 0 10px rgba(41, 128, 185, 0.1);
+}
+
+.btnRed {
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  border: none;
+
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 30px;
+  font-weight: 600;
+  place-content: center;
+
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  width: 150px;
+
+  background-color: #e74c3c; // Màu đỏ
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(231, 76, 60, 0.2), 0 0 10px rgba(231, 76, 60, 0.1);
+}
+
+.btnRed:hover {
+  background-color: #c0392b; // Màu đỏ đậm hơn
+  box-shadow: 0 6px 15px rgba(192, 57, 43, 0.3), 0 0 30px rgba(192, 57, 43, 0.2),
+    0 0 60px rgba(192, 57, 43, 0.1);
+  transform: translateY(-2px);
+}
+
+.btnRed:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(192, 57, 43, 0.2), 0 0 10px rgba(192, 57, 43, 0.1);
+}
+
+.btnGreen {
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  border: none;
+
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 30px;
+  font-weight: 600;
+  place-content: center;
+
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  width: 150px;
+
+  background-color: #229594;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2), 0 0 10px rgba(40, 167, 69, 0.1);
+}
+
+.btnGreen:hover {
+  background-color: #1e7976;
+  box-shadow: 0 6px 15px rgba(25, 135, 84, 0.3), 0 0 30px rgba(25, 135, 84, 0.2),
+    0 0 60px rgba(25, 135, 84, 0.1);
+  transform: translateY(-2px);
+}
+
+.btnGreen:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2), 0 0 10px rgba(40, 167, 69, 0.1);
+}
+
+.btnGreen2 {
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  border: none;
+
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 30px;
+  font-weight: 600;
+  place-content: center;
+
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  width: 120px;
+  height: 38px;
+  font-size: 12px;
+
+  background-color: #88976c;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(99, 112, 75, 0.2),
+    0 0 10px rgba(136, 151, 108, 0.1); // Cập nhật box-shadow theo màu #88976C
+}
+
+.btnGreen2:hover {
+  background-color: #5f7531;
+  box-shadow: 0 6px 15px rgba(136, 151, 108, 0.3),
+    0 0 30px rgba(136, 151, 108, 0.2), 0 0 60px rgba(136, 151, 108, 0.1);
+  transform: translateY(-2px);
+}
+
+.btnGreen2:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(136, 151, 108, 0.2),
+    0 0 10px rgba(136, 151, 108, 0.1); // Cập nhật màu sắc
+}
+
+.btnSmall {
+  width: 100px !important; // Loại bỏ dấu ngoặc kép
+  height: 38px !important; // Loại bỏ dấu ngoặc kép
+  font-size: 12px;
+}
+
+.btnMedium {
+  width: 150px !important; // Loại bỏ dấu ngoặc kép
+  height: 38px !important; // Loại bỏ dấu ngoặc kép
+  font-size: 12px;
+}
+
+.btnLarge {
+  width: 180px !important; // Loại bỏ dấu ngoặc kép
+  height: 38px !important; // Loại bỏ dấu ngoặc kép
+  font-size: 12px;
+}
+
+.btnSpecial {
+  width: 140px !important; // Loại bỏ dấu ngoặc kép
+  height: 38px !important; // Loại bỏ dấu ngoặc kép
+  font-size: 12px;
+}
+
+.btnSmallest {
+  width: 10px !important; // Loại bỏ dấu ngoặc kép
+  height: 38px !important; // Loại bỏ dấu ngoặc kép
+  font-size: 12px;
+}
+
+.textFieldCustom {
+  & fieldset {
+    border-color: green;
   }
-  
-  .btnBlue:hover {
-    background-color: #2980b9;
-    box-shadow: 0 6px 15px rgba(41, 128, 185, 0.3),
-      0 0 30px rgba(41, 128, 185, 0.2), 0 0 60px rgba(41, 128, 185, 0.1);
-    transform: translateY(-2px);
+  &:focus-within fieldset {
+    border-color: green !important;
   }
-  
-  .btnBlue:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(41, 128, 185, 0.2),
-      0 0 10px rgba(41, 128, 185, 0.1);
+  &.Mui-focused fieldset {
+    border-color: green !important;
   }
-  
-  .btnRed {
-    cursor: pointer;
-    display: flex;
-    gap: 0.5rem;
-    border: none;
-  
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border-radius: 30px;
-    font-weight: 600;
-    place-content: center;
-  
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    line-height: 1rem;
-    width: 150px;
-  
-    background-color: #e74c3c; // Màu đỏ
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(231, 76, 60, 0.2), 0 0 10px rgba(231, 76, 60, 0.1);
+}
+
+.textFieldCustomGreen {
+  & fieldset {
+    border-color: green !important;
   }
-  
-  .btnRed:hover {
-    background-color: #c0392b; // Màu đỏ đậm hơn
-    box-shadow: 0 6px 15px rgba(192, 57, 43, 0.3), 0 0 30px rgba(192, 57, 43, 0.2),
-      0 0 60px rgba(192, 57, 43, 0.1);
-    transform: translateY(-2px);
-  }
-  
-  .btnRed:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(192, 57, 43, 0.2), 0 0 10px rgba(192, 57, 43, 0.1);
-  }
-  
-  .btnGreen {
-    cursor: pointer;
-    display: flex;
-    gap: 0.5rem;
-    border: none;
-  
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border-radius: 30px;
-    font-weight: 600;
-    place-content: center;
-  
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    line-height: 1rem;
-    width: 150px;
-  
-    background-color: #229594; 
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2), 0 0 10px rgba(40, 167, 69, 0.1);
-  }
-  
-  .btnGreen:hover {
-    background-color: #1e7976;
-    box-shadow: 0 6px 15px rgba(25, 135, 84, 0.3), 0 0 30px rgba(25, 135, 84, 0.2),
-      0 0 60px rgba(25, 135, 84, 0.1);
-    transform: translateY(-2px);
-  }
-  
-  .btnGreen:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2), 0 0 10px rgba(40, 167, 69, 0.1);
-  }
-  
-  .btnSmall {
-    width: 100px !important; // Loại bỏ dấu ngoặc kép
-    height: 38px !important; // Loại bỏ dấu ngoặc kép
-    font-size: 12px;
-  }
-  
-  .btnMedium {
-    width: 150px !important; // Loại bỏ dấu ngoặc kép
-    height: 38px !important; // Loại bỏ dấu ngoặc kép
-    font-size: 12px;
-  }
-  
-  .btnLarge {
-    width: 180px !important; // Loại bỏ dấu ngoặc kép
-    height: 38px !important; // Loại bỏ dấu ngoặc kép
-    font-size: 12px;
-  }
-  
-  .btnSpecial {
-    width: 140px !important; // Loại bỏ dấu ngoặc kép
-    height: 38px !important; // Loại bỏ dấu ngoặc kép
-    font-size: 12px;
-  }
-  
-  .btnSmallest {
-    width: 10px !important; // Loại bỏ dấu ngoặc kép
-    height: 38px !important; // Loại bỏ dấu ngoặc kép
-    font-size: 12px;
-  }
-  
-  
-  .textFieldCustom {
-    & fieldset {
-      border-color: green;
-    }
-    &:focus-within fieldset {
-      border-color: green !important;
-    }
-    &.Mui-focused fieldset {
-      border-color: green !important;
-    }
-  }
-  
-  .textFieldCustomGreen {
-    & fieldset {
-      border-color: green !important;
-    }
-  }
-  
-  .btnActive {
-    font-weight: bold; /* Đậm chữ */
-    background-color: #0e4e79; /* Màu nền khi được chọn */
-    color: white; /* Màu chữ khi được chọn */
-  }
-  
+}
+
+.btnActive {
+  font-weight: bold; /* Đậm chữ */
+  background-color: #0e4e79; /* Màu nền khi được chọn */
+  color: white; /* Màu chữ khi được chọn */
+}
