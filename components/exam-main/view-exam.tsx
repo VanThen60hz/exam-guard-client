@@ -3,13 +3,8 @@ import {
   LinearProgress,
   Container,
   Button,
-  Typography,
   TextField,
-  FormControl,
-  RadioGroup,
-  FormControlLabel,
   Radio,
-  styled,
   Pagination,
   Dialog,
   DialogTitle,
@@ -20,7 +15,6 @@ import {
   InputAdornment,
   IconButton,
   Box,
-  Modal,
   Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -56,7 +50,6 @@ interface ExamData {
 }
 
 const ViewExamForm: React.FC = () => {
-  const [currentDateTime, setCurrentDateTime] = useState<string>("");
   const [listData, setListData] = useState([]);
   const [examData, setExamData] = useState<ExamData | null>(null);
   let exam = null;
