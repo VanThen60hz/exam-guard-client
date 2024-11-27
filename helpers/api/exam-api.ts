@@ -496,6 +496,66 @@ const searchQuestions = async (
     }
 };
 
+const submitExam = async (
+    id: string,
+    accessToken: string,
+    examId: string,
+    answers: any
+) => {
+    try {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken);
+        myHeaders.append("x-client-id", id);
+        myHeaders.append("Content-Type", "application/json");
+
+        const res = await fetch(`${BASE_URL}/exam/submit/${examId}`, {
+            method: "POST",
+            headers: myHeaders,
+            body: JSON.stringify(answers),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.message || "Failed to submit!");
+        }
+
+        return data.metadata;
+    } catch (e) {
+        console.error("Error in submit exam:", e);
+        throw e;
+    }
+};
+
+const answerQuestion = async (
+    id: string,
+    accessToken: string,
+    questionId: string,
+    answer: any
+) => {
+    try {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken);
+        myHeaders.append("x-client-id", id);
+        myHeaders.append("Content-Type", "application/json");
+
+        const res = await fetch(`${BASE_URL}/answer/${questionId}`, {
+            method: "POST",
+            headers: myHeaders,
+            body: JSON.stringify(answer),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.message || "Failed to answer!");
+        }
+
+        return data.metadata;
+    } catch (e) {
+        console.error("Error in answer question:", e);
+        throw e;
+    }
+};
+
 export {
     getExam,
     getAssignedExams,
@@ -512,4 +572,6 @@ export {
     updateQuestion,
     deleteQuestion,
     searchQuestions,
+    submitExam,
+    answerQuestion,
 };

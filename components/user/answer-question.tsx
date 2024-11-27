@@ -14,6 +14,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Box,
+    Modal,
 } from "@mui/material";
 
 import { toast } from "react-toastify";
@@ -37,21 +39,32 @@ import {
     getBrowserDocumentHiddenProp,
     getBrowserVisibilityProp,
 } from "../../helpers/app/visibility-event";
-import { examActions } from "../../store/exam-store";
+//import { examActions } from "../../store/exam-store";
 
-import { listQuestionStudent } from "../../helpers/api/exam-api";
+import {
+    answerQuestion,
+    listQuestionStudent,
+    submitExam,
+} from "../../helpers/api/exam-api";
 import { detect_cheating } from "../../helpers/api/cheating-api";
 import { examTitle } from "./home-student";
 
 import classes from "../../components/user/home-student.module.scss";
 import classes2 from "../../components/user/profile-user.module.scss";
-import WarningModal from "../exam/exam-modals";
 import { BASE_URL } from "../../constants";
 
 interface RemainingTime {
     minutes: number;
     seconds: number;
 }
+
+interface WarningModalProps {
+    title: string;
+    description: string;
+    open: boolean;
+    onClose: (event: {}, reason: "backdropClick" | "escapeKeyDown") => void;
+}
+
 const TESTING = false;
 
 const AnswerQuestionForm: React.FC = () => {
@@ -137,14 +150,11 @@ const AnswerQuestionForm: React.FC = () => {
     // Get session data
     const { data: session, status } = useSession();
 
-    const [correctAnswersCount, setCorrectAnswersCount] = useState<number>(0);
-
     // Lấy danh sách câu hỏi
     useEffect(() => {
         if (status === "authenticated" && session) {
             const userId = session.userId;
             const accessToken = session.accessToken;
-
             const fetchListQuestions = async () => {
                 settime(true);
 
@@ -198,6 +208,7 @@ const AnswerQuestionForm: React.FC = () => {
         }
     }, [status, session, examId, page, limit]);
 
+    let lookingTime = 0;
     // Hàm để lấy luồng camera
     useEffect(() => {
         const faceDetection: FaceDetection = new FaceDetection({
@@ -233,30 +244,54 @@ const AnswerQuestionForm: React.FC = () => {
                 faceCoordinates,
                 false
             );
+            if (status === "authenticated" && session) {
+                const userId = session.userId;
+                const accessToken = session.accessToken;
+                const fetchCheatingFace = async () => {
+                    settime(true);
 
-            const userId = session.userId;
-            const accessToken = session.accessToken;
-            if (lookingLeft || lookingRight) {
-                try {
-                    const detect = await detect_cheating(
-                        userId,
-                        accessToken,
-                        examId as string,
-                        {
-                            infractionType: "Face",
-                            description:
-                                "Student was caught with unauthorized notes during the exam",
+                    if (userId && accessToken) {
+                        try {
+                            const detect = await detect_cheating(
+                                // session.userId,
+                                // session.accessToken,
+                                userId,
+                                accessToken,
+                                examId as string,
+                                {
+                                    infractionType: "Face",
+                                    description:
+                                        "Student looks away from the test screen.",
+                                }
+                            );
+                            console.log("chết mày rồi con");
+                        } catch (error) {
+                            console.error("Error detect cheating:", error);
+                            setError(error.message);
                         }
-                    );
-                } catch (error) {
-                    console.error("Error detect cheating:", error);
-                    setError(error.message);
-                }
-                console.log("face");
-            }
+                        setLoading(false);
+                    }
+                };
 
-            const cheatingStatus = getCheatingStatus(lookingLeft, lookingRight);
-            setChetingStatus(cheatingStatus);
+                if (lookingLeft || lookingRight) {
+                    lookingTime += 1;
+                    console.log("phát hiện: ", lookingTime);
+                    if (lookingTime == 5) {
+                        fetchCheatingFace();
+                    }
+                    if (lookingTime > 5) {
+                        lookingTime = 0;
+                    }
+                } else {
+                    lookingTime = 0;
+                }
+
+                const cheatingStatus = getCheatingStatus(
+                    lookingLeft,
+                    lookingRight
+                );
+                setChetingStatus(cheatingStatus);
+            }
         };
 
         faceDetection.onResults(onResult);
@@ -343,9 +378,12 @@ const AnswerQuestionForm: React.FC = () => {
         const handleVisibilityChange = async () => {
             if (document[hiddenProp]) {
                 setDidLeaveExam(true);
+
                 const userId = session.userId;
                 const accessToken = session.accessToken;
                 try {
+                    // const userId = session.userId;
+                    // const accessToken = session.accessToken;
                     const detect = await detect_cheating(
                         userId,
                         accessToken,
@@ -353,7 +391,7 @@ const AnswerQuestionForm: React.FC = () => {
                         {
                             infractionType: "Switch Tab",
                             description:
-                                "Student was caught with unauthorized notes during the exam",
+                                "Student switches tabs away from the test screen",
                         }
                     );
                 } catch (error) {
@@ -400,13 +438,6 @@ const AnswerQuestionForm: React.FC = () => {
             title: "",
             description: "",
         });
-
-        dispatch(examActions.increaseTabChangeCount());
-
-        if (activeExam && activeExam.tabChangeCount > 3) {
-            toast("You've changed tab more than 3 times, submitting exam!");
-            // TODO: submit exam
-        }
     };
 
     // Thời gian làm bài
@@ -471,9 +502,8 @@ const AnswerQuestionForm: React.FC = () => {
     };
 
     // Chọn câu trả lời và lưu lại vào answer
-    const handleChooseAnswer = (
+    const handleChooseAnswer = async (
         e: React.ChangeEvent<HTMLInputElement>,
-        correctAnswer: string,
         questionId: string
     ) => {
         const { value } = e.target;
@@ -496,18 +526,19 @@ const AnswerQuestionForm: React.FC = () => {
                 ];
             }
         });
-        //tính toán câu trả lời đúng
-        if (value === correctAnswer) {
-            setCorrectAnswersCount((prevCount) => prevCount + 1);
-            console.log("value:", value);
-            console.log("correct: ", correctAnswer);
-        } else {
-            setCorrectAnswersCount((prevCount) =>
-                prevCount > 0 ? prevCount - 1 : 0
+        try {
+            await answerQuestion(
+                session.userId,
+                session.accessToken,
+                questionId,
+                {
+                    answerText: value,
+                }
             );
-            console.log("sai");
-            console.log("value:", value);
-            console.log("correct: ", correctAnswer);
+            console.log("Đã chọn");
+        } catch (error) {
+            console.error("Error answer:", error);
+            setError(error.message);
         }
     };
 
@@ -538,7 +569,7 @@ const AnswerQuestionForm: React.FC = () => {
     };
 
     // Nút nộp bài
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         console.log("Danh sách câu trả lời của người dùng:", answers);
         const correctCount = answers.filter((ans) => {
             const question = allQuestion.find((q) => q._id === ans.questionId);
@@ -552,30 +583,28 @@ const AnswerQuestionForm: React.FC = () => {
                 !answers.find((ans) => ans.questionId === question._id)
         );
 
-        console.log(correctAnswersCount);
-
         if (unansweredQuestions.length > 0) {
             openResultDialog(
-                "Bạn vẫn còn câu hỏi chưa trả lời. <br />Vui lòng kiểm tra lại!"
+                `Bạn vẫn còn câu hỏi chưa trả lời.
+                Vui lòng kiểm tra lại!`
             );
         } else {
-            // Tính số câu trả lời đúng
-            const correctCount = answers.filter((ans) => {
-                const question = allQuestion.find(
-                    (q) => q._id === ans.questionId
-                );
-                return question && ans.answer === question.correctAnswer;
-            }).length;
-
             openResultDialog(
-                `
-                <p>Số câu đúng: ${correctCount}/${allQuestion.length}</p>
-                
-                <p>Số lần gian lận: ${cheatingCount}</p>
-                `
+                `Congratulations on completing the test. 
+                Would you like to view your score?`
             );
+            const userId = session.userId;
+            const accessToken = session.accessToken;
+
+            try {
+                await submitExam(userId, accessToken, examId as string, {
+                    answers: [],
+                });
+            } catch (error) {
+                console.error("Error submit:", error);
+                setError(error.message);
+            }
         }
-        console.log("Đã tl:  ", answers);
     };
 
     const CustomFormControlLabel = styled(FormControlLabel)({
@@ -586,6 +615,18 @@ const AnswerQuestionForm: React.FC = () => {
             color: "#333",
         },
     });
+
+    const style = {
+        position: "absolute" as "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 400,
+        bgcolor: "background.paper",
+        border: "2px solid #000",
+        boxShadow: 24,
+        p: 4,
+    };
 
     //Hiển thị ra màn hình
     return (
@@ -688,12 +729,17 @@ const AnswerQuestionForm: React.FC = () => {
                                                             question._id
                                                     )?.answer || ""
                                                 } // Thiết lập giá trị đã chọn
-                                                onChange={(e) =>
-                                                    handleChooseAnswer(
-                                                        e,
-                                                        question.correctAnswer,
-                                                        question._id
-                                                    )
+                                                onChange={
+                                                    (e) =>
+                                                        handleChooseAnswer(
+                                                            e,
+                                                            question._id
+                                                        )
+                                                    // handleChooseAnswer(
+                                                    //     e,
+                                                    //     question.correctAnswer,
+                                                    //     question._id
+                                                    // )
                                                 }
                                             >
                                                 {question.options.length ===
@@ -1158,12 +1204,28 @@ const AnswerQuestionForm: React.FC = () => {
                 )}
 
                 {!TESTING && (
-                    <WarningModal
+                    <Modal
                         open={isModalVisible}
-                        title={modalData?.title}
-                        description={modalData?.description}
                         onClose={hideModel}
-                    />
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={style}>
+                            <Typography
+                                id="modal-modal-title"
+                                variant="h6"
+                                component="h2"
+                            >
+                                {modalData?.title}
+                            </Typography>
+                            <Typography
+                                id="modal-modal-description"
+                                sx={{ mt: 2, color: "#874141" }}
+                            >
+                                {modalData?.description}
+                            </Typography>
+                        </Box>
+                    </Modal>
                 )}
 
                 {/* Dialog hiển thị kết quả */}
@@ -1191,14 +1253,17 @@ const AnswerQuestionForm: React.FC = () => {
                                 Continue
                             </Button>
                         ) : (
-                            <Button
-                                onClick={() =>
-                                    router.push("/user/home-student")
-                                }
-                                color="primary"
-                            >
-                                Close
-                            </Button>
+                            <Box sx={{ display: "flex" }}>
+                                <Button>View grade</Button>
+                                <Button
+                                    onClick={() =>
+                                        router.push("/user/home-student")
+                                    }
+                                    color="primary"
+                                >
+                                    Close
+                                </Button>
+                            </Box>
                         )}
                     </DialogActions>
                 </Dialog>
