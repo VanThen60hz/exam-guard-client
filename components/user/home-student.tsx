@@ -251,6 +251,7 @@ const HomeStudentForm: React.FC = () => {
                                 className={classes.fontStyle}
                                 style={{
                                     marginTop: "10px",
+                                    wordBreak: "break-word",
                                 }}
                             >
                                 {exam.description}
