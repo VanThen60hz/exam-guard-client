@@ -2,41 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  IconButton,
-  InputAdornment,
-  MenuItem,
   Pagination,
   Paper,
-  Radio,
-  RadioGroup,
-  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Tooltip,
-  Typography,
   Avatar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import {
-  getListCheatingStatistic,
-  getListCheatingByStudent,
-} from "../../helpers/api/cheating-api";
+import { getListCheatingStatistic } from "../../helpers/api/cheating-api";
 
 // Icons
 import BlockIcon from "@mui/icons-material/Block";
@@ -49,7 +30,7 @@ import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
 
-import classes from "../../components/exam-main/manage-exam.module.scss";
+import CheatingNotification from "./cheating-notification";
 
 const ListCheatingForm: React.FC = () => {
   const { data: session, status } = useSession();
@@ -58,72 +39,65 @@ const ListCheatingForm: React.FC = () => {
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
+  const [cheatingMessage, setCheatingMessage] = useState(""); // State để lưu thông điệp gian lận
   const router = useRouter();
   const { examId } = router.query;
-  const [studentId, setStudentId] = useState(null); // Declare studentId state
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false); // Thêm state cho dialog
-  const [selectedStudentId, setSelectedStudentId] = useState(null); // Thêm state cho studentId đã chọn
+  const teacherId = session?.userId;
+  const [previousViolations, setPreviousViolations] = useState<{
+    [key: string]: number;
+  }>({}); // Lưu trữ totalViolations trước đó
 
   //Get List Cheating Statistic
-  useEffect(() => {
-    const fetchListCheating = async () => {
-      setLoading(true);
-      if (status === "authenticated" && session) {
-        const userId = session.userId;
-        const accessToken = session.accessToken;
-        if (userId && accessToken) {
-          try {
-            const list = await getListCheatingStatistic(
-              userId,
-              accessToken,
-              examId as string,
-              page,
-              limit
-            );
-            setListCheating(list.statistics);
-            setTotalPage(list.totalPages);
-          } catch (error) {
-            toast.error("Failed to fetch list cheating");
-          }
+  const fetchListCheating = async () => {
+    setLoading(true);
+    if (status === "authenticated" && session && examId) {
+      const userId = session.userId;
+      const accessToken = session.accessToken;
+      if (userId && accessToken) {
+        try {
+          const list = await getListCheatingStatistic(
+            userId,
+            accessToken,
+            examId as string,
+            page,
+            limit
+          );
+
+          // Sắp xếp lại danh sách để đưa người dùng có totalViolations thay đổi lên đầu
+          const updatedList = list.statistics.map((user) => {
+            const previousCount = previousViolations[user.student._id] || 0;
+            const hasChanged = user.totalViolations !== previousCount;
+
+            // Cập nhật giá trị totalViolations trước đó
+            setPreviousViolations((prev) => ({
+              ...prev,
+              [user.student._id]: user.totalViolations,
+            }));
+
+            return {
+              ...user,
+              hasChanged, // Thêm thuộc tính để xác định xem totalViolations có thay đổi hay không
+            };
+          });
+
+          // Sắp xếp danh sách: người dùng có totalViolations thay đổi lên đầu
+          const sortedList = updatedList.sort((a, b) => {
+            return (b.hasChanged ? 1 : 0) - (a.hasChanged ? 1 : 0);
+          });
+
+          setListCheating(sortedList);
+          setTotalPage(list.totalPages);
+        } catch (error) {
+          toast.error("Failed to fetch list cheating");
         }
       }
-      setLoading(false);
-    };
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchListCheating();
   }, [status, session, examId, page, limit]);
-
-  const [listCheatingByStudent, setListCheatingByStudent] = useState([]);
-
-  //Get List Cheating by Student
-  useEffect(() => {
-    const fetchListCheatingByStudent = async () => {
-      if (selectedStudentId) {
-        setLoading(true);
-        if (status === "authenticated" && session) {
-          const userId = session.userId;
-          const accessToken = session.accessToken;
-          if (userId && accessToken) {
-            try {
-              const listCheatingByStudent = await getListCheatingByStudent(
-                userId,
-                accessToken,
-                examId as string,
-                selectedStudentId,
-                1,
-                10000
-              );
-              setListCheatingByStudent(listCheatingByStudent.cheatingHistories);
-            } catch (error) {
-              toast.error("Failed to fetch list cheating");
-            }
-          }
-        }
-        setLoading(false);
-      }
-    };
-    fetchListCheatingByStudent();
-  }, [selectedStudentId, status, session, examId]);
 
   // Change page
   const handlePageChange = (
@@ -132,6 +106,13 @@ const ListCheatingForm: React.FC = () => {
   ) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle cheating notification
+  const handleCheatingDetected = (message) => {
+    setCheatingMessage(message); // Lưu thông điệp gian lận
+    toast.error("Gian lận phát hiện"); // Hiển thị thông báo toast
+    fetchListCheating(); // Tự động fetch lại dữ liệu
   };
 
   //Styled
@@ -196,6 +177,11 @@ const ListCheatingForm: React.FC = () => {
         </Box>
       )}
       <Box sx={{ margin: "130px 50px 50px" }}>
+        <CheatingNotification
+          teacherId={teacherId}
+          onCheatingDetected={handleCheatingDetected}
+        />
+
         <Box
           sx={{
             display: "flex",
@@ -204,18 +190,24 @@ const ListCheatingForm: React.FC = () => {
           }}
         >
           <h2>Title: {listCheating?.[0]?.exam?.title}</h2>
-          <h2 style={{ marginLeft: "1100px" }}>
-            ID: {listCheating?.[0]?.exam?._id.slice(-5)}
-          </h2>
-          <Button onClick={() => handleBackClick()}>
-            <Tooltip title="Back">
-              <UndoIcon
-                sx={{
-                  color: "red",
-                }}
-              ></UndoIcon>
-            </Tooltip>
-          </Button>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <h2 style={{}}>ID: {listCheating?.[0]?.exam?._id.slice(-5)}</h2>
+            <Button onClick={() => handleBackClick()}>
+              <Tooltip title="Back">
+                <UndoIcon
+                  sx={{
+                    color: "red",
+                  }}
+                ></UndoIcon>
+              </Tooltip>
+            </Button>
+          </Box>
         </Box>
         <p
           style={{

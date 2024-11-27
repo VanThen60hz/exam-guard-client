@@ -2,54 +2,31 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  IconButton,
-  InputAdornment,
-  MenuItem,
   Pagination,
   Paper,
-  Radio,
-  RadioGroup,
-  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Tooltip,
-  Typography,
-  Avatar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import {
-  getListCheatingStatistic,
   getListCheatingByStudent,
 } from "../../helpers/api/cheating-api";
 
 // Icons
-import BlockIcon from "@mui/icons-material/Block";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import UndoIcon from "@mui/icons-material/Undo";
 
 // Components
-import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
-
-import classes from "../../components/exam-main/manage-exam.module.scss";
 
 const ListCheatingByStudent: React.FC = () => {
   const { data: session, status } = useSession();
@@ -179,25 +156,32 @@ const ListCheatingByStudent: React.FC = () => {
             {" "}
             List Cheating History By {listCheatingByStudent?.[0]?.student?.name}
           </h2>
-          <p
-            style={{
-              color: "rgba(0, 0, 0, 0.87)",
-              fontSize: "20px",
-              fontFamily: "Montserrat",
-              marginLeft: "500px",
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
-            Email: {listCheatingByStudent?.[0]?.student?.email}
-          </p>
-          <Button onClick={() => handleBackClick(examId)}>
-            <Tooltip title="Back">
-              <UndoIcon
-                sx={{
-                  color: "red",
-                }}
-              ></UndoIcon>
-            </Tooltip>
-          </Button>
+            <p
+              style={{
+                color: "rgba(0, 0, 0, 0.87)",
+                fontSize: "20px",
+                fontFamily: "Montserrat",
+              }}
+            >
+              Email: {listCheatingByStudent?.[0]?.student?.email}
+            </p>
+            <Button onClick={() => handleBackClick(examId)}>
+              <Tooltip title="Back">
+                <UndoIcon
+                  sx={{
+                    color: "red",
+                  }}
+                ></UndoIcon>
+              </Tooltip>
+            </Button>
+          </Box>
         </Box>
         <div
           style={{
