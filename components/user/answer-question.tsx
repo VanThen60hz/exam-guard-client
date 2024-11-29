@@ -43,6 +43,7 @@ import {
 
 import {
     answerQuestion,
+    getGradeStudent,
     listQuestionStudent,
     submitExam,
 } from "../../helpers/api/exam-api";
@@ -63,6 +64,11 @@ interface WarningModalProps {
     description: string;
     open: boolean;
     onClose: (event: {}, reason: "backdropClick" | "escapeKeyDown") => void;
+}
+
+interface ViewGradeStudentFormProps {
+    open: boolean;
+    onClose: () => void;
 }
 
 const TESTING = false;
@@ -149,6 +155,10 @@ const AnswerQuestionForm: React.FC = () => {
 
     // Get session data
     const { data: session, status } = useSession();
+
+    // const gradeDialog = () => {
+    //     setOpenDialog(false);
+    // };
 
     // Lấy danh sách câu hỏi
     useEffect(() => {
@@ -360,7 +370,7 @@ const AnswerQuestionForm: React.FC = () => {
                 "Bạn có chắc chắn muốn rời khỏi trang này? Dữ liệu có thể bị mất.";
             event.preventDefault();
             event.returnValue = warningMessage; // Cảnh báo cho trình duyệt
-            return warningMessage; // Một số trình duyệt yêu cầu trả về giá trị
+            return warningMessage; // Một s trình duyệt yêu cầu trả về giá trị
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
@@ -377,32 +387,34 @@ const AnswerQuestionForm: React.FC = () => {
 
         const handleVisibilityChange = async () => {
             if (document[hiddenProp]) {
-                setDidLeaveExam(true);
+                if (status === "authenticated" && session) {
+                    setDidLeaveExam(true);
 
-                const userId = session.userId;
-                const accessToken = session.accessToken;
-                try {
-                    // const userId = session.userId;
-                    // const accessToken = session.accessToken;
-                    const detect = await detect_cheating(
-                        userId,
-                        accessToken,
-                        examId as string,
-                        {
-                            infractionType: "Switch Tab",
-                            description:
-                                "Student switches tabs away from the test screen",
-                        }
+                    const userId = session.userId;
+                    const accessToken = session.accessToken;
+                    try {
+                        // const userId = session.userId;
+                        // const accessToken = session.accessToken;
+                        const detect = await detect_cheating(
+                            userId,
+                            accessToken,
+                            examId as string,
+                            {
+                                infractionType: "Switch Tab",
+                                description:
+                                    "Student switches tabs away from the test screen",
+                            }
+                        );
+                    } catch (error) {
+                        console.error("Error detect cheating:", error);
+                        setError(error.message);
+                    }
+                } else {
+                    showModal(
+                        "WARNING!",
+                        "Leaving exam multiple times may be flagged as cheating!"
                     );
-                } catch (error) {
-                    console.error("Error detect cheating:", error);
-                    setError(error.message);
                 }
-            } else {
-                showModal(
-                    "WARNING!",
-                    "Leaving exam multiple times may be flagged as cheating!"
-                );
             }
         };
 
@@ -627,6 +639,40 @@ const AnswerQuestionForm: React.FC = () => {
         boxShadow: 24,
         p: 4,
     };
+
+    const [openGradeDialog, setOpenGradeDialog] = useState(false);
+
+    const handleViewGrade = () => {
+        const fetchGrade = async () => {
+            if (session) {
+                const fetchedGrade = await getGradeStudent(
+                    session.userId,
+                    session.accessToken,
+                    examId as string
+                );
+                setGrade(fetchedGrade.score);
+            }
+        };
+        fetchGrade();
+        setOpenGradeDialog(true);
+    };
+
+    const [grade, setGrade] = useState<number | null>(null);
+
+    // Fetch grade when component mounts or session changes
+    // useEffect(() => {
+    //     const fetchGrade = async () => {
+    //         if (session) {
+    //             const fetchedGrade = await getGradeStudent(
+    //                 session.userId,
+    //                 session.accessToken,
+    //                 examId as string
+    //             );
+    //             setGrade(fetchedGrade.score);
+    //         }
+    //     };
+    //     fetchGrade();
+    // }, [session, examId]);
 
     //Hiển thị ra màn hình
     return (
@@ -1254,7 +1300,12 @@ const AnswerQuestionForm: React.FC = () => {
                             </Button>
                         ) : (
                             <Box sx={{ display: "flex" }}>
-                                <Button>View grade</Button>
+                                <Button
+                                    onClick={handleViewGrade}
+                                    color="primary"
+                                >
+                                    View score
+                                </Button>
                                 <Button
                                     onClick={() =>
                                         router.push("/user/home-student")
@@ -1265,6 +1316,27 @@ const AnswerQuestionForm: React.FC = () => {
                                 </Button>
                             </Box>
                         )}
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={openGradeDialog} onClose={closeDialog}>
+                    <DialogTitle>Your Grade </DialogTitle>
+                    <DialogContent>
+                        <p
+                            style={{
+                                color: "#000",
+                            }}
+                        >
+                            Score: {grade !== null ? grade : "Loading..."}
+                        </p>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={() => router.push("/user/home-student")}
+                            color="primary"
+                        >
+                            Close
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </Container>
