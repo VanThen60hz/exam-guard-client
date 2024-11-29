@@ -124,7 +124,7 @@ const ListUserForm: React.FC = () => {
         avatar: imgUrl, // Cập nhật URL của ảnh đã tải lên
       }));
 
-      toast.success("Avatar uploaded successfully!");
+      toast.success("Avatar uploaded successfully");
     } catch (error) {
       toast.error("Failed to upload avatar.");
     }
@@ -281,7 +281,7 @@ const ListUserForm: React.FC = () => {
             )
           );
           setEditingUser(null);
-          toast.success("User updated successfully!");
+          toast.success("User updated successfully");
         } catch (error) {
           toast.error("Failed to update user");
         }
@@ -310,7 +310,7 @@ const ListUserForm: React.FC = () => {
           // Assume you have a deleteUser function imported from your API
           await deleteUser(userId, accessToken, userToDelete._id, userToDelete);
           setlistUser(listUser.filter((user) => user._id !== userToDelete._id));
-          toast.success("User deleted successfully!");
+          toast.success("User deleted successfully");
         } catch (error) {
           toast.error("Failed to delete user");
         }
@@ -426,8 +426,8 @@ const ListUserForm: React.FC = () => {
 
   //Status toggle
   interface StatusToggleProps {
-    initialStatus: "ACTIVE" | "INACTIVE" | "SUSPENDED";
-    onChange?: (status: "ACTIVE" | "INACTIVE" | "SUSPENDED") => void;
+    initialStatus: "ACTIVE" | "INACTIVE";
+    onChange?: (status: "ACTIVE" | "INACTIVE") => void;
   }
 
   const StatusToggle: React.FC<StatusToggleProps> = ({
@@ -437,19 +437,16 @@ const ListUserForm: React.FC = () => {
     const [status, setStatus] = useState(initialStatus);
 
     const handleClick = () => {
-      let newStatus: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+      let newStatus: "ACTIVE" | "INACTIVE";
       switch (status) {
         case "INACTIVE":
           newStatus = "ACTIVE";
           break;
         case "ACTIVE":
-          newStatus = "SUSPENDED";
-          break;
-        case "SUSPENDED":
           newStatus = "INACTIVE";
           break;
         default:
-          newStatus = "INACTIVE";
+          newStatus = "ACTIVE";
       }
       setStatus(newStatus);
       if (onChange) {
@@ -462,8 +459,6 @@ const ListUserForm: React.FC = () => {
         case "ACTIVE":
           return "#4CAF50";
         case "INACTIVE":
-          return "#9E9E9E";
-        case "SUSPENDED":
           return "#F44336";
       }
     };
@@ -479,7 +474,7 @@ const ListUserForm: React.FC = () => {
             borderRadius: "10px",
             position: "relative",
             cursor: "pointer",
-            transition: "background-color 0.3s",
+            transition: "background-color 0.3s ease, transform 0.3s ease",
             "&::after": {
               content: '""',
               position: "absolute",
@@ -488,13 +483,9 @@ const ListUserForm: React.FC = () => {
               borderRadius: "8px",
               backgroundColor: "white",
               top: "2px",
-              left:
-                status === "ACTIVE"
-                  ? "22px"
-                  : status === "SUSPENDED"
-                  ? "2px"
-                  : "12px",
-              transition: "left 0.3s",
+              left: status === "ACTIVE" ? "22px" : "2px",
+              transition: "left 0.3s ease, background-color 0.3s ease, transform 0.3s ease",
+              transform: status === "ACTIVE" ? "translateX(-2px)" : "translateX(0)",
             },
           }}
         />
@@ -517,7 +508,6 @@ const ListUserForm: React.FC = () => {
     (page - 1) * USERS_PER_PAGE,
     page * USERS_PER_PAGE
   );
-  console.log(filteredUsers.length / USERS_PER_PAGE);
 
   return (
     <>
@@ -809,7 +799,7 @@ const ListUserForm: React.FC = () => {
                   <StyledTableCell>
                     <StatusToggle
                       initialStatus={
-                        user.status as "ACTIVE" | "INACTIVE" | "SUSPENDED"
+                        user.status as "ACTIVE" | "INACTIVE"
                       }
                       onChange={(newStatus) => {
                         if (editingUser && editingUser._id === user._id) {

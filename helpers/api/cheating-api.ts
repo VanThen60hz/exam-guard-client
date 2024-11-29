@@ -20,12 +20,12 @@ const detect_cheating = async (
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.message || "Failed to cheating!");
+      throw new Error(data.message || "Failed to cheating");
     }
 
     return data.metadata;
   } catch (e) {
-    console.error("Error in createExam:", e);
+    console.error("Failed to cheating:", e);
     throw e;
   }
 };
@@ -57,12 +57,12 @@ const getListCheatingStatistic = async (
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to get list!");
+      throw new Error(data.message || "Failed to get list cheating");
     }
 
     return data.metadata;
   } catch (e) {
-    throw new Error(e.message || "Failed to get list cheating!");
+    throw new Error(e.message || "Failed to get list cheating");
   }
 };
 
@@ -94,12 +94,12 @@ const getListCheatingByStudent = async (
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to get list!");
+      throw new Error(data.message || "Failed to get list cheating by student");
     }
 
     return data.metadata;
   } catch (e) {
-    throw new Error(e.message || "Failed to get list cheating!");
+    throw new Error(e.message || "Failed to get list cheating by student");
   }
 };
 

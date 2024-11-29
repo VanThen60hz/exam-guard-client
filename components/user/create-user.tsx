@@ -77,7 +77,6 @@ const CreateUserForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const loadingBarRef = useRef(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -106,25 +105,6 @@ const CreateUserForm: React.FC = () => {
       ...prevErrors,
       [name]: "",
     }));
-
-    if (name === "email" && typeof value === "string") {
-      if (!value.endsWith("@gmail.com")) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          email: "Email must be a @gmail.com address",
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          email: "",
-        }));
-      }
-    } else {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: "",
-      }));
-    }
 
     setPasswordError("");
   };
@@ -166,10 +146,9 @@ const CreateUserForm: React.FC = () => {
         avatar: imgUrl,
       }));
 
-      toast.success("Avatar uploaded successfully!");
+      toast.success("Avatar uploaded successfully");
     } catch (error) {
-      console.error("Error uploading avatar:", error);
-      toast.error("Failed to upload avatar.");
+      toast.error("Failed to upload avatar");
     } finally {
       setLoading(false); // Kết thúc quá trình tải lên
     }
@@ -492,13 +471,12 @@ const CreateUserForm: React.FC = () => {
                       id="email"
                       className={` ${errors.email ? styles.errorField : ""}`}
                       onChange={handleInputChange}
-                    //   error={!!errors.email}
                     />
-                    {/* {errors.email && (
+                    {errors.email && (
                       <Typography variant="body2" sx={{ color: "red" }}>
                         {errors.email}
                       </Typography>
-                    )} */}
+                    )}
                   </Grid>
                 </Grid>
                 <Grid container spacing={2} sx={{ marginBottom: "10px" }}>
@@ -588,7 +566,6 @@ const CreateUserForm: React.FC = () => {
                       >
                         <MenuItem value="ACTIVE">Active</MenuItem>
                         <MenuItem value="INACTIVE">Inactive</MenuItem>
-                        <MenuItem value="SUSPENDED">Suspended</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>

@@ -98,10 +98,6 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
-  //   const { data: session, status } = useSession();
-  //   const userId = session.userId;
-
-  const [total, setTotal] = useState(Infinity);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -109,16 +105,12 @@ const NavBarHome: React.FC<NavBarHomeProps> = (props) => {
       if (status === "authenticated" && session) {
         const userId = session.userId;
         const accessToken = session.accessToken;
-
         if (userId && accessToken) {
-          // Kiểm tra xem limit có phải là số hợp lệ không
-          if (total !== undefined && total > 0) {
-            try {
-              const user = await getUserProfile(userId as string, accessToken);
-              setUser(user);
-            } catch (error) {
-              toast.error("Failed to fetch user profile");
-            }
+          try {
+            const user = await getUserProfile(userId as string, accessToken);
+            setUser(user);
+          } catch (error) {
+            toast.error("Failed to fetch user profile");
           }
         }
       }

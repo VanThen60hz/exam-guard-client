@@ -42,7 +42,7 @@ const ListCheatingByStudent: React.FC = () => {
   useEffect(() => {
     const fetchListCheatingByStudent = async () => {
       setLoading(true);
-      if (status === "authenticated" && session) {
+      if (status === "authenticated" && session && examId && studentId) {
         const userId = session.userId;
         const accessToken = session.accessToken;
         if (userId && accessToken) {
@@ -58,7 +58,7 @@ const ListCheatingByStudent: React.FC = () => {
             setListCheatingByStudent(listCheatingByStudent.cheatingHistories);
             setTotalPage(listCheatingByStudent.totalPages);
           } catch (error) {
-            toast.error("Failed to fetch list cheating");
+            toast.error("Failed to fetch list cheating by student");
           }
         }
       }
