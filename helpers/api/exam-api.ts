@@ -59,11 +59,11 @@ const getExam = async (id: string, accessToken: string, examId: string) => {
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to get exam!");
+            throw new Error(data.message || "Failed to get exam");
         }
         return data.metadata;
     } catch (e) {
-        throw new Error(e.message || "Failed to get exam!");
+        throw new Error(e.message || "Failed to get exam");
     }
 };
 
@@ -93,12 +93,12 @@ const getListExam = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to get list!");
+            throw new Error(data.message || "Failed to get list exam");
         }
 
         return data.metadata.exams;
     } catch (e) {
-        throw new Error(e.message || "Failed to get list exam!");
+        throw new Error(e.message || "Failed to get list exam");
     }
 };
 
@@ -129,12 +129,12 @@ const listQuestionStudent = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to get list!");
+            throw new Error(data.message || "Failed to get list question");
         }
 
         return data.metadata;
     } catch (e) {
-        throw new Error(e.message || "Failed to get list question!");
+        throw new Error(e.message || "Failed to get list question");
     }
 };
 
@@ -160,12 +160,12 @@ const searchExam = async (id: string, accessToken: string, query: string) => {
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to search exam!");
+            throw new Error(data.message || "Failed to search exam");
         }
 
         return data.metadata.exams;
     } catch (e) {
-        throw new Error(e.message || "Failed to search exam!");
+        throw new Error(e.message || "Failed to search exam");
     }
 };
 
@@ -190,11 +190,11 @@ const deleteExam = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to delete exam!");
+            throw new Error(data.message || "Failed to delete exam");
         }
         return data.metadata;
     } catch (e) {
-        throw new Error(e.message || "Failed to delete exam!");
+        throw new Error(e.message || "Failed to delete exam");
     }
 };
 
@@ -217,7 +217,7 @@ const createExam = async (id: string, accessToken: string, exam: any) => {
         const data = await res.json();
 
         if (!res.ok) {
-            throw new Error(data.message || "Failed to create exam!");
+            throw new Error(data.message || "Failed to create exam");
         }
 
         return data.metadata;
@@ -248,11 +248,11 @@ const updateExam = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to update exam!");
+            throw new Error(data.message || "Failed to update exam");
         }
         return data.metadata;
     } catch (e) {
-        throw new Error(e.message || "Failed to update exam!");
+        throw new Error(e.message || "Failed to update exam");
     }
 };
 
@@ -277,11 +277,11 @@ const createQuestion = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to create question!");
+            throw new Error(data.message || "Failed to create question");
         }
         return data.metadata;
     } catch (e) {
-        throw new Error(e.message || "Failed to create question!");
+        throw new Error(e.message || "Failed to create question");
     }
 };
 
@@ -311,14 +311,15 @@ const getExamsByStatus = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to get exams by status!");
+            throw new Error(data.message || "Failed to get exams by status");
         }
 
         return data.metadata.exams;
     } catch (e) {
-        throw new Error(e.message || "Failed to get exams by status!");
+        throw new Error(e.message || "Failed to get exams by status");
     }
 };
+
 const getExamById = async (
     examId: string,
     userId: string,
@@ -343,16 +344,15 @@ const getExamById = async (
         console.log("Response Data:", data); // Log toàn bộ dữ liu phản hồi
 
         if (!res.ok || data.err) {
-            throw new Error(data.err || "Failed to get exam from server!");
+            throw new Error(data.err || "Failed to get exam");
         }
 
         return data.metadata; // Trả về dữ liệu bài kiểm tra
     } catch (e) {
-        throw new Error(e.message || "Failed to get exam from server!");
+        throw new Error(e.message || "Failed to get exam");
     }
 };
 
-// Di chuyển hàm getQuestionsByExamId vào đây
 const listQuestionTeacher = async (
     userId: string,
     accessToken: string,
@@ -382,12 +382,12 @@ const listQuestionTeacher = async (
         console.log("Response Data:", data); // Log toàn bộ dữ liu phản hồi
 
         if (!res.ok || data.err) {
-            throw new Error(data.err || "Failed to get questions from server!");
+            throw new Error(data.err || "Failed to get questions");
         }
 
         return data.metadata; // Trả về dữ liệu bài kiểm tra
     } catch (e) {
-        throw new Error(e.message || "Failed to get questions from server!");
+        throw new Error(e.message || "Failed to get questions");
     }
 };
 const updateQuestion = async (
@@ -417,11 +417,11 @@ const updateQuestion = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to create question!");
+            throw new Error(data.message || "Failed to create question");
         }
         return data.metadata;
     } catch (e) {
-        throw new Error(e.message || "Failed to create question!");
+        throw new Error(e.message || "Failed to create question");
     }
 };
 
@@ -448,12 +448,12 @@ const deleteQuestion = async (
         const data = await res.json();
 
         if (!res.ok || data.err) {
-            throw new Error(data.err || "Failed to delete question!");
+            throw new Error(data.err || "Failed to delete question");
         }
 
         return data.metadata; // Return any relevant data if needed
     } catch (e) {
-        throw new Error(e.message || "Failed to delete question!");
+        throw new Error(e.message || "Failed to delete question");
     }
 };
 
@@ -487,12 +487,12 @@ const searchQuestions = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to search questions!");
+            throw new Error(data.message || "Failed to search questions");
         }
 
         return data.metadata.questions; // Assuming the response contains a list of questions
     } catch (e) {
-        throw new Error(e.message || "Failed to search questions!");
+        throw new Error(e.message || "Failed to search questions");
     }
 };
 
@@ -517,7 +517,7 @@ const joinExam = async (id: string, accessToken: string, examId: string) => {
 
         return res.status; // Assuming the response contains a list of questions
     } catch (e) {
-        console.error("Error in join exam:", e);
+        console.error("Failed to join exam:", e);
         throw e;
     }
 };
@@ -542,7 +542,7 @@ const submitExam = async (
         const data = await res.json();
 
         if (!res.ok) {
-            throw new Error(data.message || "Failed to submit!");
+            throw new Error(data.message || "Failed to submit exam");
         }
 
         return data.metadata;
@@ -572,7 +572,7 @@ const answerQuestion = async (
         const data = await res.json();
 
         if (!res.ok) {
-            throw new Error(data.message || "Failed to answer!");
+            throw new Error(data.message || "Failed to answer question");
         }
 
         return data.metadata;
@@ -603,15 +603,124 @@ const getGradeStudent = async (
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to get grade!");
+            throw new Error(data.message || "Failed to get grade");
         }
 
         return data;
     } catch (e) {
-        console.error("Error get grade:", e);
+        console.error("Failed to get grade:", e);
         throw e;
     }
 };
+
+const getListGrade = async (
+    id: string,
+    accessToken: string,
+    examId: string,
+    page: number,
+    limit: number
+  ) => {
+    try {
+      console.log("User ID:", id);
+      console.log("Access Token:", accessToken);
+  
+      // Create a Headers object
+      const myHeaders = new Headers();
+      myHeaders.append("Authorization", accessToken); // Use the access token directly
+      myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+  
+      const res = await fetch(
+        `${BASE_URL}/grade/list-by-exam/${examId}?page=${page}&limit=${limit}`,
+        {
+          method: "GET",
+          headers: myHeaders, // Use the Headers object
+        }
+      );
+  
+      const data = await res.json();
+  
+      if (!res.ok || data.status !== 200) {
+        throw new Error(data.message || "Failed to get list grade");
+      }
+  
+      return data.metadata;
+    } catch (e) {
+      throw new Error(e.message || "Failed to get list grade");
+    }
+  };
+  
+  const getListAnswerByStudent = async (
+    id: string,
+    accessToken: string,
+    examId: string,
+    studentId: string,
+    page,
+    limit
+  ) => {
+    try {
+      console.log("User ID:", id);
+      console.log("Access Token:", accessToken);
+  
+      // Create a Headers object
+      const myHeaders = new Headers();
+      myHeaders.append("Authorization", accessToken); // Use the access token directly
+      myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+  
+      const res = await fetch(
+        `${BASE_URL}/answer/${examId}/list-by-student/${studentId}?page=${page}&limit=${limit}`,
+        {
+          method: "GET",
+          headers: myHeaders, // Use the Headers object
+        }
+      );
+  
+      const data = await res.json();
+  
+      if (!res.ok || data.status !== 200) {
+        throw new Error(data.message || "Failed to get list answer by student");
+      }
+  
+      return data.metadata;
+    } catch (e) {
+      throw new Error(e.message || "Failed to get list answer by student");
+    }
+  };
+  
+  const getListAnswerByQuestion = async (
+    id: string,
+    accessToken: string,
+    questionId: string,
+    page,
+    limit
+  ) => {
+    try {
+      console.log("User ID:", id);
+      console.log("Access Token:", accessToken);
+  
+      // Create a Headers object
+      const myHeaders = new Headers();
+      myHeaders.append("Authorization", accessToken); // Use the access token directly
+      myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+  
+      const res = await fetch(
+        `${BASE_URL}/answer/list-by-question/${questionId}?page=${page}&limit=${limit}`,
+        {
+          method: "GET",
+          headers: myHeaders, // Use the Headers object
+        }
+      );
+  
+      const data = await res.json();
+  
+      if (!res.ok || data.status !== 200) {
+        throw new Error(data.message || "Failed to get list answer by question");
+      }
+  
+      return data.metadata;
+    } catch (e) {
+      throw new Error(e.message || "Failed to get list answer by question");
+    }
+  };
 
 export {
     getExam,
@@ -633,4 +742,7 @@ export {
     submitExam,
     answerQuestion,
     getGradeStudent,
+    getListGrade,
+    getListAnswerByStudent,
+    getListAnswerByQuestion,
 };

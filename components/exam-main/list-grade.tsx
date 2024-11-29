@@ -17,84 +17,53 @@ import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { getListCheatingStatistic } from "../../helpers/api/cheating-api";
+import { getListGrade } from "../../helpers/api/exam-api";
 
 // Icons
-import BlockIcon from "@mui/icons-material/Block";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import UndoIcon from "@mui/icons-material/Undo";
 
 // Components
-import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
 
-import CheatingNotification from "./cheating-notification";
-
-const ListCheatingForm: React.FC = () => {
+const ListGradeForm: React.FC = () => {
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false); // Thêm state loading
-  const [listCheating, setListCheating] = useState([]);
+  const [listGrade, setListGrade] = useState([]);
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [cheatingMessage, setCheatingMessage] = useState(""); // State để lưu thông điệp gian lận
   const router = useRouter();
   const { examId } = router.query;
-  const teacherId = session?.userId;
-  const [previousViolations, setPreviousViolations] = useState<{ [key: string]: number }>({}); // Lưu trữ totalViolations trước đó
 
-  //Get List Cheating Statistic
-  const fetchListCheating = async () => {
-    setLoading(true);
-    if (status === "authenticated" && session && examId) {
-      const userId = session.userId;
-      const accessToken = session.accessToken;
-      if (userId && accessToken) {
-        try {
-          const list = await getListCheatingStatistic(
-            userId,
-            accessToken,
-            examId as string,
-            page,
-            limit
-          );
-
-          // Sắp xếp lại danh sách để đưa người dùng có totalViolations thay đổi lên đầu
-          const updatedList = list.statistics.map(user => {
-            const previousCount = previousViolations[user.student._id] || 0;
-            const hasChanged = user.totalViolations !== previousCount;
-
-            // Cập nhật giá trị totalViolations trước đó
-            setPreviousViolations(prev => ({
-              ...prev,
-              [user.student._id]: user.totalViolations,
-            }));
-
-            return {
-              ...user,
-              hasChanged, // Thêm thuộc tính để xác định xem totalViolations có thay đổi hay không
-            };
-          });
-
-          // Sắp xếp danh sách: người dùng có totalViolations thay đổi lên đầu
-          const sortedList = updatedList.sort((a, b) => {
-            return (b.hasChanged ? 1 : 0) - (a.hasChanged ? 1 : 0);
-          });
-
-          setListCheating(sortedList);
-          setTotalPage(list.totalPages);
-        } catch (error) {
-          toast.error("Failed to fetch list cheating");
+  //Get List Grade
+  useEffect(() => {
+    const fetchListGrade = async () => {
+      setLoading(true);
+      if (status === "authenticated" && session && examId) {
+        const userId = session.userId;
+        const accessToken = session.accessToken;
+        if (userId && accessToken) {
+          try {
+            const list = await getListGrade(
+              userId,
+              accessToken,
+              examId as string,
+              page,
+              limit
+            );
+            setListGrade(list.grades);
+            setTotalPage(list.totalPages);
+          } catch (error) {
+            toast.error("Failed to fetch list grade");
+          }
         }
       }
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchListCheating();
+      setLoading(false);
+    };
+    fetchListGrade()
   }, [status, session, examId, page, limit]);
 
   // Change page
@@ -104,13 +73,6 @@ const ListCheatingForm: React.FC = () => {
   ) => {
     setPage(value);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // Handle cheating notification
-  const handleCheatingDetected = (message) => {
-    setCheatingMessage(message); // Lưu thông điệp gian lận
-    toast.error("Detect cheating"); // Hiển thị thông báo toast
-    fetchListCheating(); // Tự động fetch lại dữ liệu
   };
 
   //Styled
@@ -147,7 +109,7 @@ const ListCheatingForm: React.FC = () => {
   // Add this function to handle detail clicks
   const handleDetailClick = (examId, studentId) => {
     router.push({
-      pathname: "/exam/list-cheating-by-student",
+      pathname: "/exam/list-answer-by-student",
       query: { examId: examId, studentId: studentId },
     });
   };
@@ -175,11 +137,6 @@ const ListCheatingForm: React.FC = () => {
         </Box>
       )}
       <Box sx={{ margin: "130px 50px 50px" }}>
-        <CheatingNotification
-          teacherId={teacherId}
-          onCheatingDetected={handleCheatingDetected}
-        />
-
         <Box
           sx={{
             display: "flex",
@@ -187,7 +144,7 @@ const ListCheatingForm: React.FC = () => {
             justifyContent: "space-between",
           }}
         >
-          <h2>Title: {listCheating?.[0]?.exam?.title}</h2>
+          <h2>Title: {listGrade?.[0]?.exam?.title}</h2>
           <Box
             sx={{
               display: "flex",
@@ -195,7 +152,7 @@ const ListCheatingForm: React.FC = () => {
               justifyContent: "space-between",
             }}
           >
-            <h2 style={{}}>ID: {listCheating?.[0]?.exam?._id.slice(-5)}</h2>
+            <h2 style={{}}>ID: {listGrade?.[0]?.exam?._id.slice(-5)}</h2>
             <Button onClick={() => handleBackClick()}>
               <Tooltip title="Back">
                 <UndoIcon
@@ -214,7 +171,7 @@ const ListCheatingForm: React.FC = () => {
             fontFamily: "Montserrat",
           }}
         >
-          Description: {listCheating?.[0]?.exam?.description}
+          Description: {listGrade?.[0]?.exam?.description}
         </p>
 
         <div
@@ -242,17 +199,12 @@ const ListCheatingForm: React.FC = () => {
                 <StyledTableCell width="5%">ID</StyledTableCell>
                 <StyledTableCell width="15%">Full name</StyledTableCell>
                 <StyledTableCell width="15%">Email</StyledTableCell>
-                <StyledTableCell width="11%">Face Detection</StyledTableCell>
-                <StyledTableCell width="11%">Tab Switch</StyledTableCell>
-                <StyledTableCell width="11%">Total Violations</StyledTableCell>
+                <StyledTableCell width="11%">Score</StyledTableCell>
                 <StyledTableCell width="5%">Detail</StyledTableCell>
-                <StyledTableCell width="5%" align="center">
-                  Action
-                </StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {listCheating?.map((user, index) => (
+              {listGrade?.map((user, index) => (
                 <StyledTableRow key={user._id}>
                   <StyledTableCell>
                     <Avatar
@@ -282,9 +234,7 @@ const ListCheatingForm: React.FC = () => {
                       </span>
                     </Box>
                   </StyledTableCell>
-                  <StyledTableCell>{user.faceDetectionCount}</StyledTableCell>
-                  <StyledTableCell>{user.tabSwitchCount}</StyledTableCell>
-                  <StyledTableCell>{user.totalViolations}</StyledTableCell>
+                  <StyledTableCell>{user.score}</StyledTableCell>
                   <StyledTableCell>
                     {" "}
                     <Button
@@ -302,20 +252,7 @@ const ListCheatingForm: React.FC = () => {
                       </Tooltip>
                     </Button>
                   </StyledTableCell>
-                  <StyledTableCell>
-                    <Button
-                      // onClick={() => handleDeleteClick(user)}
-                      sx={{ marginLeft: "-5px" }}
-                    >
-                      <Tooltip title="Block">
-                        <BlockIcon
-                          sx={{
-                            color: "red",
-                          }}
-                        />
-                      </Tooltip>
-                    </Button>
-                  </StyledTableCell>
+                 
                 </StyledTableRow>
               ))}
             </TableBody>
@@ -351,4 +288,4 @@ const ListCheatingForm: React.FC = () => {
   );
 };
 
-export default withAuth(ListCheatingForm, ["TEACHER"]);
+export default withAuth(ListGradeForm, ["TEACHER"]);

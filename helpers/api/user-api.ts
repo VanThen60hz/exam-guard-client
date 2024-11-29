@@ -17,35 +17,43 @@ const getUser = async (id: string, password: string) => {
     console.log("Response Status:", res.status); // Log the response status
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to signin user!");
+      throw new Error(data.message || "Failed to signin user");
     }
 
     return data;
   } catch (e) {
-    throw new Error(e.message || "Failed to signin user!");
+    throw new Error(e.message || "Failed to signin user");
   }
 };
 
-const getListUser = async (id: string, accessToken: string, page: number, limit: number) => {
+const getListUser = async (
+  id: string,
+  accessToken: string,
+  page: number,
+  limit: number
+) => {
   try {
     const myHeaders = new Headers();
     myHeaders.append("Authorization", accessToken);
     myHeaders.append("x-client-id", id || "");
 
-    const res = await fetch(`${BASE_URL}/user/list?page=${page}&limit=${limit}`, {
-      method: "GET",
-      headers: myHeaders,
-    });
+    const res = await fetch(
+      `${BASE_URL}/user/list?page=${page}&limit=${limit}`,
+      {
+        method: "GET",
+        headers: myHeaders,
+      }
+    );
 
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to get user profile!");
+      throw new Error(data.message || "Failed to get list user");
     }
 
     return data.metadata.users;
   } catch (e) {
-    throw new Error(e.message || "Failed to get user profile!");
+    throw new Error(e.message || "Failed to get list user");
   }
 };
 
@@ -69,12 +77,12 @@ const getUserProfile = async (id: string, accessToken: string) => {
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to get user profile!");
+      throw new Error(data.message || "Failed to get user profile");
     }
 
     return data.metadata;
   } catch (e) {
-    throw new Error(e.message || "Failed to get user profile!");
+    throw new Error(e.message || "Failed to get user profile");
   }
 };
 
@@ -95,12 +103,12 @@ const updateProfile = async (id: string, accessToken: string, user: any) => {
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to get user profile!");
+      throw new Error(data.message || "Failed to get update profile");
     }
 
     return data.metadata;
   } catch (e) {
-    throw new Error(e.message || "Failed to get user profile!");
+    throw new Error(e.message || "Failed to get user profile");
   }
 };
 
@@ -125,11 +133,11 @@ const updateUser = async (
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to update user!");
+      throw new Error(data.message || "Failed to update user");
     }
     return data.metadata;
   } catch (e) {
-    throw new Error(e.message || "Failed to update user!");
+    throw new Error(e.message || "Failed to update user");
   }
 };
 
@@ -154,13 +162,13 @@ const deleteUser = async (
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to update user!");
+      throw new Error(data.message || "Failed to delete user");
     }
     return data.metadata;
   } catch (e) {
-    throw new Error(e.message || "Failed to update user!");
+    throw new Error(e.message || "Failed to update user");
   }
-}
+};
 
 const searchUser = async (id: string, accessToken: string, query: string) => {
   try {
@@ -173,59 +181,61 @@ const searchUser = async (id: string, accessToken: string, query: string) => {
     myHeaders.append("x-client-id", id || "");
     myHeaders.append("Content-Type", "application/json");
 
-    const res = await fetch(`${BASE_URL}/user/search?query=${encodeURIComponent(query)}`, {
-      method: "GET",
-      headers: myHeaders,
-    });
+    const res = await fetch(
+      `${BASE_URL}/user/search?query=${encodeURIComponent(query)}`,
+      {
+        method: "GET",
+        headers: myHeaders,
+      }
+    );
 
     console.log("Response Status:", res.status); // Log the response status
 
     const data = await res.json();
 
     if (!res.ok || data.status !== 200) {
-      throw new Error(data.message || "Failed to search user!");
+      throw new Error(data.message || "Failed to search user");
     }
 
     return data.metadata.users; // Assuming the response contains a list of users
   } catch (e) {
-    throw new Error(e.message || "Failed to search user!");
+    throw new Error(e.message || "Failed to search user");
   }
 };
 
 const createUser = async (id: string, accessToken: string, user: any) => {
   try {
-      console.log("Creating user with ID:", id);
-      console.log("Access Token:", accessToken);
+    console.log("Creating user with ID:", id);
+    console.log("Access Token:", accessToken);
 
-      const myHeaders = new Headers();
-      myHeaders.append("Authorization", accessToken);
-      myHeaders.append("x-client-id", id);
-      myHeaders.append("Content-Type", "application/json");
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", accessToken);
+    myHeaders.append("x-client-id", id);
+    myHeaders.append("Content-Type", "application/json");
 
-      console.log("Request Headers:", Object.fromEntries(myHeaders.entries()));
+    console.log("Request Headers:", Object.fromEntries(myHeaders.entries()));
 
-      const res = await fetch(`${BASE_URL}/user/create`, {
-          method: "POST",
-          headers: myHeaders,
-          body: JSON.stringify(user),
-      });
+    const res = await fetch(`${BASE_URL}/user/create`, {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify(user),
+    });
 
-      console.log("Response status:", res.status);
+    console.log("Response status:", res.status);
 
-      const data = await res.json();
-      console.log("Response data:", data);
+    const data = await res.json();
+    console.log("Response data:", data);
 
-      if (!res.ok) {
-          throw new Error(data.message || "Failed to create user!");
-      }
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to create user");
+    }
 
-      return data.metadata;
+    return data.metadata;
   } catch (e) {
-      console.error("Error in createUser:", e);
-      throw e;
+    console.error("Failed to create user:", e);
+    throw e;
   }
 };
-
 
 export {
   getUser,
@@ -235,5 +245,5 @@ export {
   getListUser,
   deleteUser,
   searchUser,
-  createUser
+  createUser,
 };

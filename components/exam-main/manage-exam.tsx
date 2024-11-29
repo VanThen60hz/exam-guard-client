@@ -22,7 +22,6 @@ import {
   deleteExam,
   getExamsByStatus,
 } from "../../helpers/api/exam-api";
-import { getUserProfile } from "../../helpers/api/user-api";
 
 import classes from "../../components/exam-main/manage-exam.module.scss";
 
@@ -37,12 +36,12 @@ import LaunchIcon from "@mui/icons-material/Launch";
 import EastIcon from "@mui/icons-material/East";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Grid } from "@mui/material";
+import GradingIcon from '@mui/icons-material/Grading';
+import AddIcon from '@mui/icons-material/Add';
 
 // Components
 import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
-
-import { updateExam } from "../../helpers/api/exam-api";
 import LinearProgress from "@mui/material/LinearProgress";
 import withAuth from "../../components/withAuth/with-auth";
 
@@ -62,34 +61,7 @@ const ManageExamForm: React.FC = () => {
   const router = useRouter();
   const [filterStatus, setFilterStatus] = useState("All");
   const [activeButton, setActiveButton] = useState<string>("All");
-  const loadingBarRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true); // Bắt đầu loading
-      if (status === "authenticated" && session) {
-        const userId = session.userId;
-        const accessToken = session.accessToken;
-
-        if (userId && accessToken) {
-          // Kiểm tra xem limit có phải là số hợp lệ không
-          if (total !== undefined && total > 0) {
-            try {
-              const user = await getUserProfile(userId, accessToken);
-              setUser(user);
-            } catch (error) {
-              toast.error("Failed to fetch user profile");
-            }
-          }
-        }
-      }
-      setLoading(false); // Kết thúc loading
-    };
-
-    fetchUser();
-  }, [status, session]);
 
   //Get List exams
   useEffect(() => {
@@ -143,7 +115,7 @@ const ManageExamForm: React.FC = () => {
           }
           setListExam(examsData);
         } catch (error) {
-          toast.error("Failed to fetch exams: " + error.message);
+          toast.error("Failed to fetch exams");
         }
       }
     };
@@ -236,14 +208,14 @@ const ManageExamForm: React.FC = () => {
 
   const handleEditClick = (exam) => {
     router.push({
-      pathname: "/exam/edit-exam",
+      pathname: "/exam/create-question",
       query: { examId: exam._id }, // Pass the exam ID as a query parameter
     });
   };
 
   const handleEditClick2 = (exam) => {
     router.push({
-      pathname: "/exam/view-exam",
+      pathname: "/exam/edit-exam",
       query: { examId: exam._id }, // Pass the exam ID as a query parameter
     });
   };
@@ -254,6 +226,14 @@ const ManageExamForm: React.FC = () => {
       query: { examId: exam._id }, // Pass the exam ID as a query parameter
     });
   };
+
+  const handleEditClick4 = (exam) => {
+    router.push({
+      pathname: "/exam/list-grade",
+      query: { examId: exam._id }, // Pass the exam ID as a query parameter
+    });
+  };
+
 
   const formatDateTime = (dateTime: string) => {
     // Cắt chuỗi để lấy các phần
@@ -525,32 +505,40 @@ const ManageExamForm: React.FC = () => {
                     marginTop: 2,
                   }}
                 >
+                   <Button
+                    onClick={() => handleEditClick4(exam)}
+                    className={`${classes.btnColor1}`}
+                    sx={{ marginRight: 1.5 }}
+                  >
+                    <GradingIcon />
+                    View grade
+                  </Button>
                   <Button
                     onClick={() => handleEditClick3(exam)}
-                    className={`${classes.btnGreen2}`}
+                    className={`${classes.btnColor2}`}
                     sx={{ marginRight: 1.5 }}
                   >
                     <VisibilityIcon />
                     Cheating
                   </Button>
                   <Button
-                    onClick={() => handleEditClick2(exam)}
-                    className={`${classes.btnBlue} ${classes.btnSmall}`}
-                    sx={{ marginRight: 1.5 }}
-                  >
-                    <LaunchIcon />
-                    Open
-                  </Button>
-                  <Button
                     onClick={() => handleEditClick(exam)}
-                    className={`${classes.btnGreen} ${classes.btnSmall}`}
+                    className={`${classes.btnColor3}`}
                     sx={{ marginRight: 1.5 }}
                   >
-                    <EditIcon />
-                    Edit
+                    <AddIcon />
+                    Create Question
                   </Button>
                   <Button
-                    className={`${classes.btnRed} ${classes.btnSmall}`}
+                    onClick={() => handleEditClick2(exam)}
+                    className={`${classes.btnColor4} ${classes.btnSmall}`}
+                    sx={{ marginRight: 1.5 }}
+                  >
+                     <EditIcon />
+                    Edit
+                  </Button>            
+                  <Button
+                    className={`${classes.btnColor5} ${classes.btnSmall}`}
                     onClick={() => handleDeleteClick(exam)}
                   >
                     <DeleteIcon />

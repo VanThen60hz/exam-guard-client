@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Avatar,
-  Modal,
-  Box,
-} from "@mui/material";
+import { Container, Button, Avatar, Box } from "@mui/material";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -80,7 +72,6 @@ const ProfileUserForm: React.FC = () => {
               avatarUrl: profile.avatar || "/images/default-avatar.png",
             });
           } catch (error) {
-            console.error("Error getting user profile:", error);
             toast.error("Failed to fetch user profile");
             setError(error.message);
           } finally {
