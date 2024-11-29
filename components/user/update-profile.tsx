@@ -5,16 +5,12 @@ import {
   Button,
   Typography,
   Avatar,
-  Grid,
   FormControl,
-  FormLabel,
   RadioGroup,
   FormControlLabel,
   Radio,
   Dialog,
   DialogActions,
-  DialogContent,
-  DialogContentText,
   DialogTitle,
   Box,
 } from "@mui/material";
@@ -31,22 +27,11 @@ import classes2 from "../../components/exam-main/manage-exam.module.scss";
 import LinearProgress from "@mui/material/LinearProgress";
 
 const UpdateProfileUserForm: React.FC = () => {
-  // Router chuyển Page
+
   const router = useRouter();
-  // const { userId } = router.query;
-
-  // Load page
   const [loading, setLoading] = useState(false);
-
-  //Biến báo lỗi
-  const [error, setError] = useState<string | null>(null);
-
-  // Get session data
   const { data: session, status } = useSession();
-
-  // Thêm state cho modal xác nhận cancel
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-
   const [editingUser, setEditingUser] = useState(null);
 
   //Upload Avatar
@@ -85,7 +70,7 @@ const UpdateProfileUserForm: React.FC = () => {
         avatar: imgUrl, // Cập nhật URL của ảnh đã tải lên
       }));
 
-      toast.success("Avatar uploaded successfully!");
+      toast.success("Avatar uploaded successfully");
     } catch (error) {
       toast.error("Failed to upload avatar.");
     }
@@ -156,8 +141,8 @@ const UpdateProfileUserForm: React.FC = () => {
             userToUpdate
           );
           // Update the editingExam state with the updated data
-          setEditingUser(updatedUserData); // {{ edit_1 }}
-          toast.success("User updated successfully!");
+          setEditingUser(updatedUserData); 
+          toast.success("User updated successfully");
         } catch (error) {
           toast.error("Failed to update user");
         }

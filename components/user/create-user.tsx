@@ -77,7 +77,6 @@ const CreateUserForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const loadingBarRef = useRef(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {

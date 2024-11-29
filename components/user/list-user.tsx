@@ -1,5 +1,4 @@
-// import { getUsers } from "../helpers/api/user-api"; // Adjust the import based on your API helper
-// import { User } from "../models/user-models"; // Adjust the import based on your User model
+
 import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
@@ -310,7 +309,7 @@ const ListUserForm: React.FC = () => {
           // Assume you have a deleteUser function imported from your API
           await deleteUser(userId, accessToken, userToDelete._id, userToDelete);
           setlistUser(listUser.filter((user) => user._id !== userToDelete._id));
-          toast.success("User deleted successfully!");
+          toast.success("User deleted successfully");
         } catch (error) {
           toast.error("Failed to delete user");
         }

@@ -5,10 +5,6 @@ import {
   Container,
   TextField,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { createExam } from "../../helpers/api/exam-api";
@@ -128,9 +124,9 @@ const CreateExamForm: React.FC = () => {
           session.accessToken,
           userData
         );
-        toast.success("Exam created successfully!");
+        toast.success("Exam created successfully");
       } catch (err: any) {
-        toast.error(err.message || "Error creating user");
+        toast.error(err.message || "Failed to create exam");
       } finally {
         setLoading(false);
       }

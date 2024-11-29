@@ -7,14 +7,14 @@ import NavBarHome from "../../components/home/navbar-home";
 import EditExamForm from "../../components/exam-main/edit-exam";
 
 const EditExam = () => {
-  const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
+    const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
 
-  return (
-    <div>
-      <NavBarHome loadingBarRef={loadingBarRef} />
-      <EditExamForm />
-    </div>
-  );
+    return (
+        <div>
+            <NavBarHome loadingBarRef={loadingBarRef} />
+            <EditExamForm />
+        </div>
+    );
 };
 
 export default EditExam;
