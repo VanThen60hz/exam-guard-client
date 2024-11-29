@@ -544,10 +544,10 @@ const AnswerQuestionForm: React.FC = () => {
                 session.accessToken,
                 questionId,
                 {
-                    answerText: value,
+                    answerText: value as string,
                 }
             );
-            console.log("Đã chọn");
+            console.log("Đã chọn: ", value as string);
         } catch (error) {
             console.error("Error answer:", error);
             setError(error.message);
