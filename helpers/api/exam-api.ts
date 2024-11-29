@@ -606,7 +606,7 @@ const getGradeStudent = async (
             throw new Error(data.message || "Failed to get grade");
         }
 
-        return data.metadata;
+        return data;
     } catch (e) {
         console.error("Failed to get grade:", e);
         throw e;
@@ -654,8 +654,8 @@ const getListAnswerByStudent = async (
     accessToken: string,
     examId: string,
     studentId: string,
-    page,
-    limit
+    page: number,
+    limit: number
 ) => {
     try {
         console.log("User ID:", id);
@@ -692,8 +692,8 @@ const getListAnswerByQuestion = async (
     id: string,
     accessToken: string,
     questionId: string,
-    page,
-    limit
+    page: number,
+    limit: number
 ) => {
     try {
         console.log("User ID:", id);
@@ -726,6 +726,42 @@ const getListAnswerByQuestion = async (
     }
 };
 
+const getGradeHistory = async (
+    id: string,
+    accessToken: string,
+    page: number,
+    limit: number
+) => {
+    try {
+        console.log("User ID:", id);
+        console.log("Access Token:", accessToken);
+
+        // Create a Headers object
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+
+        const res = await fetch(
+            `${BASE_URL}/grade/view-completed?page=${page}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: myHeaders, // Use the Headers object
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(data.message || "Failed to get grade history");
+        }
+
+        return data.metadata;
+    } catch (e) {
+        console.error("Failed to get grade history:", e);
+        throw e;
+    }
+};
+
 export {
     getExam,
     getAssignedExams,
@@ -749,4 +785,5 @@ export {
     getListGrade,
     getListAnswerByStudent,
     getListAnswerByQuestion,
+    getGradeHistory,
 };
