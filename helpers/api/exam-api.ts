@@ -496,6 +496,32 @@ const searchQuestions = async (
     }
 };
 
+const joinExam = async (id: string, accessToken: string, examId: string) => {
+    try {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken);
+        myHeaders.append("x-client-id", id || "");
+        myHeaders.append("Content-Type", "application/json");
+
+        const res = await fetch(`${BASE_URL}/exam/join/${examId}`, {
+            method: "GET",
+            headers: myHeaders,
+        });
+
+        console.log("Response Status:", res.status); // Log the response status
+        const data = await res.json();
+
+        // if (!res.ok || data.status !== 200) {
+        //     console.error("Error in join");
+        // }
+
+        return res.status; // Assuming the response contains a list of questions
+    } catch (e) {
+        console.error("Error in join exam:", e);
+        throw e;
+    }
+};
+
 const submitExam = async (
     id: string,
     accessToken: string,
@@ -555,6 +581,37 @@ const answerQuestion = async (
         throw e;
     }
 };
+const getGradeStudent = async (
+    id: string,
+    accessToken: string,
+    examId: string
+) => {
+    try {
+        console.log("User ID:", id);
+        console.log("Access Token:", accessToken);
+
+        // Create a Headers object
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+
+        const res = await fetch(`${BASE_URL}/grade/view-grade/${examId}`, {
+            method: "GET",
+            headers: myHeaders, // Use the Headers object
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(data.message || "Failed to get grade!");
+        }
+
+        return data;
+    } catch (e) {
+        console.error("Error get grade:", e);
+        throw e;
+    }
+};
 
 export {
     getExam,
@@ -572,6 +629,8 @@ export {
     updateQuestion,
     deleteQuestion,
     searchQuestions,
+    joinExam,
     submitExam,
     answerQuestion,
+    getGradeStudent,
 };

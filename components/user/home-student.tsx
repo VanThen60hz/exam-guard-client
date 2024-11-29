@@ -13,11 +13,12 @@ import {
     IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import EastIcon from "@mui/icons-material/East";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-import { getListExam, searchExam } from "../../helpers/api/exam-api";
+import { getListExam, joinExam, searchExam } from "../../helpers/api/exam-api";
 
 // SCSS
 import classes from "../../components/user/home-student.module.scss";
@@ -137,12 +138,23 @@ const HomeStudentForm: React.FC = () => {
         }
     };
 
-    const handleStart = (exam) => {
+    const handleStart = async (exam) => {
         examTitle = exam.title;
-        router.push({
-            pathname: "/user/answer-question",
-            query: { examId: exam._id },
-        });
+
+        const join = await joinExam(
+            session.userId,
+            session.accessToken,
+            exam._id
+        );
+        console.log("examid: ", join);
+        if (join == 200) {
+            router.push({
+                pathname: "/user/answer-question",
+                query: { examId: exam._id },
+            });
+        } else if (join == 403) {
+            toast.info("You have already completed this exam");
+        }
     };
     //Hiển thị ra màn hình
     return (
@@ -277,7 +289,7 @@ const HomeStudentForm: React.FC = () => {
                                         }
                                     )}{" "}
                                 </span>
-                                <img src="/images/icon/vector.svg" alt="" />
+                                <EastIcon sx={{ fill: "#6E6E6E" }} />
                                 <span className={classes.fontStyle}>
                                     {new Date(exam.endTime).toLocaleString(
                                         "en-US",
