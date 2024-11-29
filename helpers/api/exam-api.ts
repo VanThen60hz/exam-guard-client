@@ -606,7 +606,7 @@ const getGradeStudent = async (
             throw new Error(data.message || "Failed to get grade");
         }
 
-        return data;
+        return data.metadata;
     } catch (e) {
         console.error("Failed to get grade:", e);
         throw e;
@@ -619,108 +619,112 @@ const getListGrade = async (
     examId: string,
     page: number,
     limit: number
-  ) => {
+) => {
     try {
-      console.log("User ID:", id);
-      console.log("Access Token:", accessToken);
-  
-      // Create a Headers object
-      const myHeaders = new Headers();
-      myHeaders.append("Authorization", accessToken); // Use the access token directly
-      myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
-  
-      const res = await fetch(
-        `${BASE_URL}/grade/list-by-exam/${examId}?page=${page}&limit=${limit}`,
-        {
-          method: "GET",
-          headers: myHeaders, // Use the Headers object
+        console.log("User ID:", id);
+        console.log("Access Token:", accessToken);
+
+        // Create a Headers object
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+
+        const res = await fetch(
+            `${BASE_URL}/grade/list-by-exam/${examId}?page=${page}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: myHeaders, // Use the Headers object
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(data.message || "Failed to get list grade");
         }
-      );
-  
-      const data = await res.json();
-  
-      if (!res.ok || data.status !== 200) {
-        throw new Error(data.message || "Failed to get list grade");
-      }
-  
-      return data.metadata;
+
+        return data.metadata;
     } catch (e) {
-      throw new Error(e.message || "Failed to get list grade");
+        throw new Error(e.message || "Failed to get list grade");
     }
-  };
-  
-  const getListAnswerByStudent = async (
+};
+
+const getListAnswerByStudent = async (
     id: string,
     accessToken: string,
     examId: string,
     studentId: string,
     page,
     limit
-  ) => {
+) => {
     try {
-      console.log("User ID:", id);
-      console.log("Access Token:", accessToken);
-  
-      // Create a Headers object
-      const myHeaders = new Headers();
-      myHeaders.append("Authorization", accessToken); // Use the access token directly
-      myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
-  
-      const res = await fetch(
-        `${BASE_URL}/answer/${examId}/list-by-student/${studentId}?page=${page}&limit=${limit}`,
-        {
-          method: "GET",
-          headers: myHeaders, // Use the Headers object
+        console.log("User ID:", id);
+        console.log("Access Token:", accessToken);
+
+        // Create a Headers object
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+
+        const res = await fetch(
+            `${BASE_URL}/answer/${examId}/list-by-student/${studentId}?page=${page}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: myHeaders, // Use the Headers object
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(
+                data.message || "Failed to get list answer by student"
+            );
         }
-      );
-  
-      const data = await res.json();
-  
-      if (!res.ok || data.status !== 200) {
-        throw new Error(data.message || "Failed to get list answer by student");
-      }
-  
-      return data.metadata;
+
+        return data.metadata;
     } catch (e) {
-      throw new Error(e.message || "Failed to get list answer by student");
+        throw new Error(e.message || "Failed to get list answer by student");
     }
-  };
-  
-  const getListAnswerByQuestion = async (
+};
+
+const getListAnswerByQuestion = async (
     id: string,
     accessToken: string,
     questionId: string,
     page,
     limit
-  ) => {
+) => {
     try {
-      console.log("User ID:", id);
-      console.log("Access Token:", accessToken);
-  
-      // Create a Headers object
-      const myHeaders = new Headers();
-      myHeaders.append("Authorization", accessToken); // Use the access token directly
-      myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
-  
-      const res = await fetch(
-        `${BASE_URL}/answer/list-by-question/${questionId}?page=${page}&limit=${limit}`,
-        {
-          method: "GET",
-          headers: myHeaders, // Use the Headers object
+        console.log("User ID:", id);
+        console.log("Access Token:", accessToken);
+
+        // Create a Headers object
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+
+        const res = await fetch(
+            `${BASE_URL}/answer/list-by-question/${questionId}?page=${page}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: myHeaders, // Use the Headers object
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(
+                data.message || "Failed to get list answer by question"
+            );
         }
-      );
-  
-      const data = await res.json();
-  
-      if (!res.ok || data.status !== 200) {
-        throw new Error(data.message || "Failed to get list answer by question");
-      }
-  
-      return data.metadata;
+
+        return data.metadata;
     } catch (e) {
-      throw new Error(e.message || "Failed to get list answer by question");
+        throw new Error(e.message || "Failed to get list answer by question");
     }
-  };
+};
 
 export {
     getExam,
