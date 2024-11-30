@@ -602,10 +602,6 @@ const getGradeStudent = async (
 
         const data = await res.json();
 
-        if (!res.ok || data.status !== 200) {
-            throw new Error(data.message || "Failed to get grade");
-        }
-
         return data.metadata;
     } catch (e) {
         console.error("Failed to get grade:", e);

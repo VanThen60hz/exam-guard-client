@@ -53,6 +53,7 @@ import { examTitle } from "./home-student";
 import classes from "../../components/user/home-student.module.scss";
 import classes2 from "../../components/user/profile-user.module.scss";
 import { BASE_URL } from "../../constants";
+import { PassThrough } from "stream";
 
 interface RemainingTime {
     minutes: number;
@@ -84,23 +85,10 @@ const AnswerQuestionForm: React.FC = () => {
     const [answers, setAnswers] = useState<
         { questionId: string; answer: string }[]
     >([]);
+    const [grade, setGrade] = useState<number | null>(null);
 
     // State quản lý trạng thái của dialog và kết quả
     const [openDialog, setOpenDialog] = useState(false);
-    const [resultMessage, setResultMessage] = useState("");
-
-    // Router chuyển page
-
-    // Hàm mở dialog với thông báo kết quả
-    const openResultDialog = (message) => {
-        setResultMessage(message);
-        setOpenDialog(true);
-    };
-
-    // Hàm đóng dialog
-    const closeDialog = () => {
-        setOpenDialog(false);
-    };
 
     const [totalPage, setTotalPage] = useState(1);
     const [page, setPage] = useState(1);
@@ -139,9 +127,8 @@ const AnswerQuestionForm: React.FC = () => {
         title: string;
         description: string;
     }>();
-
-    // Đếm số lần phát hiện gian lận
-    const [cheatingCount, setCheatingCount] = useState<number>(0);
+    const [openGradeDialog, setOpenGradeDialog] = useState(false);
+    const [openAlertSubmit, setOpenAlertSubmit] = useState(false);
 
     // Tạo mảng refs cho mỗi câu hỏi
     const questionRefs = useRef([]);
@@ -155,10 +142,6 @@ const AnswerQuestionForm: React.FC = () => {
 
     // Get session data
     const { data: session, status } = useSession();
-
-    // const gradeDialog = () => {
-    //     setOpenDialog(false);
-    // };
 
     // Lấy danh sách câu hỏi
     useEffect(() => {
@@ -320,7 +303,7 @@ const AnswerQuestionForm: React.FC = () => {
                     if (currentFrame.current >= frameRefresh) {
                         currentFrame.current = 0;
                         await faceDetection.send({
-                            image: webcamRef.current.video,
+                            image: webcamRef.current?.video,
                         });
                     }
                 },
@@ -386,8 +369,8 @@ const AnswerQuestionForm: React.FC = () => {
         const visibilityChangeEventName = getBrowserVisibilityProp();
 
         const handleVisibilityChange = async () => {
-            if (document[hiddenProp]) {
-                if (status === "authenticated" && session) {
+            if (status === "authenticated" && session) {
+                if (document[hiddenProp]) {
                     setDidLeaveExam(true);
 
                     const userId = session.userId;
@@ -432,29 +415,7 @@ const AnswerQuestionForm: React.FC = () => {
         };
     }, []);
 
-    const showModal = (title: string, description: string) => {
-        setIsModalVisible(true);
-        setModalData({
-            title,
-            description,
-        });
-    };
-
-    const hideModel = () => {
-        if (!didLeaveExam) {
-            return;
-        }
-
-        setIsModalVisible(false);
-        setModalData({
-            title: "",
-            description: "",
-        });
-    };
-
     // Thời gian làm bài
-    //Thêm state cho thời gian còn lại
-
     useEffect(() => {
         // Cập nhật thời gian còn lại mỗi giây
         const intervalId = setInterval(() => {
@@ -595,28 +556,8 @@ const AnswerQuestionForm: React.FC = () => {
                 !answers.find((ans) => ans.questionId === question._id)
         );
 
-        if (unansweredQuestions.length > 0) {
-            openResultDialog(
-                `Bạn vẫn còn câu hỏi chưa trả lời.
-                Vui lòng kiểm tra lại!`
-            );
-        } else {
-            openResultDialog(
-                `Congratulations on completing the test. 
-                Would you like to view your score?`
-            );
-            const userId = session.userId;
-            const accessToken = session.accessToken;
-
-            try {
-                await submitExam(userId, accessToken, examId as string, {
-                    answers: [],
-                });
-            } catch (error) {
-                console.error("Error submit:", error);
-                setError(error.message);
-            }
-        }
+        handleAlertSubmit(true);
+        // }
     };
 
     const CustomFormControlLabel = styled(FormControlLabel)({
@@ -640,7 +581,50 @@ const AnswerQuestionForm: React.FC = () => {
         p: 4,
     };
 
-    const [openGradeDialog, setOpenGradeDialog] = useState(false);
+    const showModal = (title: string, description: string) => {
+        setIsModalVisible(true);
+        setModalData({
+            title,
+            description,
+        });
+    };
+
+    const hideModel = () => {
+        if (!didLeaveExam) {
+            return;
+        }
+
+        setIsModalVisible(false);
+        setModalData({
+            title: "",
+            description: "",
+        });
+    };
+
+    // Hàm mở dialog với thông báo kết quả
+    const handleOpenSubmit = async (boolean) => {
+        if (status === "authenticated" && session) {
+            const userId = session.userId;
+            const accessToken = session.accessToken;
+
+            try {
+                await submitExam(userId, accessToken, examId as string, {
+                    answers: [],
+                });
+            } catch (error) {
+                console.error("Error submit:", error);
+                setError(error.message);
+            }
+        }
+        setOpenDialog(boolean);
+    };
+
+    const handleAlertSubmit = (boolean) => {
+        setOpenAlertSubmit(boolean);
+    };
+    const handleOpenGrade = (boolean) => {
+        setOpenGradeDialog(boolean);
+    };
 
     const handleViewGrade = () => {
         const fetchGrade = async () => {
@@ -654,73 +638,17 @@ const AnswerQuestionForm: React.FC = () => {
             }
         };
         fetchGrade();
-        setOpenGradeDialog(true);
+        handleOpenGrade(true);
     };
-
-    const [grade, setGrade] = useState<number | null>(null);
-
-    // Fetch grade when component mounts or session changes
-    // useEffect(() => {
-    //     const fetchGrade = async () => {
-    //         if (session) {
-    //             const fetchedGrade = await getGradeStudent(
-    //                 session.userId,
-    //                 session.accessToken,
-    //                 examId as string
-    //             );
-    //             setGrade(fetchedGrade.score);
-    //         }
-    //     };
-    //     fetchGrade();
-    // }, [session, examId]);
 
     //Hiển thị ra màn hình
     return (
         <>
             <Container className={classes.container}>
-                {/* Thanh đếm ngược thời gian */}
-                <div
-                    style={{
-                        position: "relative",
-                        height: "20px",
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "5px",
-                        overflow: "hidden",
-                        marginTop: "120px",
-                    }}
-                >
-                    <div
-                        style={{
-                            position: "absolute",
-                            height: "100%",
-                            width: `${
-                                (totalSeconds /
-                                    (timeLeft?.minutes * 60 +
-                                        timeLeft?.seconds)) *
-                                100
-                            }%`,
-                            backgroundColor: getProgressColor(),
-                            transition:
-                                "width 1s linear, background-color 1.5s ease",
-                        }}
-                    />
-                    {/* Hiển thị thời gian còn lại bên trong thanh */}
-                    <div
-                        style={{
-                            position: "absolute",
-                            width: "100%",
-                            textAlign: "center",
-                            color: "#fff",
-                            fontWeight: "bold",
-                        }}
-                    >
-                        {formatTimeLeft(totalSeconds)}
-                    </div>
-                </div>
-
                 <div
                     style={{
                         display: "flex",
+                        gap: "10px",
                     }}
                 >
                     {/* Không gian làm bài */}
@@ -1123,6 +1051,47 @@ const AnswerQuestionForm: React.FC = () => {
                     </div>
                     {/* Không gian đánh số thứ tự câu hỏi và camera */}
                     <div className={classes.rightBox}>
+                        {/* Thanh đếm ngược thời gian */}
+                        <div
+                            style={{
+                                position: "relative",
+                                height: "20px",
+                                backgroundColor: "#e0e0e0",
+                                borderRadius: "5px",
+                                overflow: "hidden",
+                                marginTop: "10px",
+                                width: "95%",
+                                marginLeft: "8px",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    height: "100%",
+                                    width: `${
+                                        (totalSeconds /
+                                            (timeLeft?.minutes * 60 +
+                                                timeLeft?.seconds)) *
+                                        100
+                                    }%`,
+                                    backgroundColor: getProgressColor(),
+                                    transition:
+                                        "width 1s linear, background-color 1.5s ease",
+                                }}
+                            />
+                            {/* Hiển thị thời gian còn lại bên trong thanh */}
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    width: "100%",
+                                    textAlign: "center",
+                                    color: "#fff",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {formatTimeLeft(totalSeconds)}
+                            </div>
+                        </div>
                         <div
                             style={{
                                 display: "flex",
@@ -1159,8 +1128,8 @@ const AnswerQuestionForm: React.FC = () => {
                                 <p
                                     style={{
                                         color: "#1DB0A6",
-                                        fontSize: "20px",
-                                        fontWeight: 400,
+                                        fontSize: "16px",
+                                        fontWeight: 700,
                                     }}
                                 >
                                     Answered
@@ -1169,8 +1138,8 @@ const AnswerQuestionForm: React.FC = () => {
                                     style={{
                                         marginTop: "10px",
                                         color: "#c63232",
-                                        fontSize: "20px",
-                                        fontWeight: 400,
+                                        fontSize: "16px",
+                                        fontWeight: 700,
                                     }}
                                 >
                                     Not answered
@@ -1275,51 +1244,49 @@ const AnswerQuestionForm: React.FC = () => {
                 )}
 
                 {/* Dialog hiển thị kết quả */}
-                <Dialog open={openDialog} onClose={closeDialog}>
+                <Dialog open={openDialog} onClose={() => PassThrough}>
                     <DialogTitle>Exam Result </DialogTitle>
                     <DialogContent>
-                        <Typography
-                            sx={{
+                        <p
+                            style={{
                                 color: "#000",
                                 fontSize: "16px",
                                 fontWeight: 400,
                             }}
-                            dangerouslySetInnerHTML={{ __html: resultMessage }}
-                            style={{ whiteSpace: "pre-line" }}
-                        />
+                        >
+                            Congratulations on completing the test.
+                        </p>
+                        <p
+                            style={{
+                                color: "#000",
+                                fontSize: "16px",
+                                fontWeight: 400,
+                            }}
+                        >
+                            Would you like to view your score?
+                        </p>
                     </DialogContent>
                     <DialogActions>
-                        {allQuestion.filter(
-                            (question) =>
-                                !answers.find(
-                                    (ans) => ans.questionId === question._id
-                                )
-                        ).length > 0 ? (
-                            <Button onClick={closeDialog} color="primary">
-                                Continue
+                        <Box sx={{ display: "flex" }}>
+                            <Button onClick={handleViewGrade} color="primary">
+                                View score
                             </Button>
-                        ) : (
-                            <Box sx={{ display: "flex" }}>
-                                <Button
-                                    onClick={handleViewGrade}
-                                    color="primary"
-                                >
-                                    View score
-                                </Button>
-                                <Button
-                                    onClick={() =>
-                                        router.push("/user/home-student")
-                                    }
-                                    color="primary"
-                                >
-                                    Close
-                                </Button>
-                            </Box>
-                        )}
+                            <Button
+                                onClick={() =>
+                                    router.push("/user/home-student")
+                                }
+                                color="primary"
+                            >
+                                Close
+                            </Button>
+                        </Box>
                     </DialogActions>
                 </Dialog>
 
-                <Dialog open={openGradeDialog} onClose={closeDialog}>
+                <Dialog
+                    open={openGradeDialog}
+                    onClose={() => handleOpenGrade(false)}
+                >
                     <DialogTitle>Your Grade </DialogTitle>
                     <DialogContent>
                         <p
@@ -1337,6 +1304,68 @@ const AnswerQuestionForm: React.FC = () => {
                         >
                             Close
                         </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={openAlertSubmit}
+                    onClose={() => handleAlertSubmit(false)}
+                >
+                    <DialogTitle>Submit Exam </DialogTitle>
+                    <DialogContent>
+                        {allQuestion.filter(
+                            (question) =>
+                                !answers.find(
+                                    (ans) => ans.questionId === question._id
+                                )
+                        ).length > 0 ? (
+                            <p
+                                style={{
+                                    color: "#000",
+                                }}
+                            >
+                                Bạn chưa trả lời hết câu hỏi. vui lòng kiểm tra
+                                lại!
+                            </p>
+                        ) : (
+                            <p
+                                style={{
+                                    color: "#000",
+                                }}
+                            >
+                                Are you sure you want to submit your exam?
+                            </p>
+                        )}
+                    </DialogContent>
+                    <DialogActions>
+                        {allQuestion.filter(
+                            (question) =>
+                                !answers.find(
+                                    (ans) => ans.questionId === question._id
+                                )
+                        ).length > 0 ? (
+                            <Button
+                                onClick={() => handleAlertSubmit(false)}
+                                color="primary"
+                            >
+                                Continue
+                            </Button>
+                        ) : (
+                            <div style={{ display: "flex" }}>
+                                <Button
+                                    onClick={() => handleAlertSubmit(false)}
+                                    color="primary"
+                                >
+                                    Close
+                                </Button>
+                                <Button
+                                    onClick={() => handleOpenSubmit(true)}
+                                    color="primary"
+                                >
+                                    Submit
+                                </Button>
+                            </div>
+                        )}
                     </DialogActions>
                 </Dialog>
             </Container>
