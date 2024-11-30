@@ -606,7 +606,7 @@ const getGradeStudent = async (
             throw new Error(data.message || "Failed to get grade");
         }
 
-        return data;
+        return data.metadata;
     } catch (e) {
         console.error("Failed to get grade:", e);
         throw e;
