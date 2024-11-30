@@ -4,17 +4,17 @@ import Head from "next/head";
 import { useRef } from "react";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import NavBarHome from "../../components/home/navbar-home";
-import CreateUserForm from "../../components/user/create-user";
+import ProfileUserForm from "../../components/user/profile-user";
 
-const CreateUser = () => {
+const ProfileUser = () => {
   const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
 
   return (
     <div>
       <NavBarHome loadingBarRef={loadingBarRef} />
-      <CreateUserForm />
+      <ProfileUserForm />
     </div>
   );
 };
 
-export default CreateUser;
+export default ProfileUser;

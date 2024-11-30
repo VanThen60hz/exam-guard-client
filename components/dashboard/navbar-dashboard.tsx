@@ -50,6 +50,8 @@ const NavBarDashboard: React.FC<NavBarDashboardProps> = (props) => {
         await router.replace("/auth/login");
     };
 
+
+
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
             <Typography variant="h6" sx={{ my: 2 }}>

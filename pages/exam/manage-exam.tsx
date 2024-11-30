@@ -4,17 +4,17 @@ import Head from "next/head";
 import { useRef } from "react";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import NavBarHome from "../../components/home/navbar-home";
-import CreateUserForm from "../../components/user/create-user";
+import ManageExamForm from "../../components/exam-main/manage-exam";
 
-const CreateUser = () => {
+const ManageExam = () => {
   const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
 
   return (
     <div>
       <NavBarHome loadingBarRef={loadingBarRef} />
-      <CreateUserForm />
+      <ManageExamForm />
     </div>
   );
 };
 
-export default CreateUser;
+export default ManageExam;
