@@ -23,25 +23,25 @@ const LoginPage = () => {
     );
 };
 
-const getServerSideProps: GetServerSideProps = async (context) => {
-    const session = await getSession({ req: context.req });
+// const getServerSideProps: GetServerSideProps = async (context) => {
+//     const session = await getSession({ req: context.req });
 
-    if (!session) {
-        return {
-            props: {},
-        };
-    }
+//     if (!session) {
+//         return {
+//             props: {},
+//         };
+//     }
 
-    return {
-        redirect: {
-            destination: "/dashboard",
-            permanent: false,
-        },
-        props: {
-            session: session,
-        },
-    };
-};
+//     return {
+//         redirect: {
+//             destination: "/dashboard",
+//             permanent: false,
+//         },
+//         props: {
+//             session: session,
+//         },
+//     };
+// };
 
 export default LoginPage;
-export { getServerSideProps };
+// export { getServerSideProps };

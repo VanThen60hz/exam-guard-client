@@ -4,7 +4,7 @@
 
 A platform that aims to stop cheating in online exams with the power of AI and ML.
 
-This is the web version of my [ExamGuard App](https://github.com/prathamesh-mutkure/anti-cheat-exam-app) with enhanced features, UI/UX, and performance.
+This is the web version of my [ExamGuard App](https://github.com/VanThen60hz/exam-guard-client) with enhanced features, UI/UX, and performance.
 
 <p  align="center">
 
