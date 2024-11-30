@@ -1,7 +1,7 @@
-.updateProfileContainer button,
-.profileContainer button {
-    padding: 0;
-}
+// .updateProfileContainer button,
+// .profileContainer button {
+//     padding: 0;
+// }
 
 .container {
     color: #000;
@@ -54,10 +54,12 @@
     padding: 10px 15px;
     top: 0;
     left: 0;
-    width: 340px;
+    width: 320px;
     border-radius: 10px 0 20px 0;
     color: #fff;
     background-color: #229594;
+    font-size: 25px;
+    font-weight: bold;
 }
 
 //ProfileContent

@@ -1,0 +1,361 @@
+.btnBlue {
+    cursor: pointer;
+    display: flex;
+    gap: 0.5rem;
+    border: none;
+
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 30px;
+    font-weight: 600;
+    place-content: center;
+
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    width: 150px;
+
+    background-color: #3498db;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2),
+        0 0 10px rgba(52, 152, 219, 0.1);
+}
+
+.btnBlue:hover {
+    background-color: #2980b9;
+    box-shadow: 0 6px 15px rgba(41, 128, 185, 0.3),
+        0 0 30px rgba(41, 128, 185, 0.2), 0 0 60px rgba(41, 128, 185, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnBlue:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(41, 128, 185, 0.2),
+        0 0 10px rgba(41, 128, 185, 0.1);
+}
+
+.btnRed {
+    cursor: pointer;
+    display: flex;
+    gap: 0.5rem;
+    border: none;
+
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 30px;
+    font-weight: 600;
+    place-content: center;
+
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    width: 150px;
+
+    background-color: #e74c3c; // Màu đỏ
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(231, 76, 60, 0.2),
+        0 0 10px rgba(231, 76, 60, 0.1);
+}
+
+.btnRed:hover {
+    background-color: #c0392b; // Màu đỏ đậm hơn
+    box-shadow: 0 6px 15px rgba(192, 57, 43, 0.3),
+        0 0 30px rgba(192, 57, 43, 0.2), 0 0 60px rgba(192, 57, 43, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnRed:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(192, 57, 43, 0.2),
+        0 0 10px rgba(192, 57, 43, 0.1);
+}
+
+.btnGreen {
+    cursor: pointer;
+    display: flex;
+    gap: 0.5rem;
+    border: none;
+
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 30px;
+    font-weight: 600;
+    place-content: center;
+
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    width: 150px;
+
+    background-color: #229594;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2),
+        0 0 10px rgba(40, 167, 69, 0.1);
+}
+
+.btnGreen:hover {
+    background-color: #1e7976;
+    box-shadow: 0 6px 15px rgba(25, 135, 84, 0.3),
+        0 0 30px rgba(25, 135, 84, 0.2), 0 0 60px rgba(25, 135, 84, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnGreen:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2),
+        0 0 10px rgba(40, 167, 69, 0.1);
+}
+
+.btnGreen2 {
+    cursor: pointer;
+    display: flex;
+    gap: 0.5rem;
+    border: none;
+
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 30px;
+    font-weight: 600;
+    place-content: center;
+
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    width: 120px;
+    height: 38px;
+    font-size: 12px;
+
+    background-color: #88976c;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(99, 112, 75, 0.2),
+        0 0 10px rgba(136, 151, 108, 0.1); // Cập nhật box-shadow theo màu #88976C
+}
+
+.btnGreen2:hover {
+    background-color: #5f7531;
+    box-shadow: 0 6px 15px rgba(136, 151, 108, 0.3),
+        0 0 30px rgba(136, 151, 108, 0.2), 0 0 60px rgba(136, 151, 108, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnGreen2:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(136, 151, 108, 0.2),
+        0 0 10px rgba(136, 151, 108, 0.1); // Cập nhật màu sắc
+}
+
+.btnColor1 {
+    gap: 0.5rem;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 10px;
+    font-weight: 600;
+    place-content: center;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    height: 38px;
+    font-size: 12px;
+
+    background-color: #46dfb1; // Màu mới
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(70, 223, 177, 0.2),
+        0 0 10px rgba(70, 223, 177, 0.1);
+}
+
+.btnColor1:hover {
+    background-color: #39bfa3; // Màu mới khi hover
+    box-shadow: 0 6px 15px rgba(57, 191, 163, 0.3),
+        0 0 30px rgba(57, 191, 163, 0.2), 0 0 60px rgba(57, 191, 163, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnColor1:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(57, 191, 163, 0.2),
+        0 0 10px rgba(57, 191, 163, 0.1);
+}
+
+.btnColor2 {
+    gap: 0.5rem;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 10px;
+    font-weight: 600;
+    place-content: center;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    height: 38px;
+    font-size: 12px;
+
+    background-color: #09d1c7; // Màu mới
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(9, 209, 199, 0.2),
+        0 0 10px rgba(9, 209, 199, 0.1);
+}
+
+.btnColor2:hover {
+    background-color: #07b8b0; // Màu mới khi hover
+    box-shadow: 0 6px 15px rgba(7, 184, 176, 0.3),
+        0 0 30px rgba(7, 184, 176, 0.2), 0 0 60px rgba(7, 184, 176, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnColor2:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(7, 184, 176, 0.2),
+        0 0 10px rgba(7, 184, 176, 0.1);
+}
+
+.btnColor3 {
+    gap: 0.5rem;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 10px;
+    font-weight: 600;
+    place-content: center;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    height: 38px;
+    font-size: 12px;
+
+    background-color: #15919b; // Màu mới
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(21, 145, 155, 0.2),
+        0 0 10px rgba(21, 145, 155, 0.1);
+}
+
+.btnColor3:hover {
+    background-color: #0e7a7f; // Màu mới khi hover
+    box-shadow: 0 6px 15px rgba(14, 122, 127, 0.3),
+        0 0 30px rgba(14, 122, 127, 0.2), 0 0 60px rgba(14, 122, 127, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnColor3:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(14, 122, 127, 0.2),
+        0 0 10px rgba(14, 122, 127, 0.1);
+}
+
+.btnColor4 {
+    gap: 0.5rem;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 10px;
+    font-weight: 600;
+    place-content: center;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    height: 38px;
+    font-size: 12px;
+
+    background-color: #0c6478; // Màu mới
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(12, 100, 120, 0.2),
+        0 0 10px rgba(12, 100, 120, 0.1);
+}
+
+.btnColor4:hover {
+    background-color: #0a4d5b; // Màu mới khi hover
+    box-shadow: 0 6px 15px rgba(10, 77, 91, 0.3), 0 0 30px rgba(10, 77, 91, 0.2),
+        0 0 60px rgba(10, 77, 91, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnColor4:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(10, 77, 91, 0.2), 0 0 10px rgba(10, 77, 91, 0.1);
+}
+
+.btnColor5 {
+    gap: 0.5rem;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 10px;
+    font-weight: 600;
+    place-content: center;
+    font-size: 0.9rem;
+    line-height: 1rem;
+    height: 38px;
+    font-size: 12px;
+
+    background-color: #213a58; // Màu mới
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(33, 58, 88, 0.2), 0 0 10px rgba(33, 58, 88, 0.1);
+}
+
+.btnColor5:hover {
+    background-color: #1a2a3e; // Màu mới khi hover
+    box-shadow: 0 6px 15px rgba(26, 42, 62, 0.3), 0 0 30px rgba(26, 42, 62, 0.2),
+        0 0 60px rgba(26, 42, 62, 0.1);
+    transform: translateY(-2px);
+}
+
+.btnColor5:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(26, 42, 62, 0.2), 0 0 10px rgba(26, 42, 62, 0.1);
+}
+
+.btnSmall {
+    width: 100px !important; // Loại bỏ dấu ngoặc kép
+    height: 38px !important; // Loại bỏ dấu ngoặc kép
+    font-size: 12px;
+}
+
+.btnMedium {
+    width: 150px !important; // Loại bỏ dấu ngoặc kép
+    height: 38px !important; // Loại bỏ dấu ngoặc kép
+    font-size: 12px;
+}
+
+.btnLarge {
+    width: 180px !important; // Loại bỏ dấu ngoặc kép
+    height: 38px !important; // Loại bỏ dấu ngoặc kép
+    font-size: 12px;
+}
+
+.btnSpecial {
+    width: 140px !important; // Loại bỏ dấu ngoặc kép
+    height: 38px !important; // Loại bỏ dấu ngoặc kép
+    font-size: 12px;
+}
+
+.btnSmallest {
+    width: 10px !important; // Loại bỏ dấu ngoặc kép
+    height: 38px !important; // Loại bỏ dấu ngoặc kép
+    font-size: 12px;
+}
+
+.btnLarge2 {
+    width: 300px !important; // Loại bỏ dấu ngoặc kép
+    height: 38px !important; // Loại bỏ dấu ngoặc kép
+    font-size: 12px;
+}
+
+.textFieldCustom {
+    & fieldset {
+        border-color: green;
+    }
+    &:focus-within fieldset {
+        border-color: green !important;
+    }
+    &.Mui-focused fieldset {
+        border-color: green !important;
+    }
+}
+
+.textFieldCustomGreen {
+    & fieldset {
+        border-color: green !important;
+    }
+}
+
+.btnActive {
+    font-weight: bold; /* Đậm chữ */
+    background-color: #0e4e79; /* Màu nền khi được chọn */
+    color: white; /* Màu chữ khi được chọn */
+}
+
+.btnBorderRadius {
+    border-radius: 10px; /* Bo tròn viền */
+}
+
+.rowCheating {
+    background-color: #d9afaf !important;
+}
