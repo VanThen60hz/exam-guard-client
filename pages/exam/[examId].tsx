@@ -7,7 +7,7 @@ import ExamButtonsGroup from "../../components/exam/exam-buttons";
 import ExamCamera from "../../components/exam/exam-camera";
 import QuestionTracker from "../../components/exam/question-tracker";
 import QuestionWidget from "../../components/exam/question-widget";
-import { getExam } from "../../helpers/api/exam-api";
+import { getExam, updateExam } from "../../helpers/api/exam-api";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { Exam } from "../../models/exam-models";
 import { examActions } from "../../store/exam-store";
@@ -22,6 +22,9 @@ import WarningModal from "../../components/exam/exam-modals";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
+
+
+
 
 const TESTING = false;
 
