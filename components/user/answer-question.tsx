@@ -52,6 +52,7 @@ import { examTitle } from "./home-student";
 
 import classes from "../../components/user/home-student.module.scss";
 import classes2 from "../../components/user/profile-user.module.scss";
+import classes3 from "../../components/exam-main/manage-exam.module.scss";
 import { BASE_URL } from "../../constants";
 import { PassThrough } from "stream";
 
@@ -80,6 +81,8 @@ const AnswerQuestionForm: React.FC = () => {
 
     const [currentDateTime, setCurrentDateTime] = useState<string>("");
     const [listData, setListData] = useState([]);
+
+    const prevCheatingStatus = useRef<string | null>(null);
 
     // Lưu các câu trả lời
     const [answers, setAnswers] = useState<
@@ -204,120 +207,135 @@ const AnswerQuestionForm: React.FC = () => {
     let lookingTime = 0;
     // Hàm để lấy luồng camera
     useEffect(() => {
-        const faceDetection: FaceDetection = new FaceDetection({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
-            },
-        });
+        let faceDetection: FaceDetection | null = null;
+        let camera: Camera | null = null;
 
-        faceDetection.setOptions({
-            minDetectionConfidence: 0.5,
-            model: "short",
-        });
-
-        const onResult = async (result: Results) => {
-            // TODO: Fix multiple toasts
-            if (result.detections.length < 1) {
-                // toast(
-                //   "Face not detected, make sure your face is visible on the screen!"
-                // );
-                return;
-            } else if (result.detections.length > 1) {
-                // toast(
-                //   "Detected more than one person in frame, can be flagged as cheating!"
-                // );
-                return;
-            }
-
-            const faceCoordinates = extractFaceCoordinates(result);
-
-            // printLandmarks(result);
-
-            const [lookingLeft, lookingRight] = detectCheating(
-                faceCoordinates,
-                false
-            );
-            if (status === "authenticated" && session) {
-                const userId = session.userId;
-                const accessToken = session.accessToken;
-                const fetchCheatingFace = async () => {
-                    settime(true);
-
-                    if (userId && accessToken) {
-                        try {
-                            const detect = await detect_cheating(
-                                // session.userId,
-                                // session.accessToken,
-                                userId,
-                                accessToken,
-                                examId as string,
-                                {
-                                    infractionType: "Face",
-                                    description:
-                                        "Student looks away from the test screen.",
-                                }
-                            );
-                            console.log("chết mày rồi con");
-                        } catch (error) {
-                            console.error("Error detect cheating:", error);
-                            setError(error.message);
-                        }
-                        setLoading(false);
-                    }
-                };
-
-                if (lookingLeft || lookingRight) {
-                    lookingTime += 1;
-                    console.log("phát hiện: ", lookingTime);
-                    if (lookingTime == 5) {
-                        fetchCheatingFace();
-                    }
-                    if (lookingTime > 5) {
-                        lookingTime = 0;
-                    }
-                } else {
-                    lookingTime = 0;
-                }
-
-                const cheatingStatus = getCheatingStatus(
-                    lookingLeft,
-                    lookingRight
-                );
-                setChetingStatus(cheatingStatus);
-            }
-        };
-
-        faceDetection.onResults(onResult);
-        faceDetectionRef.current = faceDetection;
-
-        if (webcamRef.current) {
-            const camera = new Camera(webcamRef.current.video, {
-                onFrame: async () => {
-                    // Proceed frames only if real time detection is on
-                    if (!realtimeDetection) {
-                        return;
-                    }
-
-                    currentFrame.current += 1;
-
-                    if (currentFrame.current >= frameRefresh) {
-                        currentFrame.current = 0;
-                        await faceDetection.send({
-                            image: webcamRef.current?.video,
-                        });
-                    }
-                },
-                width: 1280,
-                height: 720,
+        const initializeFaceDetection = () => {
+            faceDetection = new FaceDetection({
+                locateFile: (file) =>
+                    `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
             });
 
-            camera.start();
-        }
+            faceDetection.setOptions({
+                minDetectionConfidence: 0.5,
+                model: "short",
+            });
+
+            faceDetection.onResults(async (result: Results) => {
+                if (!result.detections || result.detections.length === 0) {
+                    // Không phát hiện khuôn mặt
+                    return;
+                }
+                if (result.detections.length > 1) {
+                    // Phát hiện nhiều hơn 1 khuôn mặt
+                    return;
+                }
+
+                const faceCoordinates = extractFaceCoordinates(result);
+                const [lookingLeft, lookingRight] = detectCheating(
+                    faceCoordinates,
+                    false
+                );
+
+                if (status === "authenticated" && session) {
+                    const cheatingStatus = getCheatingStatus(
+                        lookingLeft,
+                        lookingRight
+                    );
+                    if (cheatingStatus !== prevCheatingStatus.current) {
+                        prevCheatingStatus.current = cheatingStatus;
+                        setChetingStatus(cheatingStatus);
+                    }
+
+                    if (lookingLeft || lookingRight) {
+                        lookingTime += 1;
+                        console.log("phát hiện: ", lookingTime);
+
+                        if (lookingTime >= 5) {
+                            try {
+                                await detect_cheating(
+                                    session.userId,
+                                    session.accessToken,
+                                    examId as string,
+                                    {
+                                        infractionType: "Face",
+                                        description:
+                                            "Student looks away from the test screen.",
+                                    }
+                                );
+                                console.log("Rời mắt khỏi màn hình à!");
+                            } catch (error) {
+                                console.error(
+                                    "Error calling detect_cheating API:",
+                                    error
+                                );
+                            } finally {
+                                lookingTime = 0;
+                            }
+                        }
+                    } else {
+                        lookingTime = 0; // Reset nếu không nhìn lệch
+                    }
+                }
+            });
+        };
+
+        const initializeCamera = () => {
+            if (webcamRef.current) {
+                camera = new Camera(webcamRef.current.video, {
+                    onFrame: async () => {
+                        if (!realtimeDetection || !faceDetection) return;
+
+                        currentFrame.current += 1;
+                        if (currentFrame.current >= frameRefresh) {
+                            currentFrame.current = 0;
+                            try {
+                                await faceDetection.send({
+                                    image: webcamRef.current?.video,
+                                });
+                            } catch (error) {
+                                console.error(
+                                    "Error while sending data to faceDetection:",
+                                    error
+                                );
+                            }
+                        }
+                    },
+                });
+                camera.start();
+            }
+        };
+
+        initializeFaceDetection();
+        initializeCamera();
+
+        // Lắng nghe sự kiện chuyển tab
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                if (camera) camera.stop();
+            } else if (document.visibilityState === "visible") {
+                if (!camera) initializeCamera();
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
-            faceDetection.close();
+            // Cleanup
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange
+            );
+            if (camera) {
+                camera.stop();
+                camera = null;
+            }
+            if (faceDetection) {
+                faceDetection.close();
+                faceDetection = null;
+            }
         };
-    }, [webcamRef, realtimeDetection]);
+    }, [webcamRef, realtimeDetection, session, status]);
 
     useEffect(() => {
         const startCamera = async () => {
@@ -361,7 +379,7 @@ const AnswerQuestionForm: React.FC = () => {
         return () => {
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, []);
+    }, [session, status]);
 
     // Tab change
     useEffect(() => {
@@ -388,6 +406,7 @@ const AnswerQuestionForm: React.FC = () => {
                                     "Student switches tabs away from the test screen",
                             }
                         );
+                        console.log("chuyển tab à!");
                     } catch (error) {
                         console.error("Error detect cheating:", error);
                         setError(error.message);
@@ -413,7 +432,7 @@ const AnswerQuestionForm: React.FC = () => {
                 handleVisibilityChange
             );
         };
-    }, []);
+    }, [session]);
 
     // Thời gian làm bài
     useEffect(() => {
@@ -616,6 +635,7 @@ const AnswerQuestionForm: React.FC = () => {
                 setError(error.message);
             }
         }
+        setOpenAlertSubmit(false);
         setOpenDialog(boolean);
     };
 
@@ -638,6 +658,7 @@ const AnswerQuestionForm: React.FC = () => {
             }
         };
         fetchGrade();
+        setOpenDialog(false);
         handleOpenGrade(true);
     };
 
@@ -671,354 +692,402 @@ const AnswerQuestionForm: React.FC = () => {
                         <div
                             className={`${classes.content} ${classes.fontStyle}`}
                         >
-                            {listData.map((question, index) => (
-                                // thẻ chứa câu hỏi
-                                <div
-                                    ref={(el) =>
-                                        (questionRefs.current[index] = el)
-                                    } // Gán ref cho từng câu hỏi
-                                    key={question._id} // Thêm key để tránh cảnh báo
-                                    className={classes.questionItem}
-                                    style={{
-                                        color: "#000",
-                                        fontSize: "23px",
-                                    }}
-                                >
-                                    <span style={{ color: "#ca5455" }}>
-                                        Question {(page - 1) * 10 + index + 1} :
-                                    </span>
-                                    <span>{question.questionText} </span>
-
+                            {listData.length > 0 ? (
+                                listData.map((question, index) => (
+                                    // thẻ chứa câu hỏi
                                     <div
-                                        className={`${classes.answer} ${classes.fontStyle}`}
+                                        ref={(el) =>
+                                            (questionRefs.current[index] = el)
+                                        } // Gán ref cho từng câu hỏi
+                                        key={question._id} // Thêm key để tránh cảnh báo
+                                        className={classes.questionItem}
+                                        style={{
+                                            color: "#000",
+                                            fontSize: "23px",
+                                        }}
                                     >
-                                        <FormControl>
-                                            <RadioGroup
-                                                aria-labelledby="demo-radio-buttons-group-label"
-                                                name="answer"
-                                                value={
-                                                    answers.find(
-                                                        (answer) =>
-                                                            answer.questionId ===
-                                                            question._id
-                                                    )?.answer || ""
-                                                } // Thiết lập giá trị đã chọn
-                                                onChange={
-                                                    (e) =>
+                                        <span style={{ color: "#ca5455" }}>
+                                            Question{" "}
+                                            {(page - 1) * 10 + index + 1} :
+                                        </span>
+                                        <span>{question.questionText} </span>
+
+                                        <div
+                                            className={`${classes.answer} ${classes.fontStyle}`}
+                                        >
+                                            <FormControl>
+                                                <RadioGroup
+                                                    aria-labelledby="demo-radio-buttons-group-label"
+                                                    name="answer"
+                                                    value={
+                                                        answers.find(
+                                                            (answer) =>
+                                                                answer.questionId ===
+                                                                question._id
+                                                        )?.answer || ""
+                                                    } // Thiết lập giá trị đã chọn
+                                                    onChange={(e) =>
                                                         handleChooseAnswer(
                                                             e,
                                                             question._id
                                                         )
-                                                    // handleChooseAnswer(
-                                                    //     e,
-                                                    //     question.correctAnswer,
-                                                    //     question._id
-                                                    // )
+                                                    }
+                                                >
+                                                    {question.options.length ===
+                                                    1 ? (
+                                                        <CustomFormControlLabel
+                                                            key={
+                                                                question
+                                                                    .options[0]
+                                                            }
+                                                            value={
+                                                                question
+                                                                    .options[0]
+                                                            }
+                                                            control={<Radio />}
+                                                            label={`A: ${question.options[0]}`}
+                                                        />
+                                                    ) : question.options
+                                                          .length === 2 ? (
+                                                        <>
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`A: ${question.options[0]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`B: ${question.options[1]}`}
+                                                            />
+                                                        </>
+                                                    ) : question.options
+                                                          .length === 3 ? (
+                                                        <>
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`A: ${question.options[0]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`B: ${question.options[1]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[2]}`}
+                                                            />
+                                                        </>
+                                                    ) : question.options
+                                                          .length === 4 ? (
+                                                        <>
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`A: ${question.options[0]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`B: ${question.options[1]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[2]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[3]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[3]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[3]}`}
+                                                            />
+                                                        </>
+                                                    ) : question.options
+                                                          .length === 5 ? (
+                                                        <>
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`A: ${question.options[0]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`B: ${question.options[1]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[2]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[3]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[3]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[3]}`}
+                                                            />
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[4]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[4]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[4]}`}
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[0]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`A: ${question.options[0]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[1]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`B: ${question.options[1]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[2]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[2]}`}
+                                                            />
+
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[3]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[3]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[3]}`}
+                                                            />
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[4]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[4]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[4]}`}
+                                                            />
+                                                            <CustomFormControlLabel
+                                                                key={
+                                                                    question
+                                                                        .options[5]
+                                                                }
+                                                                value={
+                                                                    question
+                                                                        .options[5]
+                                                                }
+                                                                control={
+                                                                    <Radio />
+                                                                }
+                                                                label={`C: ${question.options[5]}`}
+                                                            />
+                                                        </>
+                                                    )}
+                                                </RadioGroup>
+                                            </FormControl>
+
+                                            {/* Thẻ xóa câu trả lời */}
+                                            <p
+                                                className={
+                                                    classes.resetChooseAnswer
+                                                }
+                                                onClick={() =>
+                                                    handleResetChooseAnswer(
+                                                        question._id
+                                                    )
                                                 }
                                             >
-                                                {question.options.length ===
-                                                1 ? (
-                                                    <CustomFormControlLabel
-                                                        key={
-                                                            question.options[0]
-                                                        }
-                                                        value={
-                                                            question.options[0]
-                                                        }
-                                                        control={<Radio />}
-                                                        label={`A: ${question.options[0]}`}
-                                                    />
-                                                ) : question.options.length ===
-                                                  2 ? (
-                                                    <>
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`A: ${question.options[0]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`B: ${question.options[1]}`}
-                                                        />
-                                                    </>
-                                                ) : question.options.length ===
-                                                  3 ? (
-                                                    <>
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`A: ${question.options[0]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`B: ${question.options[1]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[2]}`}
-                                                        />
-                                                    </>
-                                                ) : question.options.length ===
-                                                  4 ? (
-                                                    <>
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`A: ${question.options[0]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`B: ${question.options[1]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[2]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[3]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[3]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[3]}`}
-                                                        />
-                                                    </>
-                                                ) : question.options.length ===
-                                                  5 ? (
-                                                    <>
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`A: ${question.options[0]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`B: ${question.options[1]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[2]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[3]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[3]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[3]}`}
-                                                        />
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[4]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[4]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[4]}`}
-                                                        />
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[0]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`A: ${question.options[0]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[1]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`B: ${question.options[1]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[2]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[2]}`}
-                                                        />
-
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[3]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[3]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[3]}`}
-                                                        />
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[4]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[4]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[4]}`}
-                                                        />
-                                                        <CustomFormControlLabel
-                                                            key={
-                                                                question
-                                                                    .options[5]
-                                                            }
-                                                            value={
-                                                                question
-                                                                    .options[5]
-                                                            }
-                                                            control={<Radio />}
-                                                            label={`C: ${question.options[5]}`}
-                                                        />
-                                                    </>
-                                                )}
-                                            </RadioGroup>
-                                        </FormControl>
-
-                                        {/* Thẻ xóa câu trả lời */}
-                                        <p
-                                            className={
-                                                classes.resetChooseAnswer
-                                            }
-                                            onClick={() =>
-                                                handleResetChooseAnswer(
-                                                    question._id
-                                                )
-                                            }
-                                        >
-                                            Reset choose this answer
-                                        </p>
+                                                Reset choose this answer
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p
+                                    style={{
+                                        color: "#000",
+                                        margin: "50px 50px 0",
+                                    }}
+                                >
+                                    Không có câu hỏi
+                                </p>
+                            )}
 
                             {/* Nút chuyển trang */}
                             <div className={classes.pagination}>
@@ -1267,14 +1336,19 @@ const AnswerQuestionForm: React.FC = () => {
                         </p>
                     </DialogContent>
                     <DialogActions>
-                        <Box sx={{ display: "flex" }}>
-                            <Button onClick={handleViewGrade} color="primary">
+                        <Box sx={{ display: "flex", gap: "10px" }}>
+                            <Button
+                                onClick={handleViewGrade}
+                                className={`${classes3.btnColor3} ${classes3.btnMedium}`}
+                                color="primary"
+                            >
                                 View score
                             </Button>
                             <Button
                                 onClick={() =>
                                     router.push("/user/home-student")
                                 }
+                                className={`${classes3.btnColor3} ${classes3.btnMedium}`}
                                 color="primary"
                             >
                                 Close
@@ -1283,10 +1357,7 @@ const AnswerQuestionForm: React.FC = () => {
                     </DialogActions>
                 </Dialog>
 
-                <Dialog
-                    open={openGradeDialog}
-                    onClose={() => handleOpenGrade(false)}
-                >
+                <Dialog open={openGradeDialog} onClose={() => PassThrough}>
                     <DialogTitle>Your Grade </DialogTitle>
                     <DialogContent>
                         <p
@@ -1300,6 +1371,7 @@ const AnswerQuestionForm: React.FC = () => {
                     <DialogActions>
                         <Button
                             onClick={() => router.push("/user/home-student")}
+                            className={`${classes3.btnColor3} ${classes3.btnMedium}`}
                             color="primary"
                         >
                             Close
@@ -1324,8 +1396,8 @@ const AnswerQuestionForm: React.FC = () => {
                                     color: "#000",
                                 }}
                             >
-                                Bạn chưa trả lời hết câu hỏi. vui lòng kiểm tra
-                                lại!
+                                You haven't fully answered the question. Please
+                                double-check it!
                             </p>
                         ) : (
                             <p
@@ -1346,20 +1418,23 @@ const AnswerQuestionForm: React.FC = () => {
                         ).length > 0 ? (
                             <Button
                                 onClick={() => handleAlertSubmit(false)}
+                                className={`${classes3.btnColor3} ${classes3.btnMedium}`}
                                 color="primary"
                             >
                                 Continue
                             </Button>
                         ) : (
-                            <div style={{ display: "flex" }}>
+                            <div style={{ display: "flex", gap: "10px" }}>
                                 <Button
                                     onClick={() => handleAlertSubmit(false)}
+                                    className={`${classes3.btnColor3} ${classes3.btnMedium}`}
                                     color="primary"
                                 >
                                     Close
                                 </Button>
                                 <Button
                                     onClick={() => handleOpenSubmit(true)}
+                                    className={`${classes3.btnColor3} ${classes3.btnMedium}`}
                                     color="primary"
                                 >
                                     Submit
