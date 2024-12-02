@@ -1,9 +1,6 @@
 .examList {
 }
 
-.container {
-}
-
 .examItem {
     border-radius: 20px;
     border: 1px solid #ccc;
@@ -59,10 +56,13 @@
     z-index: 1000;
 }
 
+.container {
+    margin-top: 160px;
+}
+
 .questionBox {
     border: 1px solid #000;
     border-radius: 20px;
-    margin-top: 160px;
     width: 100%;
 }
 
