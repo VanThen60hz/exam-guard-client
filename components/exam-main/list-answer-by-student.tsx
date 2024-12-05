@@ -45,7 +45,8 @@ const ListAnswerByStudent: React.FC = () => {
   const router = useRouter();
   const { examId, studentId } = router.query;
   const [listAnswerByStudent, setListAnswerByStudent] = useState([]);
-  const [listAnswerByStudent2, setListAnswerByStudent2] = useState<Student | null>(null);
+  const [listAnswerByStudent2, setListAnswerByStudent2] =
+    useState<Student | null>(null);
 
   //Get List Cheating by Student
   useEffect(() => {
@@ -183,13 +184,6 @@ const ListAnswerByStudent: React.FC = () => {
             </Button>
           </Box>
         </Box>
-        {/* <Box
-          sx={{
-            borderBottom: "1px solid #ccc",
-            margin: "5px auto",
-            maxWidth: "60%",
-          }}
-        /> */}
         <Box
           sx={{
             border: "1px solid #ccc",
@@ -197,96 +191,73 @@ const ListAnswerByStudent: React.FC = () => {
             padding: "16px",
             margin: "20px auto",
             maxWidth: "50%",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
           }}
         >
           {listAnswerByStudent.map((asw, index) => (
             <Box
               key={asw._id}
-              style={{
+              sx={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                flexDirection: "column",
                 marginBottom: "20px",
-                // fontFamily: "Roboto",
+                padding: "10px",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                backgroundColor: "#f9f9f9",
               }}
             >
               <Box
-                style={{
-                  color: "#000",
-                  gap: "15px",
-                  fontSize: "20px",
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "10px",
                 }}
               >
                 <span
                   style={{
                     color: "#000",
                     fontWeight: "600",
+                    fontSize: "19px",
                   }}
                 >
                   {(page - 1) * limit + index + 1}. {asw.question.questionText}
                 </span>
+              </Box>
+              <Box
+                sx={{
+                  fontSize: "19px",
+                }}
+              >
+                {asw.question.options.map((option, i) => {
+                  const optionLetter = String.fromCharCode(65 + i); // A, B, C, D
+                  const isCorrectAnswer = asw.question.correctAnswer === option;
+                  const isStudentAnswer = asw.answerText === option;
 
-                <Box>
-                  {asw.question.options.map((option, i) => {
-                    const optionLetter = String.fromCharCode(65 + i); // A, B, C, D
-                    const isCorrectAnswer =
-                      asw.question.correctAnswer === option; // Kiểm tra câu trả lời đúng
-                    const isStudentAnswer = asw.answerText === option; // Kiểm tra câu trả lời của sinh viên
-
-                    return (
-                      <Box key={i}>
-                        <p
-                          style={{
-                            marginLeft: 10,
-                            color: isCorrectAnswer
-                              ? "#1DB0A6"
-                              : isStudentAnswer && !asw.isCorrect
-                              ? "red"
-                              : "#000", // Tô màu cho đáp án
-                          }}
-                        >
-                          {optionLetter}. {option}
-                        </p>
-                      </Box>
-                    );
-                  })}
-                  <Button
-                    sx={{ marginTop: 1 }}
-                    className={`${classes.btnGreen} ${classes.btnLarge} ${classes.btnBorderRadius}`}
-                    onClick={() => handleBackClick2(asw.question._id)}
-                  >
-                    View all students{" "}
-                  </Button>
-                  {/* <p
-                    style={{
-                      color: "#007e7d",
-                      fontSize: "18px",
-                    }}
-                  >
-                    Correct Answer:{" "}
-                    {asw.question.correctAnswer
-                      ? String.fromCharCode(
-                          65 +
-                            asw.question.options.indexOf(
-                              asw.question.correctAnswer
-                            )
-                        )
-                      : "N/A"}
-                  </p>
-                  <p
-                    style={{
-                      color: asw.answerText !== asw.question.correctAnswer ? "red" : "#007e7d",
-                      fontSize: "18px",
-                    }}
-                  >
-                    Answer Student:{" "}
-                    {asw.answerText
-                      ? String.fromCharCode(
-                          65 + asw.question.options.indexOf(asw.answerText)
-                        )
-                      : "N/A"}
-                  </p> */}
-                </Box>
+                  return (
+                    <Box key={i} sx={{ marginLeft: "10px" }}>
+                      <p
+                        style={{
+                          color: isCorrectAnswer
+                            ? "#1DB0A6"
+                            : isStudentAnswer && !asw.isCorrect
+                            ? "red"
+                            : "#000",
+                        }}
+                      >
+                        {optionLetter}. {option}
+                      </p>
+                    </Box>
+                  );
+                })}
+                <Button
+                  sx={{ marginTop: 1 }}
+                  className={`${classes.btnGreen} ${classes.btnLarge} ${classes.btnBorderRadius}`}
+                  onClick={() => handleBackClick2(asw.question._id)}
+                >
+                  View all students{" "}
+                </Button>
               </Box>
             </Box>
           ))}

@@ -29,17 +29,19 @@ const Hero: React.FC<HeroProps> = ({ loadingBarRef }) => {
             justifyContent="space-between"
             alignItems="start"
           >
-            <div className={classes.heroText}>
+            <div className={classes.heroText} style={{ marginTop: "30px" }}>
               <h1>
                 Online Exam Cheating Detection Platform using Face Detection
               </h1>
-              <p>
-                Detect cheating in online exams with the power of Artificial
-                Intelligence & Machine Learning
-              </p>
+              <h2 style={{ marginTop: "80px", marginLeft:"-100px", color:"#fff" }}>
+                ExamGuard is a cutting-edge platform that leverages AI and
+                machine learning to ensure the integrity of online exams,
+                providing a secure, reliable, and user-friendly experience
+                across web and Android devices
+              </h2>
 
               <Stack direction="row" className={classes.buttonGroup}>
-                <Link
+                {/* <Link
                   href="https://github.com/prathamesh-mutkure/anti-cheat-exam-app"
                   target="_blank"
                 >
@@ -62,7 +64,7 @@ const Hero: React.FC<HeroProps> = ({ loadingBarRef }) => {
                     >
                       SIGN IN
                     </Button>
-                  </Link>
+                  </Link> */}
                 {/* {session.status === "authenticated" ? (
                   <Link href="/dashboard">
                     <Button
