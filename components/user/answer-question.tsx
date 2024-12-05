@@ -17,6 +17,7 @@ import {
     Box,
     Modal,
 } from "@mui/material";
+import FolderOffIcon from "@mui/icons-material/FolderOff";
 
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
@@ -79,8 +80,14 @@ const AnswerQuestionForm: React.FC = () => {
     const router = useRouter();
     const { examId } = router.query;
 
-    const [currentDateTime, setCurrentDateTime] = useState<string>("");
     const [listData, setListData] = useState([]);
+    const [totalPage, setTotalPage] = useState(1);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    // List tất cả câu hỏi
+    const [allQuestion, setAllQuestion] = useState([]);
+    const page2 = 1;
+    const limit2 = 100000;
 
     const prevCheatingStatus = useRef<string | null>(null);
 
@@ -92,15 +99,12 @@ const AnswerQuestionForm: React.FC = () => {
 
     // State quản lý trạng thái của dialog và kết quả
     const [openDialog, setOpenDialog] = useState(false);
-
-    const [totalPage, setTotalPage] = useState(1);
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(10);
-
-    // List tất cả câu hỏi
-    const [allQuestion, setAllQuestion] = useState([]);
-    const page2 = 1;
-    const limit2 = 100000;
+    const [modalData, setModalData] = useState<{
+        title: string;
+        description: string;
+    }>();
+    const [openGradeDialog, setOpenGradeDialog] = useState(false);
+    const [openAlertSubmit, setOpenAlertSubmit] = useState(false);
 
     // totalTime là tổng thời gian làm bài, tính bằng giây
     const [timeLeft, setTimeLeft] = useState<RemainingTime | null>(null);
@@ -112,7 +116,6 @@ const AnswerQuestionForm: React.FC = () => {
     const webcamRef: React.LegacyRef<Webcam> = useRef();
     const faceDetectionRef = useRef<FaceDetection>(null);
     const realtimeDetection = true;
-
     const frameRefresh = 30;
     let currentFrame = useRef(0);
 
@@ -120,18 +123,9 @@ const AnswerQuestionForm: React.FC = () => {
 
     //chuyển tab
     const dispatch = useAppDispatch();
-
     const activeExam = useAppSelector((state) => state.exam.activeExam);
-
     const [didLeaveExam, setDidLeaveExam] = useState(false);
-
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [modalData, setModalData] = useState<{
-        title: string;
-        description: string;
-    }>();
-    const [openGradeDialog, setOpenGradeDialog] = useState(false);
-    const [openAlertSubmit, setOpenAlertSubmit] = useState(false);
 
     // Tạo mảng refs cho mỗi câu hỏi
     const questionRefs = useRef([]);
@@ -140,13 +134,9 @@ const AnswerQuestionForm: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [time, settime] = useState(false);
 
-    // Báo lỗi
     const [error, setError] = useState<string | null>(null);
-
-    // Get session data
     const { data: session, status } = useSession();
 
-    // Lấy danh sách câu hỏi
     useEffect(() => {
         if (status === "authenticated" && session) {
             const userId = session.userId;
@@ -274,7 +264,7 @@ const AnswerQuestionForm: React.FC = () => {
                             }
                         }
                     } else {
-                        lookingTime = 0; // Reset nếu không nhìn lệch
+                        lookingTime = 0;
                     }
                 }
             });
@@ -321,7 +311,6 @@ const AnswerQuestionForm: React.FC = () => {
         document.addEventListener("visibilitychange", handleVisibilityChange);
 
         return () => {
-            // Cleanup
             document.removeEventListener(
                 "visibilitychange",
                 handleVisibilityChange
@@ -394,8 +383,6 @@ const AnswerQuestionForm: React.FC = () => {
                     const userId = session.userId;
                     const accessToken = session.accessToken;
                     try {
-                        // const userId = session.userId;
-                        // const accessToken = session.accessToken;
                         const detect = await detect_cheating(
                             userId,
                             accessToken,
@@ -436,7 +423,6 @@ const AnswerQuestionForm: React.FC = () => {
 
     // Thời gian làm bài
     useEffect(() => {
-        // Cập nhật thời gian còn lại mỗi giây
         const intervalId = setInterval(() => {
             setTotalSeconds((prev) => {
                 if (prev > 0) {
@@ -457,7 +443,6 @@ const AnswerQuestionForm: React.FC = () => {
         }
     }, [timeLeft]);
 
-    // Tính toán thời gian còn lại theo định dạng phút và giây
     const formatTimeLeft = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -527,7 +512,6 @@ const AnswerQuestionForm: React.FC = () => {
                     answerText: value as string,
                 }
             );
-            console.log("Đã chọn: ", value as string);
         } catch (error) {
             console.error("Error answer:", error);
             setError(error.message);
@@ -562,21 +546,7 @@ const AnswerQuestionForm: React.FC = () => {
 
     // Nút nộp bài
     const handleSubmit = async () => {
-        console.log("Danh sách câu trả lời của người dùng:", answers);
-        const correctCount = answers.filter((ans) => {
-            const question = allQuestion.find((q) => q._id === ans.questionId);
-            return question && ans.answer === question.correctAnswer;
-        }).length;
-        console.log("Số câu đúng:", correctCount);
-
-        // Kiểm tra xem có câu hỏi nào chưa trả lời không
-        const unansweredQuestions = allQuestion.filter(
-            (question) =>
-                !answers.find((ans) => ans.questionId === question._id)
-        );
-
         handleAlertSubmit(true);
-        // }
     };
 
     const CustomFormControlLabel = styled(FormControlLabel)({
@@ -1079,14 +1049,23 @@ const AnswerQuestionForm: React.FC = () => {
                                     </div>
                                 ))
                             ) : (
-                                <p
+                                <div
                                     style={{
-                                        color: "#000",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "20px",
                                         margin: "50px 50px 0",
                                     }}
                                 >
-                                    Không có câu hỏi
-                                </p>
+                                    <p
+                                        style={{
+                                            color: "#6d6d6d",
+                                        }}
+                                    >
+                                        Empty question list
+                                    </p>
+                                    <FolderOffIcon />
+                                </div>
                             )}
 
                             {/* Nút chuyển trang */}
@@ -1218,9 +1197,6 @@ const AnswerQuestionForm: React.FC = () => {
                         {/* Thẻ camera */}
                         <div
                             style={{
-                                // display: "flex",
-                                // flexDirection: "column",
-                                // alignItems: "center",
                                 width: "100%",
                             }}
                         >
@@ -1234,14 +1210,14 @@ const AnswerQuestionForm: React.FC = () => {
                                     style={{
                                         maxWidth: "250px",
                                         color: "#000",
-                                        fontSize: "12px",
+                                        fontSize: "16px",
                                     }}
                                 >
                                     Cheating status:
                                 </p>
                                 <p
                                     className={classes.fontStyle}
-                                    style={{ fontSize: "12px" }}
+                                    style={{ fontSize: "14px" }}
                                 >
                                     {chetingStatus}
                                 </p>
@@ -1272,7 +1248,7 @@ const AnswerQuestionForm: React.FC = () => {
                 ></div>
 
                 {/* Nút nộp bài */}
-                {page === totalPage && ( // Hiển thị nút submit chỉ khi đang ở trang cuối
+                {page === totalPage && (
                     <Button
                         className={classes2.button}
                         fullWidth
@@ -1365,7 +1341,8 @@ const AnswerQuestionForm: React.FC = () => {
                                 color: "#000",
                             }}
                         >
-                            Score: {grade !== null ? grade : "Loading..."}
+                            Score:{" "}
+                            {grade !== null ? grade.toFixed(2) : "Loading..."}
                         </p>
                     </DialogContent>
                     <DialogActions>
@@ -1396,8 +1373,8 @@ const AnswerQuestionForm: React.FC = () => {
                                     color: "#000",
                                 }}
                             >
-                                You haven't fully answered the question. Please
-                                double-check it!
+                                You have not fully answered the question. Please
+                                recheck!
                             </p>
                         ) : (
                             <p

@@ -1,25 +1,5 @@
 import { BASE_URL } from "../../constants";
 
-// const getExam = async (studentId: string, examId: string, token: string) => {
-//   try {
-//     const res = await fetch(`${BASE_URL}/${studentId}/exam/${examId}`, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-
-//     const data = await res.json();
-
-//     if (!res.ok || data.err) {
-//       throw new Error(data.err || "Failed to get exam from server!");
-//     }
-
-//     return data;
-//   } catch (e) {
-//     throw e;
-//   }
-// };
-
 const getAssignedExams = async (userId: string, token: string) => {
     // TODO: handle res.json() error when response not in json
 
@@ -55,6 +35,7 @@ const getExam = async (id: string, accessToken: string, examId: string) => {
             method: "GET",
             headers: myHeaders,
         });
+        console.log("Get exam successfully");
 
         const data = await res.json();
 
@@ -74,10 +55,6 @@ const getListExam = async (
     limit: number
 ) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
-        // Create a Headers object
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
         myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
@@ -89,6 +66,7 @@ const getListExam = async (
                 headers: myHeaders, // Use the Headers object
             }
         );
+        console.log("Get exam list successfully");
 
         const data = await res.json();
 
@@ -110,10 +88,6 @@ const listQuestionStudent = async (
     limit: number
 ) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
-        // Create a Headers object
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
         myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
@@ -125,6 +99,7 @@ const listQuestionStudent = async (
                 headers: myHeaders, // Use the Headers object
             }
         );
+        console.log("Get question list successfully");
 
         const data = await res.json();
 
@@ -140,10 +115,6 @@ const listQuestionStudent = async (
 
 const searchExam = async (id: string, accessToken: string, query: string) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-        console.log("Search Query:", query);
-
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken);
         myHeaders.append("x-client-id", id || "");
@@ -186,6 +157,7 @@ const deleteExam = async (
             headers: myHeaders,
             body: JSON.stringify(examData),
         });
+        console.log("Delete exam successfully");
 
         const data = await res.json();
 
@@ -200,9 +172,6 @@ const deleteExam = async (
 
 const createExam = async (id: string, accessToken: string, exam: any) => {
     try {
-        console.log("Creating user with ID:", id);
-        console.log("Access Token:", accessToken);
-
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken);
         myHeaders.append("x-client-id", id);
@@ -213,6 +182,7 @@ const createExam = async (id: string, accessToken: string, exam: any) => {
             headers: myHeaders,
             body: JSON.stringify(exam),
         });
+        console.log("Create exam successfully");
 
         const data = await res.json();
 
@@ -244,6 +214,7 @@ const updateExam = async (
             headers: myHeaders,
             body: JSON.stringify(examData),
         });
+        console.log("Update exam successfully");
 
         const data = await res.json();
 
@@ -273,6 +244,7 @@ const createQuestion = async (
             headers: myHeaders,
             body: JSON.stringify(questionData),
         });
+        console.log("Create question successfully");
 
         const data = await res.json();
 
@@ -307,6 +279,7 @@ const getExamsByStatus = async (
                 headers: myHeaders,
             }
         );
+        console.log("Get exam successfully");
 
         const data = await res.json();
 
@@ -326,9 +299,6 @@ const getExamById = async (
     accessToken: string
 ) => {
     try {
-        console.log("Exam ID:", examId);
-        console.log("Access Token:", accessToken);
-
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
         myHeaders.append("x-client-id", userId || ""); // Use the user ID as the client ID
@@ -338,10 +308,9 @@ const getExamById = async (
             method: "GET",
             headers: myHeaders,
         });
+        console.log("Get exam successfully");
 
-        console.log("Response Status:", res.status); // Log trạng thái phản hồi
         const data = await res.json();
-        console.log("Response Data:", data); // Log toàn bộ dữ liu phản hồi
 
         if (!res.ok || data.err) {
             throw new Error(data.err || "Failed to get exam");
@@ -361,9 +330,6 @@ const listQuestionTeacher = async (
     limit: number
 ) => {
     try {
-        console.log("Exam ID:", examId);
-        console.log("Access Token:", accessToken);
-
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
         myHeaders.append("x-client-id", userId || ""); // Use the user ID as the client ID
@@ -376,10 +342,9 @@ const listQuestionTeacher = async (
                 headers: myHeaders,
             }
         );
+        console.log("Get question list successfully");
 
-        console.log("Response Status:", res.status); // Log trạng thái phản hồi
         const data = await res.json();
-        console.log("Response Data:", data); // Log toàn bộ dữ liu phản hồi
 
         if (!res.ok || data.err) {
             throw new Error(data.err || "Failed to get questions");
@@ -398,8 +363,6 @@ const updateQuestion = async (
     questionData: any // Consider defining a specific interface for questionData
 ) => {
     try {
-        console.log("Access Token:", accessToken);
-
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken);
         myHeaders.append("x-client-id", userId);
@@ -413,6 +376,7 @@ const updateQuestion = async (
                 body: JSON.stringify(questionData),
             }
         );
+        console.log("Update question successfully");
 
         const data = await res.json();
 
@@ -464,10 +428,6 @@ const searchQuestions = async (
     query: any
 ) => {
     try {
-        console.log("Exam ID:", examId);
-        console.log("Access Token:", accessToken);
-        console.log("Search Query:", query);
-
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken);
         myHeaders.append("x-client-id", id || ""); // Use examId as the client ID
@@ -482,8 +442,6 @@ const searchQuestions = async (
                 headers: myHeaders,
             }
         );
-
-        console.log("Response Status:", res.status); // Log the response status
         const data = await res.json();
 
         if (!res.ok || data.status !== 200) {
@@ -587,9 +545,6 @@ const getGradeStudent = async (
     examId: string
 ) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
         // Create a Headers object
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
@@ -599,6 +554,7 @@ const getGradeStudent = async (
             method: "GET",
             headers: myHeaders, // Use the Headers object
         });
+        console.log("Get grade student successfully");
 
         const data = await res.json();
 
@@ -617,9 +573,6 @@ const getListGrade = async (
     limit: number
 ) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
         // Create a Headers object
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
@@ -632,6 +585,7 @@ const getListGrade = async (
                 headers: myHeaders, // Use the Headers object
             }
         );
+        console.log("Get grade list successfully");
 
         const data = await res.json();
 
@@ -654,10 +608,6 @@ const getListAnswerByStudent = async (
     limit: number
 ) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
-        // Create a Headers object
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
         myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
@@ -669,6 +619,7 @@ const getListAnswerByStudent = async (
                 headers: myHeaders, // Use the Headers object
             }
         );
+        console.log("Get answer's student list successfully");
 
         const data = await res.json();
 
@@ -692,10 +643,6 @@ const getListAnswerByQuestion = async (
     limit: number
 ) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
-        // Create a Headers object
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
         myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
@@ -707,6 +654,7 @@ const getListAnswerByQuestion = async (
                 headers: myHeaders, // Use the Headers object
             }
         );
+        console.log("Get list answer by question successfully");
 
         const data = await res.json();
 
@@ -729,10 +677,6 @@ const getGradeHistory = async (
     limit: number
 ) => {
     try {
-        console.log("User ID:", id);
-        console.log("Access Token:", accessToken);
-
-        // Create a Headers object
         const myHeaders = new Headers();
         myHeaders.append("Authorization", accessToken); // Use the access token directly
         myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
@@ -744,6 +688,7 @@ const getGradeHistory = async (
                 headers: myHeaders, // Use the Headers object
             }
         );
+        console.log("Get grade history successfully");
 
         const data = await res.json();
 

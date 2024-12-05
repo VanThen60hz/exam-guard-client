@@ -3,9 +3,6 @@ import {
     Container,
     TextField,
     Button,
-    Typography,
-    Avatar,
-    Modal,
     Box,
     Stack,
     Autocomplete,
@@ -34,13 +31,9 @@ const HomeStudentForm: React.FC = () => {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(100000);
 
-    // Router chuyển page
     const router = useRouter();
 
-    // Load trang
     const [loading, setLoading] = useState(false);
-
-    // Báo lỗi
     const [error, setError] = useState<string | null>(null);
 
     // Get session data
@@ -64,9 +57,7 @@ const HomeStudentForm: React.FC = () => {
                             limit
                         );
                         setListData(listExam);
-                        console.log("List exam:", listExam);
                     } catch (error) {
-                        console.error("Error getting exam:", error);
                         toast.error("Failed to fetch exam");
                         setError(error.message);
                     }
@@ -75,7 +66,7 @@ const HomeStudentForm: React.FC = () => {
             setLoading(false);
             return listData;
         };
-        fetchListExams(); // Call the function to fetch user profile
+        fetchListExams();
     }, [status, session]);
 
     const handleSearch = async (
@@ -90,13 +81,12 @@ const HomeStudentForm: React.FC = () => {
                     value
                 );
                 setListData(exam);
-                setPage(1); // Reset to first page when search is performed
+                setPage(1);
                 console.log(exam);
             } catch (error) {
                 toast.error("Failed to search users");
             }
         } else {
-            // If search term is empty, reset to the full user list
             const exam = await getListExam(
                 session.userId,
                 session.accessToken,
@@ -116,7 +106,6 @@ const HomeStudentForm: React.FC = () => {
             session.accessToken,
             exam._id
         );
-        console.log("examid: ", join);
         if (join == 200) {
             router.push({
                 pathname: "/user/answer-question",
@@ -129,7 +118,7 @@ const HomeStudentForm: React.FC = () => {
 
     const formatDateTime = (dateTime: string) => {
         if (!dateTime) {
-            return "Không có dữ liệu"; // Hoặc một giá trị mặc định khác
+            return "Have not data";
         }
         // Cắt chuỗi để lấy các phần
         const [datePart, timePart] = dateTime.split("T");
