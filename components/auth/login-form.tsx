@@ -111,7 +111,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
         } else if (userRole === "STUDENT") {
           router.replace("/user/home-student");
         } else {
-          throw new Error("Role không hợp lệ");
+          throw new Error("Invalid role");
         }
       }
     } catch (e) {
@@ -336,13 +336,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
               </div>
             </div>
           </div>
-
-          {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
         </Container>
       </Box>
-      {/* <div className={classes.footerContainer}>
-          <Footer />
-        </div> */}
     </React.Fragment>
   );
 };

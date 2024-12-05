@@ -1,11 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { createExam } from "../../helpers/api/exam-api";
 import { useSession } from "next-auth/react";
@@ -47,9 +41,6 @@ const CreateExamForm: React.FC = () => {
   const { data: session, status } = useSession();
   const [errors, setErrors] = useState<Errors>({});
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const loadingBarRef = useRef(null);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -142,14 +133,6 @@ const CreateExamForm: React.FC = () => {
       ...prevData,
       [name]: value, // Cập nhật giá trị vào formData
     }));
-  };
-
-  const saveStartTime = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStartTime(e.target.value);
-  };
-
-  const saveEndTime = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndTime(e.target.value);
   };
 
   return (
@@ -276,7 +259,6 @@ const CreateExamForm: React.FC = () => {
                     inputRef={dateInputRef}
                     onChange={(e) => {
                       handleEditChange(e);
-                      saveStartTime(e as React.ChangeEvent<HTMLInputElement>);
                     }}
                   />
                   {errors.startTime && (
@@ -302,7 +284,6 @@ const CreateExamForm: React.FC = () => {
                     inputRef={dateInputRef}
                     onChange={(e) => {
                       handleEditChange(e);
-                      saveEndTime(e as React.ChangeEvent<HTMLInputElement>);
                     }}
                   />
                   {errors.endTime && (
