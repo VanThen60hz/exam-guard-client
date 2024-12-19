@@ -160,7 +160,7 @@ const AnswerQuestionForm: React.FC = () => {
                             timeLeft.minutes * 60 + timeLeft.seconds
                         );
                     } catch (error) {
-                        console.error("Error getting Questions:", error);
+                        //toast.error("Failed to get Questions:");
                         setError(error.message);
                     }
                 }
@@ -181,7 +181,6 @@ const AnswerQuestionForm: React.FC = () => {
                         );
                         setAllQuestion(allQuestions.questions);
                     } catch (error) {
-                        console.error("Error getting all Questions:", error);
                         setError(error.message);
                     }
                 }
@@ -212,32 +211,47 @@ const AnswerQuestionForm: React.FC = () => {
             });
 
             faceDetection.onResults(async (result: Results) => {
-                if (!result.detections || result.detections.length === 0) {
-                    // Không phát hiện khuôn mặt
-                    return;
-                }
-                if (result.detections.length > 1) {
-                    // Phát hiện nhiều hơn 1 khuôn mặt
-                    return;
-                }
-
                 const faceCoordinates = extractFaceCoordinates(result);
-                const [lookingLeft, lookingRight] = detectCheating(
+                const [lookingLeft, lookingRight, noFace] = detectCheating(
                     faceCoordinates,
                     false
                 );
+                const cheatingStatus = getCheatingStatus(
+                    lookingLeft,
+                    lookingRight,
+                    noFace
+                );
+                // if (!result.detections || result.detections.length === 0) {
+                //     console.log("k hiện mặt");
+                // }
 
                 if (status === "authenticated" && session) {
-                    const cheatingStatus = getCheatingStatus(
-                        lookingLeft,
-                        lookingRight
-                    );
+                    if (result.detections.length > 1) {
+                        setChetingStatus("Detect multiple faces");
+                        try {
+                            await detect_cheating(
+                                session.userId,
+                                session.accessToken,
+                                examId as string,
+                                {
+                                    infractionType: "Face",
+                                    description:
+                                        "Student looks away from the test screen.",
+                                }
+                            );
+                            console.log("Nhiều khuôn mặt!");
+                        } catch (error) {
+                            toast.error("Failed to call detect_cheating API");
+                        }
+                    } else {
+                        setChetingStatus(cheatingStatus);
+                    }
                     if (cheatingStatus !== prevCheatingStatus.current) {
                         prevCheatingStatus.current = cheatingStatus;
                         setChetingStatus(cheatingStatus);
                     }
 
-                    if (lookingLeft || lookingRight) {
+                    if (lookingLeft || lookingRight || noFace) {
                         lookingTime += 1;
                         console.log("phát hiện: ", lookingTime);
 
@@ -255,9 +269,8 @@ const AnswerQuestionForm: React.FC = () => {
                                 );
                                 console.log("Rời mắt khỏi màn hình à!");
                             } catch (error) {
-                                console.error(
-                                    "Error calling detect_cheating API:",
-                                    error
+                                toast.error(
+                                    "Failed to call detect_cheating API"
                                 );
                             } finally {
                                 lookingTime = 0;
