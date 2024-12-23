@@ -117,7 +117,7 @@ I'm currently making some final changes to the web app and will soon update this
 
 ## Points to remember while testing the app
 
-1. First setup the backend by following the instructions in this [repository](https://github.com/prathamesh-mutkure/anti-cheat-app-backend)
+1. First setup the backend by following the instructions in this [repository](https://github.com/VanThen60hz/exam-guard-server)
 
 2. The test username and password are given in the login form
 
