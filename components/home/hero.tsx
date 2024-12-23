@@ -42,7 +42,7 @@ const Hero: React.FC<HeroProps> = ({ loadingBarRef }) => {
 
               <Stack direction="row" className={classes.buttonGroup}>
                 {/* <Link
-                  href="https://github.com/prathamesh-mutkure/anti-cheat-exam-app"
+                  href="#"
                   target="_blank"
                 >
                   <Button
