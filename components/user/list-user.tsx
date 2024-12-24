@@ -177,7 +177,7 @@ const ListUserForm: React.FC = () => {
     };
 
     fetchListUser();
-  }, [status, session, page, limit]);
+  }, [status, session, page, limit, total]);
 
   useEffect(() => {
     let filtered = listUser;
@@ -484,8 +484,10 @@ const ListUserForm: React.FC = () => {
               backgroundColor: "white",
               top: "2px",
               left: status === "ACTIVE" ? "22px" : "2px",
-              transition: "left 0.3s ease, background-color 0.3s ease, transform 0.3s ease",
-              transform: status === "ACTIVE" ? "translateX(-2px)" : "translateX(0)",
+              transition:
+                "left 0.3s ease, background-color 0.3s ease, transform 0.3s ease",
+              transform:
+                status === "ACTIVE" ? "translateX(-2px)" : "translateX(0)",
             },
           }}
         />
@@ -798,9 +800,7 @@ const ListUserForm: React.FC = () => {
                   <StyledTableCell>{user.address}</StyledTableCell>
                   <StyledTableCell>
                     <StatusToggle
-                      initialStatus={
-                        user.status as "ACTIVE" | "INACTIVE"
-                      }
+                      initialStatus={user.status as "ACTIVE" | "INACTIVE"}
                       onChange={(newStatus) => {
                         if (editingUser && editingUser._id === user._id) {
                           setEditingUser({

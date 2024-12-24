@@ -28,6 +28,7 @@
         "@mediapipe/face_detection": "^0.4.1646425229",
         "@mui/icons-material": "^5.10.9",
         "@mui/material": "^5.10.10",
+        "@next/bundle-analyzer": "^15.1.2",
         "@reduxjs/toolkit": "^1.8.6",
         "axios": "^1.7.7",
         "exam-guard-client": "file:",

@@ -35,7 +35,6 @@ import {
     printLandmarks,
 } from "../../helpers/face-detection/face-detection-helper";
 
-import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
     getBrowserDocumentHiddenProp,
     getBrowserVisibilityProp,
@@ -122,8 +121,8 @@ const AnswerQuestionForm: React.FC = () => {
     const [chetingStatus, setChetingStatus] = useState("");
 
     //chuyển tab
-    const dispatch = useAppDispatch();
-    const activeExam = useAppSelector((state) => state.exam.activeExam);
+    // const dispatch = useAppDispatch();
+    // const activeExam = useAppSelector((state) => state.exam.activeExam);
     const [didLeaveExam, setDidLeaveExam] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
 

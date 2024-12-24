@@ -7,30 +7,30 @@ export interface UserState {
   isLoggedIn: boolean;
 }
 
-const initialState: UserState = {
-  user: { id: null, fname: null, lname: null, token: null },
-  isLoggedIn: false,
-};
+// const initialState: UserState = {
+//   // user: { id: null, fname: null, lname: null, token: null },
+//   isLoggedIn: false,
+// };
 
-const userSlice = createSlice({
-  name: "user",
-  initialState: initialState,
-  reducers: {
-    setUser: (
-      state: UserState,
-      action: PayloadAction<typeof initialState.user>
-    ) => {
-      state.user = action.payload;
-      state.isLoggedIn = true;
-    },
+// const userSlice = createSlice({
+//   name: "user",
+//   initialState: initialState,
+//   reducers: {
+//     setUser: (
+//       state: UserState,
+//       action: PayloadAction<typeof initialState.user>
+//     ) => {
+//       state.user = action.payload;
+//       state.isLoggedIn = true;
+//     },
 
-    removeUser: (state: UserState) => {
-      state = initialState;
-    },
-  },
-});
+//     removeUser: (state: UserState) => {
+//       state = initialState;
+//     },
+//   },
+// });
 
-const userActions = userSlice.actions;
+// const userActions = userSlice.actions;
 
-export default userSlice;
-export { userActions };
+// export default userSlice;
+// export { userActions };
