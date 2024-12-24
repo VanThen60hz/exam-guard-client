@@ -1,7 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getUser } from "../../../helpers/api/user-api";
-import { User } from "../../../models/user-models";
 
 // Cấu hình NextAuth
 export const authOptions: NextAuthOptions = {

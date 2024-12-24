@@ -6,6 +6,7 @@ import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import NavBarHome from "../../components/home/navbar-home";
 import CreateExamFrom from "../../components/exam-main/create-exam";
 
+
 const CreateExam = () => {
   const loadingBarRef: React.Ref<LoadingBarRef> = useRef(null);
 

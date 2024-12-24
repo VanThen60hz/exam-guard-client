@@ -207,7 +207,7 @@ const EditExamForm: React.FC = () => {
     const fetchExamData = async () => {
       if (status === "authenticated" && session) {
         try {
-          exam = await getExamById(
+          const exam = await getExamById(
             examId as string,
             session.userId,
             session.accessToken

@@ -89,7 +89,7 @@ const ManageExamForm: React.FC = () => {
     };
 
     fetchListExam();
-  }, [status, session, page, limit]);
+  }, [status, session, page, limit, total]);
 
   // Get exams by status
   useEffect(() => {

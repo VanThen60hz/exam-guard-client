@@ -3,8 +3,6 @@ import { getSession, useSession } from "next-auth/react";
 import Head from "next/head";
 import { useEffect, useRef } from "react";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
-import Dashboard from "../../components/dashboard/dashboard";
-import NavBarDashboard from "../../components/dashboard/navbar-dashboard";
 import { getAssignedExams } from "../../helpers/api/exam-api";
 import { useAppDispatch } from "../../hooks";
 import { AssignedExam } from "../../models/exam-models";
@@ -37,8 +35,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ exams, error }) => {
                 <title>ExamGuard App Dashboard</title>
             </Head>
             <LoadingBar color="#ffffff" ref={loadingBarRef} />
-            <NavBarDashboard loadingBarRef={loadingBarRef} />
-            <Dashboard loadingBarRef={loadingBarRef} />
         </div>
     );
 };

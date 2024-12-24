@@ -1,14 +1,8 @@
 import React from "react";
-import { useAppSelector } from "../../hooks";
-import { useTimer } from "react-timer-hook";
 import classes from "./footer.module.scss";
 import { Button, Container, Grid, Stack, Typography } from "@mui/material";
 import Image from "next/image";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import LoginIcon from "@mui/icons-material/Login";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
+
 
 interface FooterProps {}
 
