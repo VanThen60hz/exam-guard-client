@@ -17,6 +17,7 @@ import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import Image from "next/image";
 import { getListCheatingStatistic } from "../../helpers/api/cheating-api";
 
 // Icons
@@ -47,10 +48,17 @@ const ListCheatingForm: React.FC = () => {
   const [previousViolations, setPreviousViolations] = useState<{
     [key: string]: number;
   }>({}); // Lưu trữ totalViolations trước đó
+  const [dataEmpty, setDataEmpty] = useState(false); // Thêm state để kiểm tra dữ liệu rỗng
 
   //Get List Cheating Statistic
   const fetchListCheating = async () => {
     setLoading(true);
+    setDataEmpty(false); // Đặt lại trạng thái dữ liệu rỗng khi bắt đầu tải
+      setTimeout(() => {
+        if (listCheating.length === 0) {
+          setDataEmpty(true); // Đặt trạng thái dữ liệu rỗng sau 5 giây
+        }
+      }, 5000);
     if (status === "authenticated" && session && examId) {
       const userId = session.userId;
       const accessToken = session.accessToken;
@@ -321,6 +329,19 @@ const ListCheatingForm: React.FC = () => {
           </Table>
         </TableContainer>
       </Box>
+      {dataEmpty && (
+        <Box sx={{ textAlign: "center", marginTop: 2 }}>
+          <Image
+            src="/images/icon/empty-box.png"
+            alt="No data"
+            width={300}
+            height={300}
+          />
+          <p style={{ color: "#000", fontSize: "18px" }}>
+            Empty data, please check back later!
+          </p>
+        </Box>
+      )}
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
           count={totalPage}

@@ -17,6 +17,7 @@ import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import Image from "next/image";
 import { getListGrade } from "../../helpers/api/exam-api";
 
 // Icons
@@ -37,11 +38,18 @@ const ListGradeForm: React.FC = () => {
   const [limit, setLimit] = useState(5);
   const router = useRouter();
   const { examId } = router.query;
+  const [dataEmpty, setDataEmpty] = useState(false); 
 
   //Get List Grade
   useEffect(() => {
     const fetchListGrade = async () => {
       setLoading(true);
+      setDataEmpty(false); 
+      setTimeout(() => {
+        if (listGrade.length === 0) {
+          setDataEmpty(true); 
+        }
+      }, 5000);
       if (status === "authenticated" && session && examId) {
         const userId = session.userId;
         const accessToken = session.accessToken;
@@ -259,6 +267,19 @@ const ListGradeForm: React.FC = () => {
           </Table>
         </TableContainer>
       </Box>
+      {dataEmpty && (
+        <Box sx={{ textAlign: "center", marginTop: 2 }}>
+          <Image
+            src="/images/icon/empty-box.png"
+            alt="No data"
+            width={300}
+            height={300}
+          />
+          <p style={{ color: "#000", fontSize: "18px" }}>
+            Empty data, please check back later!
+          </p>
+        </Box>
+      )}
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
           count={totalPage}

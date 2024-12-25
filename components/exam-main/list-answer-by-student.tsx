@@ -17,6 +17,7 @@ import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { getListAnswerByStudent } from "../../helpers/api/exam-api";
+import Image from "next/image";
 
 // Icons
 import UndoIcon from "@mui/icons-material/Undo";
@@ -26,6 +27,7 @@ import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
 import classes from "../../components/exam-main/manage-exam.module.scss";
+import { log } from "console";
 
 // Định nghĩa interface cho Student
 interface Student {
@@ -47,11 +49,19 @@ const ListAnswerByStudent: React.FC = () => {
   const [listAnswerByStudent, setListAnswerByStudent] = useState([]);
   const [listAnswerByStudent2, setListAnswerByStudent2] =
     useState<Student | null>(null);
+  const [dataEmpty, setDataEmpty] = useState(false); // Thêm state để kiểm tra dữ liệu rỗng
 
   //Get List Cheating by Student
   useEffect(() => {
     const fetchListAnswerByStudent = async () => {
       setLoading(true);
+      setDataEmpty(false); // Đặt lại trạng thái dữ liệu rỗng khi bắt đầu tải
+      setTimeout(() => {
+        if (listAnswerByStudent.length === 0) {
+          setDataEmpty(true); // Đặt trạng thái dữ liệu rỗng sau 5 giây
+        }
+      }, 5000);
+
       if (status === "authenticated" && session && examId && studentId) {
         const userId = session.userId;
         const accessToken = session.accessToken;
@@ -68,6 +78,7 @@ const ListAnswerByStudent: React.FC = () => {
             setListAnswerByStudent(listAnswerByStudent.answers);
             setListAnswerByStudent2(listAnswerByStudent.student);
             setTotalPage(listAnswerByStudent.totalPages);
+            console.log("alo", listAnswerByStudent);
           } catch (error) {
             toast.error("Failed to fetch list answer by student");
           }
@@ -263,6 +274,19 @@ const ListAnswerByStudent: React.FC = () => {
           ))}
         </Box>
       </Box>
+      {dataEmpty && (
+        <Box sx={{ textAlign: "center", marginTop: 2 }}>
+          <Image
+            src="/images/icon/empty-box.png"
+            alt="No data"
+            width={300}
+            height={300}
+          />
+          <p style={{ color: "#000", fontSize: "18px" }}>
+            Empty data, please check back later!
+          </p>
+        </Box>
+      )}
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
           count={totalPage}
