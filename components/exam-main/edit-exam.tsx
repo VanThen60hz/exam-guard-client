@@ -53,6 +53,12 @@ interface ExamData {
   // Add other properties as needed
 }
 
+type Errors = {
+  title?: string;
+  description?: string;
+  duration?: string;
+};
+
 const EditExamForm: React.FC = () => {
   const [listData, setListData] = useState([]);
   const [examData, setExamData] = useState<ExamData | null>(null);
@@ -72,7 +78,6 @@ const EditExamForm: React.FC = () => {
   const limit2 = 100000;
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { data: session, status } = useSession();
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false); // Trạng thái modal xác nhận xóa
@@ -87,6 +92,7 @@ const EditExamForm: React.FC = () => {
   const [questionToDelete, setQuestionToDelete] = useState<string | null>(null); // Câu hỏi cần xóa
   const [listExam, setListExam] = useState([]);
   const [editingExam, setEditingExam] = useState(null);
+  const [errors, setErrors] = useState<Errors>({});
 
   useEffect(() => {
     setLoading(true);
@@ -112,6 +118,20 @@ const EditExamForm: React.FC = () => {
   };
 
   const handleEditSave = async () => {
+    const newErrors: Errors = {}; // Khởi tạo newErrors
+    if (!editingExam?.title) {
+      newErrors.title = "Title is required";
+    }
+    if (!editingExam?.description) {
+      newErrors.description = "Description is required";
+    }
+    if (!editingExam?.duration) {
+      newErrors.duration = "Duration is required";
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      return; // Dừng lại nếu có lỗi
+    }
     try {
       await handleSaveEdit(editingExam);
       setEditingExam(null);
@@ -167,8 +187,7 @@ const EditExamForm: React.FC = () => {
           setTotalPage(listQuestions.totalPages);
           setOriginPage(listQuestions.totalPages);
         } catch (error) {
-          console.error("Failed to get all questions:", error);
-          setError(error.message);
+          toast.error("Failed to get all questions");
         } finally {
           setLoading(false);
         }
@@ -194,8 +213,7 @@ const EditExamForm: React.FC = () => {
             );
             setAllQuestion(allQuestions.questions);
           } catch (error) {
-            console.error("Failed to get all questions:", error);
-            setError(error.message);
+            toast.error("Failed to get all questions:");
           } finally {
             setLoading(false);
           }
@@ -215,11 +233,10 @@ const EditExamForm: React.FC = () => {
           setExamData(exam);
           console.log(exam);
         } catch (error) {
-          console.error("Error fetching exam data:", error);
-          setError("Failed to fetch exam data.");
+          toast.error("Failed to fetch exam data.");
         }
       } else {
-        setError("User is not authenticated.");
+        toast.error("User is not authenticated.");
       }
     };
 
@@ -533,6 +550,11 @@ const EditExamForm: React.FC = () => {
                     onChange={handleEditChange}
                     className={classes.textFieldCustom}
                   />
+                  {errors.title && (
+                    <Typography variant="body2" sx={{ color: "red" }}>
+                      {errors.title}
+                    </Typography>
+                  )}
                 </Box>
                 <Box sx={{ marginBottom: 2, width: "100%" }}>
                   <Typography
@@ -556,12 +578,16 @@ const EditExamForm: React.FC = () => {
                     onChange={handleEditChange}
                     className={classes.textFieldCustom}
                   />
+                  {errors.description && (
+                    <Typography variant="body2" sx={{ color: "red" }}>
+                      {errors.description}
+                    </Typography>
+                  )}
                 </Box>
               </Box>
               <Box
                 sx={{
                   display: "flex",
-                  alignItems: "center",
                   marginBottom: 3,
                 }}
                 className={classes.textFieldCustom}
@@ -587,6 +613,16 @@ const EditExamForm: React.FC = () => {
                         : ""
                     }
                     onChange={handleEditChange}
+                    inputProps={{
+                      min: new Date(
+                        new Date().setMinutes(
+                          new Date().getMinutes() -
+                            new Date().getTimezoneOffset()
+                        )
+                      )
+                        .toISOString()
+                        .slice(0, 16), // Ràng buộc không chọn ngày đã qua
+                    }}
                   />
                 </Box>
                 <Box sx={{ minWidth: 330, marginRight: "20px" }}>
@@ -610,6 +646,16 @@ const EditExamForm: React.FC = () => {
                         : ""
                     }
                     onChange={handleEditChange}
+                    inputProps={{
+                      min: new Date(
+                        new Date().setMinutes(
+                          new Date().getMinutes() -
+                            new Date().getTimezoneOffset()
+                        )
+                      )
+                        .toISOString()
+                        .slice(0, 16), // Ràng buộc không chọn ngày đã qua
+                    }}
                   />
                 </Box>
                 <Box sx={{ minWidth: 300, width: "100%" }}>
@@ -636,6 +682,11 @@ const EditExamForm: React.FC = () => {
                       ),
                     }}
                   />
+                  {errors.duration && (
+                    <Typography variant="body2" sx={{ color: "red" }}>
+                      {errors.duration}
+                    </Typography>
+                  )}
                 </Box>
               </Box>
               <Box

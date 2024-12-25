@@ -3,8 +3,6 @@ import classes from "./home.module.scss";
 import { Button, Container, Stack } from "@mui/material";
 import Image from "next/image";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import LoginIcon from "@mui/icons-material/Login";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { LoadingBarRef } from "react-top-loading-bar";
@@ -33,7 +31,13 @@ const Hero: React.FC<HeroProps> = ({ loadingBarRef }) => {
               <h1>
                 Online Exam Cheating Detection Platform using Face Detection
               </h1>
-              <h2 style={{ marginTop: "80px", marginLeft:"-100px", color:"#fff" }}>
+              <h2
+                style={{
+                  marginTop: "80px",
+                  marginLeft: "-100px",
+                  color: "#fff",
+                }}
+              >
                 ExamGuard is a cutting-edge platform that leverages AI and
                 machine learning to ensure the integrity of online exams,
                 providing a secure, reliable, and user-friendly experience
@@ -41,45 +45,25 @@ const Hero: React.FC<HeroProps> = ({ loadingBarRef }) => {
               </h2>
 
               <Stack direction="row" className={classes.buttonGroup}>
-                {/* <Link
-                  href="#"
-                  target="_blank"
+                <Link
+                  href="https://github.com/TranPhuocTin/ExamGuardApp"
+                  passHref
                 >
-                  <Button
-                    startIcon={<GitHubIcon />}
-                    variant="contained"
-                    style={{ backgroundColor: "#007E7D", fontWeight: "bold", width: "200px", height: "50px" }}
-                  >
-                    MOBILE APP
-                  </Button>
-                </Link>
-                <Link href="/auth/login">
+                  <a target="_blank" rel="noopener noreferrer">
                     <Button
-                      startIcon={<LoginIcon />}
+                      startIcon={<GitHubIcon />}
                       variant="contained"
-                      size="large"
-                      style={{ backgroundColor: "#007E7D", fontWeight: "bold",  width: "200px", height: "50px" }}
-                      disabled={session.status === "loading"}
-                      onClick={showLoadingWidget}
+                      style={{
+                        backgroundColor: "#007E7D",
+                        fontWeight: "bold",
+                        width: "200px",
+                        height: "50px",
+                      }}
                     >
-                      SIGN IN
+                      MOBILE APP
                     </Button>
-                  </Link> */}
-                {/* {session.status === "authenticated" ? (
-                  <Link href="/dashboard">
-                    <Button
-                      startIcon={<ArrowOutwardIcon />}
-                      variant="contained"
-                      size="large"
-                      style={{ backgroundColor: "#007E7D", fontWeight: "bold" }}
-                      onClick={showLoadingWidget}
-                    >
-                      Dashboard
-                    </Button>
-                  </Link>
-                ) : (
-                
-                )} */}
+                  </a>
+                </Link>        
               </Stack>
             </div>
           </Stack>

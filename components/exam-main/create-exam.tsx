@@ -260,6 +260,16 @@ const CreateExamForm: React.FC = () => {
                     onChange={(e) => {
                       handleEditChange(e);
                     }}
+                    inputProps={{
+                      min: new Date(
+                        new Date().setMinutes(
+                          new Date().getMinutes() -
+                            new Date().getTimezoneOffset()
+                        )
+                      )
+                        .toISOString()
+                        .slice(0, 16), // Ràng buộc không chọn ngày đã qua
+                    }}
                   />
                   {errors.startTime && (
                     <Typography variant="body2" sx={{ color: "red" }}>
@@ -284,6 +294,16 @@ const CreateExamForm: React.FC = () => {
                     inputRef={dateInputRef}
                     onChange={(e) => {
                       handleEditChange(e);
+                    }}
+                    inputProps={{
+                      min: new Date(
+                        new Date().setMinutes(
+                          new Date().getMinutes() -
+                            new Date().getTimezoneOffset()
+                        )
+                      )
+                        .toISOString()
+                        .slice(0, 16), // Ràng buộc không chọn ngày đã qua
                     }}
                   />
                   {errors.endTime && (
