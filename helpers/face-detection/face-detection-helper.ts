@@ -17,6 +17,14 @@ export const extractFaceCoordinates = (result: Results): FaceCoordinates => {
             rightEar: 999,
         };
     }
+    if (result.detections.length > 1) {
+        return {
+            leftEye: 9999,
+            leftEar: 9999,
+            rightEye: 9999,
+            rightEar: 9999,
+        };
+    }
 
     // result.detections[0].landmarks[i]
     // i ---> landmark
@@ -42,6 +50,9 @@ export const printLandmarks = (result: Results) => {
     if (result.detections.length < 1) {
         return;
     }
+    if (result.detections.length > 1) {
+        return;
+    }
 
     const { leftEar, leftEye, rightEar, rightEye } =
         extractFaceCoordinates(result);
@@ -61,6 +72,7 @@ export const detectCheating = (
 ) => {
     // const [lookingLeft, setlookingLeft] = useState(false);
     // const [lookingRight, setlookingRight] = useState(false);
+    let multiFace = false;
     let lookingLeft = false;
     let lookingRight = false;
     let noFace = false;
@@ -68,6 +80,13 @@ export const detectCheating = (
     const { leftEar, leftEye, rightEar, rightEye } = faceCoordinates;
 
     if (
+        leftEar == 9999 &&
+        leftEye == 9999 &&
+        rightEar == 9999 &&
+        rightEye == 9999
+    ) {
+        multiFace = true;
+    } else if (
         leftEar == 999 &&
         leftEye == 999 &&
         rightEar == 999 &&
@@ -96,18 +115,23 @@ export const detectCheating = (
         console.log("----------------------");
     }
 
-    return [lookingLeft, lookingRight, noFace];
+    return [multiFace, lookingLeft, lookingRight, noFace];
 };
 
 export const getCheatingStatus = (
+    multiFace: boolean,
     lookingLeft: boolean,
     lookingRight: boolean,
     noFace: boolean
 ): string => {
-    if (lookingLeft) return "Cheating Detected: You're looking left";
-    else if (lookingRight) return "Cheating Detected: You're looking right";
-    else if (noFace) return "Cheating Detected: Face not detected";
-    else return "Everything okay!";
+    if (multiFace) {
+        return "Cheating Detected: Multiple faces";
+    } else {
+        if (lookingLeft) return "Cheating Detected: You're looking left";
+        else if (lookingRight) return "Cheating Detected: You're looking right";
+        else if (noFace) return "Cheating Detected: Face not detected";
+        else return "Everything okay!";
+    }
 };
 
 export const b64toBlob = async (base64: string) =>
