@@ -104,4 +104,45 @@ const getListCheatingByStudent = async (
     }
 };
 
-export { detect_cheating, getListCheatingStatistic, getListCheatingByStudent };
+const getListNotification = async (
+    id: string,
+    accessToken: string,
+    page,
+    limit
+) => {
+    try {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", accessToken); // Use the access token directly
+        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+
+        const res = await fetch(
+            `${BASE_URL}/notification/list/?page=${page}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: myHeaders, // Use the Headers object
+            }
+        );
+        console.log("Get notification list successfully");
+
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 200) {
+            throw new Error(
+                data.message || "Failed to get notification list by student"
+            );
+        }
+
+        return data.metadata;
+    } catch (e) {
+        throw new Error(
+            e.message || "Failed to get notification list by student"
+        );
+    }
+};
+
+export {
+    detect_cheating,
+    getListCheatingStatistic,
+    getListCheatingByStudent,
+    getListNotification,
+};

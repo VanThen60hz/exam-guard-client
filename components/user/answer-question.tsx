@@ -211,11 +211,10 @@ const AnswerQuestionForm: React.FC = () => {
 
             faceDetection.onResults(async (result: Results) => {
                 const faceCoordinates = extractFaceCoordinates(result);
-                const [lookingLeft, lookingRight, noFace] = detectCheating(
-                    faceCoordinates,
-                    false
-                );
+                const [multiFace, lookingLeft, lookingRight, noFace] =
+                    detectCheating(faceCoordinates, false);
                 const cheatingStatus = getCheatingStatus(
+                    multiFace,
                     lookingLeft,
                     lookingRight,
                     noFace
@@ -225,32 +224,31 @@ const AnswerQuestionForm: React.FC = () => {
                 // }
 
                 if (status === "authenticated" && session) {
-                    if (result.detections.length > 1) {
-                        setChetingStatus("Detect multiple faces");
-                        try {
-                            await detect_cheating(
-                                session.userId,
-                                session.accessToken,
-                                examId as string,
-                                {
-                                    infractionType: "Face",
-                                    description:
-                                        "Student looks away from the test screen.",
-                                }
-                            );
-                            console.log("Nhiều khuôn mặt!");
-                        } catch (error) {
-                            toast.error("Failed to call detect_cheating API");
-                        }
-                    } else {
-                        setChetingStatus(cheatingStatus);
-                    }
+                    // if (result.detections.length > 1) {
+                    //     try {
+                    //         await detect_cheating(
+                    //             session.userId,
+                    //             session.accessToken,
+                    //             examId as string,
+                    //             {
+                    //                 infractionType: "Face",
+                    //                 description:
+                    //                     "Detect multiple faces in front of camera.",
+                    //             }
+                    //         );
+                    //         console.log("Nhiều khuôn mặt!");
+                    //     } catch (error) {
+                    //         toast.error("Failed to call detect_cheating API");
+                    //     }
+
+                    //     setChetingStatus("Detect multiple faces");
+                    // }
                     if (cheatingStatus !== prevCheatingStatus.current) {
                         prevCheatingStatus.current = cheatingStatus;
                         setChetingStatus(cheatingStatus);
                     }
 
-                    if (lookingLeft || lookingRight || noFace) {
+                    if (lookingLeft || lookingRight) {
                         lookingTime += 1;
                         console.log("phát hiện: ", lookingTime);
 
@@ -267,6 +265,55 @@ const AnswerQuestionForm: React.FC = () => {
                                     }
                                 );
                                 console.log("Rời mắt khỏi màn hình à!");
+                            } catch (error) {
+                                toast.error(
+                                    "Failed to call detect_cheating API"
+                                );
+                            } finally {
+                                lookingTime = 0;
+                            }
+                        }
+                    } else if (noFace) {
+                        lookingTime += 1;
+                        console.log("phát hiện: ", lookingTime);
+
+                        if (lookingTime >= 5) {
+                            try {
+                                await detect_cheating(
+                                    session.userId,
+                                    session.accessToken,
+                                    examId as string,
+                                    {
+                                        infractionType: "Face",
+                                        description: "Face not detected.",
+                                    }
+                                );
+                                console.log("Che mặt!");
+                            } catch (error) {
+                                toast.error(
+                                    "Failed to call detect_cheating API"
+                                );
+                            } finally {
+                                lookingTime = 0;
+                            }
+                        }
+                    } else if (multiFace) {
+                        lookingTime += 1;
+                        console.log("phát hiện: ", lookingTime);
+
+                        if (lookingTime >= 5) {
+                            try {
+                                await detect_cheating(
+                                    session.userId,
+                                    session.accessToken,
+                                    examId as string,
+                                    {
+                                        infractionType: "Face",
+                                        description:
+                                            "Detect multiple faces in front of camera.",
+                                    }
+                                );
+                                console.log("Nhiều mặt!");
                             } catch (error) {
                                 toast.error(
                                     "Failed to call detect_cheating API"

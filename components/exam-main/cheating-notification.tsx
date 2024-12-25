@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 
-function CheatingNotification({ teacherId, onCheatingDetected }) { // Nhận onCheatingDetected như một prop
+function CheatingNotification({ teacherId, onCheatingDetected }) {
+    // Nhận onCheatingDetected như một prop
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
@@ -12,7 +13,10 @@ function CheatingNotification({ teacherId, onCheatingDetected }) { // Nhận onC
 
         socket.on("newCheatingDetected", (data) => {
             console.log("Nhận thông báo:", data); // Kiểm tra dữ liệu log
-            setNotifications((prevNotifications) => [...prevNotifications, data]);
+            setNotifications((prevNotifications) => [
+                ...prevNotifications,
+                data,
+            ]);
             onCheatingDetected(data.message); // Gọi hàm từ props khi phát hiện gian lận
         });
 
