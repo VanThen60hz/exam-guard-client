@@ -1,8 +1,7 @@
 import React from "react";
 import classes from "./footer.module.scss";
-import { Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { Container, Grid, Typography } from "@mui/material";
 import Image from "next/image";
-
 
 interface FooterProps {}
 
@@ -11,13 +10,13 @@ const footerInfos = [
     img: "map.png",
     label: "WHERE WE ARE",
     desc01: "Da Nang, Viet Nam",
-    desc02: "123/4/5 Street",
+    desc02: "Hoa Khanh Nam, Duy Tan",
   },
   {
     img: "contact.png",
     label: "CONTACT WITH US",
-    desc01: "abcd@gmail.com",
-    desc02: "(+84)939183233",
+    desc01: "nguyenvthang2409@gmail.com",
+    desc02: "(+84)377729054",
   },
   {
     img: "social.png",
@@ -41,6 +40,7 @@ const Footer: React.FC<FooterProps> = () => {
                   display={"flex"}
                   flexDirection={"column"}
                   justifyContent={"center"}
+                  alignContent={"center"}
                 >
                   <Image
                     src={`/images/${info.img}`}
@@ -50,7 +50,7 @@ const Footer: React.FC<FooterProps> = () => {
                     alt={info.label}
                     style={{ display: "block", margin: "0 " }}
                   />
-                  <div style={{ marginTop: "30px" }}>
+                  <div style={{ textAlign: "center", marginTop: "30px" }}>
                     <Typography
                       variant="h6"
                       color={"#fff"}
@@ -79,11 +79,15 @@ const Footer: React.FC<FooterProps> = () => {
           </Grid>
         </Container>
 
-        <div className={classes.copyright}>
+        <div className={classes.copyright} style={{ marginLeft: "80px" }}>
           <p>
             Developed by{" "}
-            <a href="https://prathamesh.co" target="_blank" rel="noreferrer">
-              Guardian Team
+            <a
+              href="https://github.com/VanThen60hz/exam-guard-client/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              C1SE30
             </a>{" "}
             &#169; {new Date().getFullYear()}
           </p>
