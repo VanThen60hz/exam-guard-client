@@ -1,5 +1,7 @@
 import { useSession } from "next-auth/react";
 import { BASE_URL } from "../../constants";
+import { useRouter } from "next/router";
+
 
 const getUser = async (id: string, password: string) => {
     try {
@@ -60,17 +62,22 @@ const getListUser = async (
 const getUserProfile = async (id: string, accessToken: string) => {
     try {
         const myHeaders = new Headers();
-        myHeaders.append("Authorization", accessToken); // Use the access token directly
-        myHeaders.append("x-client-id", id || ""); // Use the user ID as the client ID
+        myHeaders.append("Authorization", accessToken); 
+        myHeaders.append("x-client-id", id || ""); 
 
         const res = await fetch(`${BASE_URL}/user/profile`, {
             method: "GET",
-            headers: myHeaders, // Use the Headers object
+            headers: myHeaders, 
         });
 
-        console.log("Get profile user successfully"); // Log the response status
+        console.log("Get profile user successfully"); 
 
         const data = await res.json();
+
+        if (res.status === 401) {
+            window.location.href = "/auth/login"; 
+            return;
+        }
 
         if (!res.ok || data.status !== 200) {
             throw new Error(data.message || "Failed to get user profile");

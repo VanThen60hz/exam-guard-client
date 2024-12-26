@@ -48,17 +48,10 @@ const ListCheatingForm: React.FC = () => {
   const [previousViolations, setPreviousViolations] = useState<{
     [key: string]: number;
   }>({}); // Lưu trữ totalViolations trước đó
-  const [dataEmpty, setDataEmpty] = useState(false); // Thêm state để kiểm tra dữ liệu rỗng
 
   //Get List Cheating Statistic
   const fetchListCheating = async () => {
     setLoading(true);
-    setDataEmpty(false); // Đặt lại trạng thái dữ liệu rỗng khi bắt đầu tải
-      setTimeout(() => {
-        if (listCheating.length === 0) {
-          setDataEmpty(true); // Đặt trạng thái dữ liệu rỗng sau 5 giây
-        }
-      }, 5000);
     if (status === "authenticated" && session && examId) {
       const userId = session.userId;
       const accessToken = session.accessToken;
@@ -249,99 +242,120 @@ const ListCheatingForm: React.FC = () => {
             transition: "box-shadow 0.3s ease",
           }}
         >
-          <Table
-            sx={{ minWidth: 700, tableLayout: "fixed" }}
-            aria-label="customized table"
-          >
-            <TableHead>
-              <TableRow>
-                <StyledTableCell width="5%">Avatar</StyledTableCell>
-                <StyledTableCell width="5%">ID</StyledTableCell>
-                <StyledTableCell width="15%">Full name</StyledTableCell>
-                <StyledTableCell width="15%">Email</StyledTableCell>
-                <StyledTableCell width="11%">Face Detection</StyledTableCell>
-                <StyledTableCell width="11%">Tab Switch</StyledTableCell>
-                <StyledTableCell width="11%">Total Violations</StyledTableCell>
-                <StyledTableCell width="5%">Detail</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {listCheating?.map((user, index) => (
-                <StyledTableRow
-                  key={user._id}
-                  className={user.justChanged ? classes.rowCheating : undefined}
-                >
-                  <StyledTableCell>
-                    <Avatar
-                      src={user.student.avatar}
-                      alt="User Avatar"
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: "50%",
-                      }}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    {user.student._id.slice(-5)}
-                  </StyledTableCell>
-                  <StyledTableCell>{user.student.name}</StyledTableCell>
-                  <StyledTableCell>
-                    {" "}
-                    <Box>
-                      <span
-                        style={{
-                          color: "green",
-                          backgroundColor: "#e0fceb",
-                          borderRadius: "20px",
-                          padding: "4px 8px",
-                          display: "inline-block",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {user.student.email}{" "}
-                      </span>
-                    </Box>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.faceDetectionCount}</StyledTableCell>
-                  <StyledTableCell>{user.tabSwitchCount}</StyledTableCell>
-                  <StyledTableCell>{user.totalViolations}</StyledTableCell>
-                  <StyledTableCell>
-                    {" "}
-                    <Button
-                      onClick={() =>
-                        handleDetailClick(user.exam._id, user.student._id)
+          <Box>
+            {listCheating.length > 0 ? (
+              <Table
+                sx={{ minWidth: 700, tableLayout: "fixed" }}
+                aria-label="customized table"
+              >
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell width="5%">Avatar</StyledTableCell>
+                    <StyledTableCell width="5%">ID</StyledTableCell>
+                    <StyledTableCell width="15%">Full name</StyledTableCell>
+                    <StyledTableCell width="15%">Email</StyledTableCell>
+                    <StyledTableCell width="11%">
+                      Face Detection
+                    </StyledTableCell>
+                    <StyledTableCell width="11%">Tab Switch</StyledTableCell>
+                    <StyledTableCell width="11%">
+                      Total Violations
+                    </StyledTableCell>
+                    <StyledTableCell width="5%">Detail</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {listCheating?.map((user, index) => (
+                    <StyledTableRow
+                      key={user._id}
+                      className={
+                        user.justChanged ? classes.rowCheating : undefined
                       }
-                      sx={{ marginLeft: "-5px" }}
                     >
-                      <Tooltip title="Detail">
-                        <VisibilityIcon
+                      <StyledTableCell>
+                        <Avatar
+                          src={user.student.avatar}
+                          alt="User Avatar"
                           sx={{
-                            color: "#88976c",
+                            width: 50,
+                            height: 50,
+                            borderRadius: "50%",
                           }}
-                        ></VisibilityIcon>
-                      </Tooltip>
-                    </Button>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
+                        />
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {user.student._id.slice(-5)}
+                      </StyledTableCell>
+                      <StyledTableCell>{user.student.name}</StyledTableCell>
+                      <StyledTableCell>
+                        {" "}
+                        <Box>
+                          <span
+                            style={{
+                              color: "green",
+                              backgroundColor: "#e0fceb",
+                              borderRadius: "20px",
+                              padding: "4px 8px",
+                              display: "inline-block",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {user.student.email}{" "}
+                          </span>
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <p style={{ fontWeight: "bold", color: "#000" }}>
+                          {user.faceDetectionCount}
+                        </p>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <p style={{ fontWeight: "bold", color: "#000" }}>
+                          {user.tabSwitchCount}
+                        </p>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <p style={{ fontWeight: "bold", color: "#000" }}>
+                          {user.totalViolations}
+                        </p>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {" "}
+                        <Button
+                          onClick={() =>
+                            handleDetailClick(user.exam._id, user.student._id)
+                          }
+                          sx={{ marginLeft: "-5px" }}
+                        >
+                          <Tooltip title="Detail">
+                            <VisibilityIcon
+                              sx={{
+                                color: "#88976c",
+                              }}
+                            ></VisibilityIcon>
+                          </Tooltip>
+                        </Button>
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Box sx={{ textAlign: "center", marginTop: 2 }}>
+                <Image
+                  src="/images/icon/empty-box.png"
+                  alt="No data"
+                  width={300}
+                  height={300}
+                />
+                <p style={{ color: "#000", fontSize: "18px" }}>
+                  Empty data, please check back later!
+                </p>
+              </Box>
+            )}
+          </Box>
         </TableContainer>
       </Box>
-      {dataEmpty && (
-        <Box sx={{ textAlign: "center", marginTop: 2 }}>
-          <Image
-            src="/images/icon/empty-box.png"
-            alt="No data"
-            width={300}
-            height={300}
-          />
-          <p style={{ color: "#000", fontSize: "18px" }}>
-            Empty data, please check back later!
-          </p>
-        </Box>
-      )}
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
           count={totalPage}
