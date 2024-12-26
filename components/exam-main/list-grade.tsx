@@ -19,12 +19,8 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { getListGrade } from "../../helpers/api/exam-api";
-
-// Icons
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import UndoIcon from "@mui/icons-material/Undo";
-
-// Components
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";

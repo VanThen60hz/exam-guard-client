@@ -19,11 +19,7 @@ import { toast } from "react-toastify";
 import {
   getListCheatingByStudent,
 } from "../../helpers/api/cheating-api";
-
-// Icons
 import UndoIcon from "@mui/icons-material/Undo";
-
-// Components
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";

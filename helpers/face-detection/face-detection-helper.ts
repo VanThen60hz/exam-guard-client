@@ -127,8 +127,8 @@ export const getCheatingStatus = (
     if (multiFace) {
         return "Cheating Detected: Multiple faces";
     } else {
-        if (lookingLeft) return "Cheating Detected: You're looking left";
-        else if (lookingRight) return "Cheating Detected: You're looking right";
+        if (lookingLeft) return "Cheating Detected: You're looking right";
+        else if (lookingRight) return "Cheating Detected: You're looking left";
         else if (noFace) return "Cheating Detected: Face not detected";
         else return "Everything okay!";
     }

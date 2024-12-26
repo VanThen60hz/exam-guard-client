@@ -3,12 +3,7 @@ import {
   Box,
   Button,
   Pagination,
-  Paper,
-  Table,
-  TableBody,
   TableCell,
-  TableContainer,
-  TableHead,
   TableRow,
   Tooltip,
 } from "@mui/material";
@@ -18,16 +13,11 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { getListAnswerByStudent } from "../../helpers/api/exam-api";
-
-// Icons
 import UndoIcon from "@mui/icons-material/Undo";
-
-// Components
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
 import classes from "../../components/exam-main/manage-exam.module.scss";
-import { log } from "console";
 
 // Định nghĩa interface cho Student
 interface Student {

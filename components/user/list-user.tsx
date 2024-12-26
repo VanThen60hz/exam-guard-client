@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
-  Container,
   Dialog,
   DialogActions,
   DialogContent,
@@ -44,8 +43,6 @@ import {
 } from "../../helpers/api/user-api";
 import classes from "../../components/user/list-user.module.scss";
 import profileUserClasses from "../../components/user/profile-user.module.scss";
-
-// Icons
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -53,12 +50,9 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import WarningIcon from "@mui/icons-material/Warning";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-
-// Components
 import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
-
 import LinearProgress from "@mui/material/LinearProgress";
 
 enum EPaginationOfPage {

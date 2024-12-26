@@ -18,11 +18,9 @@ import {
   Modal,
 } from "@mui/material";
 import FolderOffIcon from "@mui/icons-material/FolderOff";
-
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-
 import { Camera } from "@mediapipe/camera_utils";
 import Webcam from "react-webcam";
 import { FaceDetection, Results } from "@mediapipe/face_detection";
@@ -437,7 +435,8 @@ const AnswerQuestionForm: React.FC = () => {
               examId as string,
               {
                 infractionType: "Switch Tab",
-                description: "Student leaves the exam page while the exam in progress.",
+                description:
+                  "Student leaves the exam page while the exam in progress.",
               }
             );
             console.log("chuyển tab à!");
@@ -710,7 +709,9 @@ const AnswerQuestionForm: React.FC = () => {
                     <span style={{ color: "#ca5455" }}>
                       Question {(page - 1) * 10 + index + 1} :
                     </span>
-                    <span>{question.questionText} </span>
+                    <span style={{ lineHeight: "1.5" }}>
+                      {question.questionText}{" "}
+                    </span>
 
                     <div className={`${classes.answer} ${classes.fontStyle}`}>
                       <FormControl>
@@ -1052,7 +1053,14 @@ const AnswerQuestionForm: React.FC = () => {
                 >
                   Cheating status:
                 </p>
-                <p className={classes.fontStyle} style={{ fontSize: "14px" }}>
+                <p
+                  className={classes.fontStyle}
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    color: "#000",
+                  }}
+                >
                   {chetingStatus}
                 </p>
               </div>

@@ -12,7 +12,6 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Avatar,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
@@ -24,8 +23,6 @@ import {
 } from "../../helpers/api/exam-api";
 import CheatingNotification from "./cheating-notification";
 import classes from "../../components/exam-main/manage-exam.module.scss";
-
-// Icons
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -39,8 +36,6 @@ import GradingIcon from "@mui/icons-material/Grading";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AddIcon from "@mui/icons-material/Add";
 import Image from "next/image";
-
-// Components
 import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
 import LinearProgress from "@mui/material/LinearProgress";

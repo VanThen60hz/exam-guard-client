@@ -3,15 +3,10 @@ import { Container, Button, Avatar, Box } from "@mui/material";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-
 import { getUserProfile } from "../../helpers/api/user-api";
-
-// SCSS
 import classes from "../../components/user/profile-user.module.scss";
 import classes2 from "../../components/exam-main/manage-exam.module.scss";
-
 import LinearProgress from "@mui/material/LinearProgress";
-
 // Định nghĩa kiểu dữ liệu cho user
 interface User {
   id: string;

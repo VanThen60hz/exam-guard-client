@@ -18,7 +18,6 @@ import {
   Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-
 import classes from "./navbar-home.module.scss";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
