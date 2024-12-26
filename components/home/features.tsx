@@ -21,8 +21,8 @@ const featureList = [
   },
   {
     icon: "block-app-exit.png",
-    title: "Blocks App Exit",
-    content: "The user cannot exit the app or change tab during exam",
+    title: "Detect screen switch",
+    content: "Detect user leaves exam page",
     padding: "0px",
   },
   {
@@ -34,14 +34,15 @@ const featureList = [
   {
     icon: "cross-platform.png",
     title: "Cross Platform",
-    content: "This platform is availabe on Web, Android and iOS",
+    content: "This platform is availabe on Web and Android",
     padding: "12px",
     color: "darkmagenta",
   },
   {
-    icon: "block-screen-capture.png",
-    title: "Blocks Screen Capture",
-    content: "The mobile version of the app blocks any form of screen capture",
+    icon: "friendly.png",
+    title: "User friendly",
+    content:
+      "Optimized interface with clear buttons, instructions and intuitive layout",
     padding: "12px",
     color: "lightblue",
   },

@@ -19,19 +19,12 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { getListCheatingStatistic } from "../../helpers/api/cheating-api";
-
-// Icons
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import UndoIcon from "@mui/icons-material/Undo";
-
-// Components
-import Autocomplete from "@mui/material/Autocomplete";
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
-
 import CheatingNotification from "./cheating-notification";
-
 import classes from "../../components/exam-main/manage-exam.module.scss";
 
 const ListCheatingForm: React.FC = () => {

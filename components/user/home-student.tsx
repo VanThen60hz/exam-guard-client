@@ -17,13 +17,9 @@ import { toast } from "react-toastify";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-
 import { getListExam, joinExam, searchExam } from "../../helpers/api/exam-api";
-
-// SCSS
 import classes from "../../components/user/home-student.module.scss";
 import classes2 from "../../components/exam-main/manage-exam.module.scss";
-
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
 

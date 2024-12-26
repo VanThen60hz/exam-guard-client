@@ -17,8 +17,6 @@ import {
 import classes from "../../components/exam-main/manage-exam.module.scss";
 import DeleteIcon from "@mui/icons-material/Delete";
 import UndoIcon from "@mui/icons-material/Undo";
-
-// Components
 import { useRouter } from "next/router";
 import LinearProgress from "@mui/material/LinearProgress";
 import withAuth from "../../components/withAuth/with-auth";

@@ -24,7 +24,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CancelIcon from "@mui/icons-material/Cancel";
 import WarningIcon from "@mui/icons-material/Warning";
 import UndoIcon from "@mui/icons-material/Undo";
-
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -36,10 +35,8 @@ import {
   updateQuestion,
   updateExam,
   getExam,
-  answerQuestion,
 } from "../../helpers/api/exam-api";
 import withAuth from "../../components/withAuth/with-auth";
-
 import classes from "../../components/user/home-student.module.scss";
 import classes2 from "../../components/exam-main/manage-exam.module.scss";
 

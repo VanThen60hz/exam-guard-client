@@ -18,11 +18,7 @@ import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { getListAnswerByQuestion } from "../../helpers/api/exam-api";
-
-// Icons
 import UndoIcon from "@mui/icons-material/Undo";
-
-// Components
 import { useRouter } from "next/router";
 import withAuth from "../../components/withAuth/with-auth";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -163,11 +159,11 @@ const ListAnswerByQuestion: React.FC = () => {
           >
             <TableHead>
               <TableRow>
-                <StyledTableCell width="5%">Avatar</StyledTableCell>
-                <StyledTableCell width="5%">ID</StyledTableCell>
-                <StyledTableCell width="11%">Full name</StyledTableCell>
-                <StyledTableCell width="15%">Email</StyledTableCell>
-                <StyledTableCell width="17%">Answer</StyledTableCell>
+                <StyledTableCell width="3%">Avatar</StyledTableCell>
+                <StyledTableCell width="3%">ID</StyledTableCell>
+                <StyledTableCell width="7%">Full name</StyledTableCell>
+                <StyledTableCell width="10%">Email</StyledTableCell>
+                <StyledTableCell width="24%">Answer</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
