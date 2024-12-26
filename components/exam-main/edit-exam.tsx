@@ -235,8 +235,6 @@ const EditExamForm: React.FC = () => {
         } catch (error) {
           toast.error("Failed to fetch exam data.");
         }
-      } else {
-        toast.error("User is not authenticated.");
       }
     };
 
