@@ -14,6 +14,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import EastIcon from "@mui/icons-material/East";
 import HistoryIcon from "@mui/icons-material/History";
 import { toast } from "react-toastify";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
@@ -219,70 +220,84 @@ const HomeStudentForm: React.FC = () => {
           </Button>
         </div>
         <div className={classes.examList}>
-          {listData.map((exam, index) => (
-            <div
-              key={exam._id}
-              className={classes.examItem}
-              style={{
-                marginTop: "30px",
-              }}
-            >
+          {listData.length > 0 ? (
+            listData.map((exam, index) => (
               <div
+                key={exam._id}
+                className={classes.examItem}
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "10px",
+                  marginTop: "30px",
                 }}
               >
-                <h2 className={classes.fontStyle}>{exam.title}</h2>
-                <span className={classes.fontStyle}>
-                  Exam ID: {exam._id.slice(-5)} {/* Lấy 5 chữ cái cuối */}
-                </span>
-              </div>
-              <hr />
-              <p
-                className={classes.fontStyle}
-                style={{
-                  marginTop: "10px",
-                  wordBreak: "break-word",
-                }}
-              >
-                {exam.description}
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 30,
-                  marginTop: "20px",
-                }}
-              >
-                <span className={classes.fontStyle}>
-                  {formatDateTime(exam.startTime)}
-                </span>
-                <EastIcon sx={{ fill: "#6E6E6E" }} />
-                <span className={classes.fontStyle}>
-                  {formatDateTime(exam.endTime)}
-                </span>
-              </div>
-              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <h2 className={classes.fontStyle}>{exam.title}</h2>
+                  <span className={classes.fontStyle}>
+                    Exam ID: {exam._id.slice(-5)} {/* Lấy 5 chữ cái cuối */}
+                  </span>
+                </div>
+                <hr />
                 <p
                   className={classes.fontStyle}
                   style={{
+                    marginTop: "10px",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {exam.description}
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 30,
                     marginTop: "20px",
                   }}
                 >
-                  {exam.duration} minutes
-                </p>
+                  <span className={classes.fontStyle}>
+                    {formatDateTime(exam.startTime)}
+                  </span>
+                  <EastIcon sx={{ fill: "#6E6E6E" }} />
+                  <span className={classes.fontStyle}>
+                    {formatDateTime(exam.endTime)}
+                  </span>
+                </div>
+                <div>
+                  <p
+                    className={classes.fontStyle}
+                    style={{
+                      marginTop: "20px",
+                    }}
+                  >
+                    {exam.duration} minutes
+                  </p>
+                </div>
+                <Button
+                  sx={{ marginTop: "20px" }}
+                  className={`${classes2.btnColor3} ${classes2.btnMedium}`}
+                  onClick={() => handleStart(exam)}
+                >
+                  Start
+                </Button>
               </div>
-              <Button
-                sx={{ marginTop: "20px" }}
-                className={`${classes2.btnColor3} ${classes2.btnMedium}`}
-                onClick={() => handleStart(exam)}
-              >
-                Start
-              </Button>
-            </div>
-          ))}
+            ))
+          ) : (
+            <Box sx={{ textAlign: "center", marginTop: 2 }}>
+              <Image
+                src="/images/icon/empty-box.png"
+                alt="No data"
+                width={300}
+                height={300}
+              />
+              <p style={{ color: "#000", fontSize: "18px" }}>
+                Empty data, please check back later!
+              </p>
+            </Box>
+          )}
         </div>
       </Container>
     </>

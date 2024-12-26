@@ -16,8 +16,8 @@ import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { getListAnswerByStudent } from "../../helpers/api/exam-api";
 import Image from "next/image";
+import { getListAnswerByStudent } from "../../helpers/api/exam-api";
 
 // Icons
 import UndoIcon from "@mui/icons-material/Undo";
@@ -49,19 +49,11 @@ const ListAnswerByStudent: React.FC = () => {
   const [listAnswerByStudent, setListAnswerByStudent] = useState([]);
   const [listAnswerByStudent2, setListAnswerByStudent2] =
     useState<Student | null>(null);
-  const [dataEmpty, setDataEmpty] = useState(false); // Thêm state để kiểm tra dữ liệu rỗng
 
   //Get List Cheating by Student
   useEffect(() => {
     const fetchListAnswerByStudent = async () => {
       setLoading(true);
-      setDataEmpty(false); // Đặt lại trạng thái dữ liệu rỗng khi bắt đầu tải
-      setTimeout(() => {
-        if (listAnswerByStudent.length === 0) {
-          setDataEmpty(true); // Đặt trạng thái dữ liệu rỗng sau 5 giây
-        }
-      }, 5000);
-
       if (status === "authenticated" && session && examId && studentId) {
         const userId = session.userId;
         const accessToken = session.accessToken;
@@ -205,88 +197,91 @@ const ListAnswerByStudent: React.FC = () => {
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
           }}
         >
-          {listAnswerByStudent.map((asw, index) => (
-            <Box
-              key={asw._id}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                marginBottom: "20px",
-                padding: "10px",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-                backgroundColor: "#f9f9f9",
-              }}
-            >
+          {listAnswerByStudent.length > 0 ? (
+            listAnswerByStudent.map((asw, index) => (
               <Box
+                key={asw._id}
                 sx={{
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: "10px",
+                  flexDirection: "column",
+                  marginBottom: "20px",
+                  padding: "10px",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "8px",
+                  backgroundColor: "#f9f9f9",
                 }}
               >
-                <span
-                  style={{
-                    color: "#000",
-                    fontWeight: "600",
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#000",
+                      fontWeight: "600",
+                      fontSize: "19px",
+                    }}
+                  >
+                    {(page - 1) * limit + index + 1}.{" "}
+                    {asw.question.questionText}
+                  </span>
+                </Box>
+                <Box
+                  sx={{
                     fontSize: "19px",
                   }}
                 >
-                  {(page - 1) * limit + index + 1}. {asw.question.questionText}
-                </span>
-              </Box>
-              <Box
-                sx={{
-                  fontSize: "19px",
-                }}
-              >
-                {asw.question.options.map((option, i) => {
-                  const optionLetter = String.fromCharCode(65 + i); // A, B, C, D
-                  const isCorrectAnswer = asw.question.correctAnswer === option;
-                  const isStudentAnswer = asw.answerText === option;
+                  {asw.question.options.map((option, i) => {
+                    const optionLetter = String.fromCharCode(65 + i); // A, B, C, D
+                    const isCorrectAnswer =
+                      asw.question.correctAnswer === option;
+                    const isStudentAnswer = asw.answerText === option;
 
-                  return (
-                    <Box key={i} sx={{ marginLeft: "10px" }}>
-                      <p
-                        style={{
-                          color: isCorrectAnswer
-                            ? "#1DB0A6"
-                            : isStudentAnswer && !asw.isCorrect
-                            ? "red"
-                            : "#000",
-                        }}
-                      >
-                        {optionLetter}. {option}
-                      </p>
-                    </Box>
-                  );
-                })}
-                <Button
-                  sx={{ marginTop: 1 }}
-                  className={`${classes.btnGreen} ${classes.btnLarge} ${classes.btnBorderRadius}`}
-                  onClick={() => handleBackClick2(asw.question._id)}
-                >
-                  View all students{" "}
-                </Button>
+                    return (
+                      <Box key={i} sx={{ marginLeft: "10px" }}>
+                        <p
+                          style={{
+                            color: isCorrectAnswer
+                              ? "#1DB0A6"
+                              : isStudentAnswer && !asw.isCorrect
+                              ? "red"
+                              : "#000",
+                          }}
+                        >
+                          {optionLetter}. {option}
+                        </p>
+                      </Box>
+                    );
+                  })}
+                  <Button
+                    sx={{ marginTop: 1 }}
+                    className={`${classes.btnGreen} ${classes.btnLarge} ${classes.btnBorderRadius}`}
+                    onClick={() => handleBackClick2(asw.question._id)}
+                  >
+                    View all students{" "}
+                  </Button>
+                </Box>
               </Box>
+            ))
+          ) : (
+            <Box sx={{ textAlign: "center", marginTop: 2 }}>
+              <Image
+                src="/images/icon/empty-box.png"
+                alt="No data"
+                width={300}
+                height={300}
+              />
+              <p style={{ color: "#000", fontSize: "18px" }}>
+                Empty data, please check back later!
+              </p>
             </Box>
-          ))}
+          )}
         </Box>
       </Box>
-      {dataEmpty && (
-        <Box sx={{ textAlign: "center", marginTop: 2 }}>
-          <Image
-            src="/images/icon/empty-box.png"
-            alt="No data"
-            width={300}
-            height={300}
-          />
-          <p style={{ color: "#000", fontSize: "18px" }}>
-            Empty data, please check back later!
-          </p>
-        </Box>
-      )}
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
           count={totalPage}

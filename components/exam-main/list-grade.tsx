@@ -38,18 +38,11 @@ const ListGradeForm: React.FC = () => {
   const [limit, setLimit] = useState(5);
   const router = useRouter();
   const { examId } = router.query;
-  const [dataEmpty, setDataEmpty] = useState(false); 
 
   //Get List Grade
   useEffect(() => {
     const fetchListGrade = async () => {
       setLoading(true);
-      setDataEmpty(false); 
-      setTimeout(() => {
-        if (listGrade.length === 0) {
-          setDataEmpty(true); 
-        }
-      }, 5000);
       if (status === "authenticated" && session && examId) {
         const userId = session.userId;
         const accessToken = session.accessToken;
@@ -71,7 +64,7 @@ const ListGradeForm: React.FC = () => {
       }
       setLoading(false);
     };
-    fetchListGrade()
+    fetchListGrade();
   }, [status, session, examId, page, limit]);
 
   // Change page
@@ -197,89 +190,95 @@ const ListGradeForm: React.FC = () => {
             transition: "box-shadow 0.3s ease",
           }}
         >
-          <Table
-            sx={{ minWidth: 700, tableLayout: "fixed" }}
-            aria-label="customized table"
-          >
-            <TableHead>
-              <TableRow>
-                <StyledTableCell width="5%">Avatar</StyledTableCell>
-                <StyledTableCell width="5%">ID</StyledTableCell>
-                <StyledTableCell width="15%">Full name</StyledTableCell>
-                <StyledTableCell width="15%">Email</StyledTableCell>
-                <StyledTableCell width="11%">Score</StyledTableCell>
-                <StyledTableCell width="5%">Detail</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {listGrade?.map((user, index) => (
-                <StyledTableRow key={user._id}>
-                  <StyledTableCell>
-                    <Avatar
-                      src={user.student.avatar}
-                      alt="User Avatar"
-                      sx={{ width: 50, height: 50, borderRadius: "50%" }}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    {user.student._id.slice(-5)}
-                  </StyledTableCell>
-                  <StyledTableCell>{user.student.name}</StyledTableCell>
-                  <StyledTableCell>
-                    {" "}
-                    <Box>
-                      <span
-                        style={{
-                          color: "green",
-                          backgroundColor: "#e0fceb",
-                          borderRadius: "20px",
-                          padding: "4px 8px",
-                          display: "inline-block",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {user.student.email}{" "}
-                      </span>
-                    </Box>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.score}</StyledTableCell>
-                  <StyledTableCell>
-                    {" "}
-                    <Button
-                      onClick={() =>
-                        handleDetailClick(user.exam._id, user.student._id)
-                      }
-                      sx={{ marginLeft: "-5px" }}
-                    >
-                      <Tooltip title="Detail">
-                        <VisibilityIcon
-                          sx={{
-                            color: "#88976c",
-                          }}
-                        ></VisibilityIcon>
-                      </Tooltip>
-                    </Button>
-                  </StyledTableCell>
-                 
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Box>
+            {listGrade.length > 0 ? (
+              <Table
+                sx={{ minWidth: 700, tableLayout: "fixed" }}
+                aria-label="customized table"
+              >
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell width="5%">Avatar</StyledTableCell>
+                    <StyledTableCell width="5%">ID</StyledTableCell>
+                    <StyledTableCell width="15%">Full name</StyledTableCell>
+                    <StyledTableCell width="15%">Email</StyledTableCell>
+                    <StyledTableCell width="11%">Score</StyledTableCell>
+                    <StyledTableCell width="5%">Detail</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {listGrade?.map((user, index) => (
+                    <StyledTableRow key={user._id}>
+                      <StyledTableCell>
+                        <Avatar
+                          src={user.student.avatar}
+                          alt="User Avatar"
+                          sx={{ width: 50, height: 50, borderRadius: "50%" }}
+                        />
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {user.student._id.slice(-5)}
+                      </StyledTableCell>
+                      <StyledTableCell>{user.student.name}</StyledTableCell>
+                      <StyledTableCell>
+                        {" "}
+                        <Box>
+                          <span
+                            style={{
+                              color: "green",
+                              backgroundColor: "#e0fceb",
+                              borderRadius: "20px",
+                              padding: "4px 8px",
+                              display: "inline-block",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {user.student.email}{" "}
+                          </span>
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <p style={{ fontWeight: "bold", color: "#000" }}>
+                          {user.score}
+                        </p>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {" "}
+                        <Button
+                          onClick={() =>
+                            handleDetailClick(user.exam._id, user.student._id)
+                          }
+                          sx={{ marginLeft: "-5px" }}
+                        >
+                          <Tooltip title="Detail">
+                            <VisibilityIcon
+                              sx={{
+                                color: "#88976c",
+                              }}
+                            ></VisibilityIcon>
+                          </Tooltip>
+                        </Button>
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Box sx={{ textAlign: "center", marginTop: 2 }}>
+                <Image
+                  src="/images/icon/empty-box.png"
+                  alt="No data"
+                  width={300}
+                  height={300}
+                />
+                <p style={{ color: "#000", fontSize: "18px" }}>
+                  Empty data, please check back later!
+                </p>
+              </Box>
+            )}
+          </Box>
         </TableContainer>
       </Box>
-      {dataEmpty && (
-        <Box sx={{ textAlign: "center", marginTop: 2 }}>
-          <Image
-            src="/images/icon/empty-box.png"
-            alt="No data"
-            width={300}
-            height={300}
-          />
-          <p style={{ color: "#000", fontSize: "18px" }}>
-            Empty data, please check back later!
-          </p>
-        </Box>
-      )}
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
           count={totalPage}

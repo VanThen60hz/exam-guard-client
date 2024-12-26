@@ -35,6 +35,7 @@ import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import Image from "next/image";
 import {
   getListUser,
   updateUser,
@@ -672,31 +673,6 @@ const ListUserForm: React.FC = () => {
                       </IconButton>
                     </InputAdornment>
                   ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Button
-                        variant="contained"
-                        sx={{
-                          backgroundColor: "#229594",
-                          color: "white",
-                          borderRadius: "0 20px 20px 0",
-                          padding: "10px 20px",
-                          height: "56px",
-                          width: "150px",
-                          fontWeight: "bold",
-                          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-
-                          "&:hover": {
-                            backgroundColor: "#1a7170",
-                          },
-                          position: "absolute",
-                          right: 0,
-                        }}
-                      >
-                        SEARCH
-                      </Button>
-                    </InputAdornment>
-                  ),
                 }}
               />
             )}
@@ -705,28 +681,7 @@ const ListUserForm: React.FC = () => {
         </Stack>
         <Button
           onClick={() => router.push("/user/create-user")}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "56px",
-            height: "56px",
-            borderRadius: "30px",
-            padding: "12px 24px",
-            backgroundColor: "#e9ffff",
-            color: "#229594",
-            fontWeight: "bold",
-            border: "none",
-            boxShadow:
-              "rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px",
-            transition:
-              "background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease",
-            "&:hover": {
-              backgroundColor: "#b2e0e0",
-              transform: "translateY(-3px) scale(1.05)",
-              boxShadow: "0px 6px 20px rgba(0, 0, 0, 0.3)",
-            },
-          }}
+          className={`${classes.btnCircle}`}
           variant="contained"
         >
           <Tooltip title="Add user">
@@ -744,108 +699,124 @@ const ListUserForm: React.FC = () => {
             transition: "box-shadow 0.3s ease",
           }}
         >
-          <Table
-            sx={{ minWidth: 700, tableLayout: "fixed" }}
-            aria-label="customized table"
-          >
-            <TableHead>
-              <TableRow>
-                <StyledTableCell width="5%">Avatar</StyledTableCell>
-                <StyledTableCell width="3%">ID</StyledTableCell>
-                <StyledTableCell width="11%">Name</StyledTableCell>
-                <StyledTableCell width="6%">Gender</StyledTableCell>
-                <StyledTableCell width="7%">Role</StyledTableCell>
-                <StyledTableCell width="7%">Phone</StyledTableCell>
-                <StyledTableCell width="15%">Email</StyledTableCell>
-                <StyledTableCell width="15%">Address</StyledTableCell>
-                <StyledTableCell width="11%">Status</StyledTableCell>
-                <StyledTableCell width="5%" align="center">
-                  Action
-                </StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {displayedUsers?.map((user, index) => (
-                <StyledTableRow key={user._id}>
-                  <StyledTableCell>
-                    <Avatar
-                      src={user.avatar}
-                      alt="User Avatar"
-                      sx={{ width: 50, height: 50, borderRadius: "50%" }}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    {(page - 1) * USERS_PER_PAGE + index + 1}
-                  </StyledTableCell>
-                  <StyledTableCell>{user.name}</StyledTableCell>
-                  <StyledTableCell>{user.gender}</StyledTableCell>
-                  <StyledTableCell>{user.role}</StyledTableCell>
-                  <StyledTableCell>{user.phone_number}</StyledTableCell>
-                  <StyledTableCell>
-                    <Box>
-                      <span
-                        style={{
-                          color: "green",
-                          backgroundColor: "#e0fceb",
-                          borderRadius: "20px",
-                          padding: "4px 8px",
-                          display: "inline-block",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {user.email}
-                      </span>
-                    </Box>
-                  </StyledTableCell>
-                  <StyledTableCell>{user.address}</StyledTableCell>
-                  <StyledTableCell>
-                    <StatusToggle
-                      initialStatus={user.status as "ACTIVE" | "INACTIVE"}
-                      onChange={(newStatus) => {
-                        if (editingUser && editingUser._id === user._id) {
-                          setEditingUser({
-                            ...editingUser,
-                            status: newStatus,
-                          });
-                        } else {
-                          handleSaveEdit({
-                            ...user,
-                            status: newStatus,
-                          });
-                        }
-                      }}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Tooltip title="Edit">
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleEditClick(user)}
+          <Box>
+            {displayedUsers.length > 0 ? (
+              <Table
+                sx={{ minWidth: 700, tableLayout: "fixed" }}
+                aria-label="customized table"
+              >
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell width="5%">Avatar</StyledTableCell>
+                    <StyledTableCell width="4%">ID</StyledTableCell>
+                    <StyledTableCell width="11%">Name</StyledTableCell>
+                    <StyledTableCell width="6%">Gender</StyledTableCell>
+                    <StyledTableCell width="7%">Role</StyledTableCell>
+                    <StyledTableCell width="7%">Phone</StyledTableCell>
+                    <StyledTableCell width="15%">Email</StyledTableCell>
+                    <StyledTableCell width="15%">Address</StyledTableCell>
+                    <StyledTableCell width="11%">Status</StyledTableCell>
+                    <StyledTableCell width="5%" align="center">
+                      Action
+                    </StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {displayedUsers?.map((user, index) => (
+                    <StyledTableRow key={user._id}>
+                      <StyledTableCell>
+                        <Avatar
+                          src={user.avatar}
+                          alt="User Avatar"
+                          sx={{ width: 50, height: 50, borderRadius: "50%" }}
+                        />
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {(page - 1) * USERS_PER_PAGE + index + 1}
+                      </StyledTableCell>
+                      <StyledTableCell>{user.name}</StyledTableCell>
+                      <StyledTableCell>{user.gender}</StyledTableCell>
+                      <StyledTableCell>{user.role}</StyledTableCell>
+                      <StyledTableCell>{user.phone_number}</StyledTableCell>
+                      <StyledTableCell>
+                        <Box>
+                          <span
+                            style={{
+                              color: "green",
+                              backgroundColor: "#e0fceb",
+                              borderRadius: "20px",
+                              padding: "4px 8px",
+                              display: "inline-block",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {user.email}
+                          </span>
+                        </Box>
+                      </StyledTableCell>
+                      <StyledTableCell>{user.address}</StyledTableCell>
+                      <StyledTableCell>
+                        <StatusToggle
+                          initialStatus={user.status as "ACTIVE" | "INACTIVE"}
+                          onChange={(newStatus) => {
+                            if (editingUser && editingUser._id === user._id) {
+                              setEditingUser({
+                                ...editingUser,
+                                status: newStatus,
+                              });
+                            } else {
+                              handleSaveEdit({
+                                ...user,
+                                status: newStatus,
+                              });
+                            }
+                          }}
+                        />
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                          }}
                         >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
+                          <Tooltip title="Edit">
+                            <IconButton
+                              color="primary"
+                              onClick={() => handleEditClick(user)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
 
-                      <Tooltip title="Delete">
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDeleteClick(user)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
+                          <Tooltip title="Delete">
+                            <IconButton
+                              color="error"
+                              onClick={() => handleDeleteClick(user)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Box sx={{ textAlign: "center", marginTop: 2 }}>
+                <Image
+                  src="/images/icon/empty-box.png"
+                  alt="No data"
+                  width={300}
+                  height={300}
+                />
+                <p style={{ color: "#000", fontSize: "18px" }}>
+                  Empty data, please check back later!
+                </p>
+              </Box>
+            )}
+          </Box>
         </TableContainer>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>

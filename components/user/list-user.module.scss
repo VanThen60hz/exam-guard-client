@@ -1,70 +1,89 @@
-
-
 .btnBlue {
-    cursor: pointer;
-    display: flex;
-    gap: 0.5rem;
-    border: none;
-  
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border-radius: 30px;
-    font-weight: 600;
-    place-content: center;
-  
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    line-height: 1rem;
-    width: 150px;
-  
-    background-color: #3498db;
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2),
-      0 0 10px rgba(52, 152, 219, 0.1);
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  border: none;
+
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 30px;
+  font-weight: 600;
+  place-content: center;
+
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  width: 150px;
+
+  background-color: #3498db;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2),
+    0 0 10px rgba(52, 152, 219, 0.1);
+}
+
+.btnBlue:hover {
+  background-color: #2980b9;
+  box-shadow: 0 6px 15px rgba(41, 128, 185, 0.3),
+    0 0 30px rgba(41, 128, 185, 0.2), 0 0 60px rgba(41, 128, 185, 0.1);
+  transform: translateY(-2px);
+}
+
+.btnBlue:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(41, 128, 185, 0.2),
+    0 0 10px rgba(41, 128, 185, 0.1);
+}
+
+.btnRed {
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  border: none;
+
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 30px;
+  font-weight: 600;
+  place-content: center;
+
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  width: 150px;
+
+  background-color: #e74c3c; // Màu đỏ
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(231, 76, 60, 0.2), 0 0 10px rgba(231, 76, 60, 0.1);
+}
+
+.btnRed:hover {
+  background-color: #c0392b; // Màu đỏ đậm hơn
+  box-shadow: 0 6px 15px rgba(192, 57, 43, 0.3), 0 0 30px rgba(192, 57, 43, 0.2),
+    0 0 60px rgba(192, 57, 43, 0.1);
+  transform: translateY(-2px);
+}
+
+.btnRed:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(192, 57, 43, 0.2), 0 0 10px rgba(192, 57, 43, 0.1);
+}
+
+.btnCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 30px;
+  padding: 12px 24px;
+  background-color: #e9ffff;
+  color: #229594;
+  font-weight: bold;
+  border: none;
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  transition: background-color 0.3s ease, transform 0.3s ease,
+    box-shadow 0.3s ease;
+  &:hover {
+    background-color: #b2e0e0;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
   }
-  
-  .btnBlue:hover {
-    background-color: #2980b9;
-    box-shadow: 0 6px 15px rgba(41, 128, 185, 0.3),
-      0 0 30px rgba(41, 128, 185, 0.2), 0 0 60px rgba(41, 128, 185, 0.1);
-    transform: translateY(-2px);
-  }
-  
-  .btnBlue:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(41, 128, 185, 0.2),
-      0 0 10px rgba(41, 128, 185, 0.1);
-  }
-  
-  .btnRed {
-    cursor: pointer;
-    display: flex;
-    gap: 0.5rem;
-    border: none;
-  
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border-radius: 30px;
-    font-weight: 600;
-    place-content: center;
-  
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    line-height: 1rem;
-    width: 150px;
-  
-    background-color: #e74c3c; // Màu đỏ
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(231, 76, 60, 0.2), 0 0 10px rgba(231, 76, 60, 0.1);
-  }
-  
-  .btnRed:hover {
-    background-color: #c0392b; // Màu đỏ đậm hơn
-    box-shadow: 0 6px 15px rgba(192, 57, 43, 0.3), 0 0 30px rgba(192, 57, 43, 0.2),
-      0 0 60px rgba(192, 57, 43, 0.1);
-    transform: translateY(-2px);
-  }
-  
-  .btnRed:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(192, 57, 43, 0.2), 0 0 10px rgba(192, 57, 43, 0.1);
-  }
-  
+}

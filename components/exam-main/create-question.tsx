@@ -12,8 +12,6 @@ import {
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import {
-  updateExam,
-  getExam,
   createQuestion,
 } from "../../helpers/api/exam-api";
 import classes from "../../components/exam-main/manage-exam.module.scss";

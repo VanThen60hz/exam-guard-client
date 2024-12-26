@@ -19,23 +19,24 @@ import Visibility from "@mui/icons-material/Visibility"; // Eye icon
 import VisibilityOff from "@mui/icons-material/VisibilityOff"; // Eye with slash icon
 import LinearProgress from "@mui/material/LinearProgress";
 
-
 interface LoginFormProps {
   loadingBarRef: React.RefObject<LoadingBarRef>;
 }
+
+type Errors = {
+  id?: string;
+  password?: string;
+};
 
 const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
   const router = useRouter();
 
   const [formData, setData] = useState({
-    id: "nguyenvanadmin@example.com",
-    password: "securepassword123",
+    id: "",
+    password: "",
   });
 
-  const [errors, setErrors] = useState({
-    idError: "",
-    passwordError: "",
-  });
+  const [errors, setErrors] = useState<Errors>({});
 
   const [loading, setLoading] = useState(false);
 
@@ -46,7 +47,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
   };
 
   const { id, password } = formData;
-  const { idError, passwordError } = errors;
 
   const handleInputChange = (e: any) => {
     const newData = {
@@ -54,36 +54,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
       [e.target.name]: e.target.value,
     };
 
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [e.target.name]: "",
+    }));
+
     setData(newData);
-    validateInputs(newData.id, newData.password); // Call validation
   };
-
-  const validateInputs = (id: string, password: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email validation
-    const usernameRegex = /^[^\s]+$/; // Username validation (any string without spaces)
-    const passwordRegex = /^.{3,}$/; // Password must be at least 3 characters
-
-    const isIdValid = emailRegex.test(id) || usernameRegex.test(id);
-    const isPasswordValid = passwordRegex.test(password);
-
-    setErrors({
-      idError: isIdValid
-        ? ""
-        : "Invalid ID (must be email or username without spaces)",
-      passwordError: isPasswordValid
-        ? ""
-        : "Password must be at least 3 characters",
-    });
-  };
-
-  const { data: session } = useSession();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newErrors: Errors = {};
 
-    if (loading || idError !== "" || passwordError !== "") {
-      return;
-    }
+    if (!formData.id) newErrors.id = "Email or Username is required";
+    if (!formData.password) newErrors.password = "Password is required";
+
+    setErrors(newErrors);
 
     setLoading(true);
     loadingBarRef?.current?.continuousStart(50);
@@ -253,16 +239,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                     name="id"
                     id="id"
                     value={id}
-                    label="Email"
+                    label="Email or Username"
                     onChange={handleInputChange}
                     type="text"
                     margin="normal"
                     required
                     fullWidth
                     autoFocus
-                    error={idError != ""}
-                    helperText={idError}
                   />
+                  {errors.id && (
+                    <Typography variant="body2" sx={{ color: "red" }}>
+                      {errors.id}
+                    </Typography>
+                  )}
                   <TextField
                     name="password"
                     id="password"
@@ -274,8 +263,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                     required
                     fullWidth
                     autoComplete="current-password"
-                    error={passwordError !== ""}
-                    helperText={passwordError}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -290,32 +277,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                       ),
                     }}
                   />
-                  {/* <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      margin: "20px auto",
-                    }}
-                  >
-                    <FormGroup>
-                      <FormControlLabel
-                        control={<Checkbox />}
-                        label="Remember me"
-                      />
-                    </FormGroup>
-  
-                    <Typography
-                      style={{
-                        color: "#000",
-                        fontFamily: "Lexend",
-                        fontSize: "15px",
-                        fontWeight: 400,
-                      }}
-                    >
-                      Forgot password?
+                  {errors.password && (
+                    <Typography variant="body2" sx={{ color: "red" }}>
+                      {errors.password}
                     </Typography>
-                  </Box> */}
+                  )}              
                   <Button
                     className={classes.btnGreen}
                     type="submit"
@@ -328,7 +294,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ loadingBarRef }) => {
                       marginTop: "20px",
                     }}
                     onClick={handleSubmit}
-                    disabled={loading || idError != "" || passwordError != ""}
                   >
                     Sign In
                   </Button>
