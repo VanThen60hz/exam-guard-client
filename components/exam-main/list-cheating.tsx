@@ -33,7 +33,7 @@ const ListCheatingForm: React.FC = () => {
   const [listCheating, setListCheating] = useState([]);
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(15);
   const [cheatingMessage, setCheatingMessage] = useState(""); // State để lưu thông điệp gian lận
   const router = useRouter();
   const { examId } = router.query;
