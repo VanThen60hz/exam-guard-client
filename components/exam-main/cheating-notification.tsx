@@ -3,22 +3,21 @@ import io from "socket.io-client";
 
 function CheatingNotification({ teacherId, onCheatingDetected }) {
   useEffect(() => {
-    // Connect socket with teacherId in query
     const socket = io("https://exam-guard-server.onrender.com", {
-      query: { teacherId }, // Send teacherId when connecting
+      query: { teacherId },
     });
 
     socket.on("newCheatingDetected", (data) => {
-      onCheatingDetected(data.message); // Call the function from props when cheating is detected
+      onCheatingDetected(data.message);
     });
 
     return () => {
       socket.off("newCheatingDetected");
-      socket.disconnect(); // Close connection when component unmounts
+      socket.disconnect();
     };
   }, [teacherId, onCheatingDetected]);
 
-  return null; // Re-run when teacherId or onCheatingDetected changes
+  return null;
 }
 
 export default CheatingNotification;
