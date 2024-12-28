@@ -31,7 +31,7 @@ const ListAnswerByQuestion: React.FC = () => {
   const [loading, setLoading] = useState(false); // Thêm state loading
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(10);
   const router = useRouter();
   const { questionId } = router.query;
   const [listAnswerByQuestion, setListAnswerByQuestion] = useState([]);

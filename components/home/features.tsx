@@ -16,13 +16,13 @@ const featureList = [
   {
     icon: "vid-protoc.png",
     color: "#DD7F6B",
-    title: "Video Proctoring",
-    content: "Support for live video proctoring (future support)",
+    title: "Real-time cheating detection",
+    content: "Support teachers in detecting student cheating in real-time",
   },
   {
     icon: "block-app-exit.png",
-    title: "Detect screen switch",
-    content: "Detect user leaves exam page",
+    title: "Detect cheating",
+    content: "Detecting students cheating during exams",
     padding: "0px",
   },
   {

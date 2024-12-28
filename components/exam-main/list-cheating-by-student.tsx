@@ -29,7 +29,7 @@ const ListCheatingByStudent: React.FC = () => {
   const [loading, setLoading] = useState(false); // Thêm state loading
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(6);
+  const [limit, setLimit] = useState(10);
   const router = useRouter();
   const { examId, studentId } = router.query;
   const [listCheatingByStudent, setListCheatingByStudent] = useState([]);

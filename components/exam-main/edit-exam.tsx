@@ -67,7 +67,7 @@ const EditExamForm: React.FC = () => {
   const { examId } = router.query;
   const [totalPage, setTotalPage] = useState(1);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(4);
+  const [limit, setLimit] = useState(10);
 
   // List tất cả câu hỏi
   const [allQuestion, setAllQuestion] = useState([]);
