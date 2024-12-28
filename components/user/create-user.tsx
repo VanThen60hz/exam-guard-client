@@ -218,13 +218,13 @@ const CreateUserForm: React.FC = () => {
           status: formData.status,
           avatar: formData.avatar,
         };
-        const response = await createUser(
+        await createUser(
           session.userId,
           session.accessToken,
           userData
         );
         toast.success("User created successfully");
-        router.reload();
+        router.push("/user/list-user");
       } catch (err: any) {
         toast.error(err.message);
       }

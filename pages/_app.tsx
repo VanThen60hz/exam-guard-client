@@ -22,7 +22,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <ThemeProvider theme={theme}>
                     <Head>
                         <title>ExamGuard</title>
-                        <meta name="author" content="Prathamesh Mutkure" />
+                        <meta name="author" content="C1SE30" />
                     </Head>
                     <Component {...pageProps} />
                     <ToastContainer position="bottom-center" theme="light" />
